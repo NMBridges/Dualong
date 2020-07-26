@@ -1,0 +1,6 @@
+framework module Pods_Dualong {
+  umbrella header "Pods-Dualong-umbrella.h"
+
+  export *
+  module * { export * }
+}
