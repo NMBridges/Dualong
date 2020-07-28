@@ -12,9 +12,15 @@ import FirebaseDatabase
 import FirebaseAuth
 
 var userEmail: String! = ""
+var rawEmail: String! = ""
+var role: String = ""
+var name: String = ""
+var username: String = ""
 
 class MainViewController: UIViewController
 {
+    
+    @IBOutlet weak var cover: UIView!
     
     @IBOutlet weak var textBox: UITextView!
     
@@ -24,13 +30,16 @@ class MainViewController: UIViewController
     {
         super.viewDidLoad()
         
-        GIDSignIn.sharedInstance()?.presentingViewController = self
-        if(GIDSignIn.sharedInstance()?.currentUser != nil)
+        guard let shIns = GIDSignIn.sharedInstance() else { return }
+        shIns.presentingViewController = self
+        cover.isHidden = true
+        if(shIns.hasPreviousSignIn())
         {
-            GIDSignIn.sharedInstance().signIn()
+            cover.isHidden = false
+            shIns.restorePreviousSignIn()
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .logintosetup, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         
     }
     
@@ -39,6 +48,7 @@ class MainViewController: UIViewController
     @objc func setEmail(notification: NSNotification)
     {
         userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email
+        rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email
         userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         
         let db = Database.database().reference()
@@ -46,7 +56,25 @@ class MainViewController: UIViewController
         db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists()
             {
-                return
+                db.child("users/\(userEmail!)/account_type").observeSingleEvent(of: .value) { (SNAP) in
+                    if let value = SNAP.value as? String
+                    {
+                        role = value
+                    }
+                }
+                db.child("users/\(userEmail!)/name").observeSingleEvent(of: .value) { (SNAP) in
+                    if let value = SNAP.value as? String
+                    {
+                        name = value
+                    }
+                }
+                db.child("users/\(userEmail!)/username").observeSingleEvent(of: .value) { (SNAP) in
+                    if let value = SNAP.value as? String
+                    {
+                        username = value
+                    }
+                }
+                self.performSegue(withIdentifier: "loginToHome", sender: self)
             } else
             {
                 self.performSegue(withIdentifier: "LoginToSetup", sender: self)
@@ -78,6 +106,6 @@ class MainViewController: UIViewController
 
 extension Notification.Name
 {
-    static let logintosetup = Notification.Name("logintosetup")
+    static let signedin = Notification.Name("signedin")
 }
 

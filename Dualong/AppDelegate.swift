@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             return
         }
 
-        NotificationCenter.default.post(name: .logintosetup, object: nil)
+        
         // Firebase log in
         
         guard let authentication = user.authentication else { return }
@@ -36,6 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 return
             }
             print("User logged in")
+            
+            NotificationCenter.default.post(name: .signedin, object: nil)
             //currentUser = Auth.auth().currentUser
         }
         

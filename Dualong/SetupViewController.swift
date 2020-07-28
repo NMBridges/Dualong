@@ -9,12 +9,10 @@
 import UIKit
 import FirebaseDatabase
 
-var role: String = ""
-var name: String = ""
-var username: String = ""
-
 class SetupViewController: UIViewController, UITextFieldDelegate {
-
+    
+    @IBOutlet weak var forEmail: UILabel!
+    
     @IBOutlet weak var accTypeFail: UILabel!
     
     @IBOutlet weak var nameFail: UILabel!
@@ -58,6 +56,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         { (keyboard) in
                 keyboard.delegate = self
         }
+        
+        forEmail.text = "for email: \(rawEmail!)"
         
     }
     
@@ -130,7 +130,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             
             db.child("users/\(userEmail!)/username").setValue(username)
             db.child("users/\(userEmail!)/name").setValue(name)
-            db.child("users/\(userEmail!)/account type").setValue(role)
+            db.child("users/\(userEmail!)/account_type").setValue(role)
             self.performSegue(withIdentifier: "setupToHome", sender: self)
         }
     }
@@ -148,11 +148,14 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
 
 }
 
-extension String {
-    var isAlphanumeric: Bool {
+extension String
+{
+    var isAlphanumeric: Bool
+    {
         return !isEmpty && range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil
     }
-    var onlyLetters: Bool {
+    var onlyLetters: Bool
+    {
         return !isEmpty && range(of: "[^a-zA-Z- ]", options: .regularExpression) == nil
     }
 }

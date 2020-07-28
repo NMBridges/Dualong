@@ -11,7 +11,6 @@ target 'Dualong' do
   pod 'Firebase/Database'
   pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
-  pod "'GoogleSignIn', '< 5.0.0'"
-
+  pod 'GoogleSignIn'
 
 end
