@@ -11,6 +11,7 @@ target 'Dualong' do
   pod 'Firebase/Database'
   pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
+  pod 'Firebase/Storage'
   pod 'GoogleSignIn'
 
 end

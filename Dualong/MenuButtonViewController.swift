@@ -7,9 +7,19 @@
 //
 
 import UIKit
+import GoogleSignIn
+
+
+var menuToggle: Bool = false
 
 class MenuButtonViewController: UIViewController
 {
+    
+    @IBOutlet weak var uploadBarRef: UIProgressView!
+    
+    @IBOutlet weak var uploadingTextRef: UILabel!
+    
+    @IBOutlet weak var buttonImageRef: UIImageView!
     
     @IBOutlet weak var buttonRef: UIButton!
     
@@ -25,7 +35,6 @@ class MenuButtonViewController: UIViewController
     let viewHei = UIScreen.main.bounds.height
     var barOffset: CGFloat = 0
     var instantiatedSubview: Bool = false
-    var menuToggle: Bool = false
     var menuPOS: Double = 0.3
     
     var menuVC: MenuViewController = MenuViewController()
@@ -35,6 +44,7 @@ class MenuButtonViewController: UIViewController
     var explCVR: [NSLayoutConstraint] = []
     var profCVR: [NSLayoutConstraint] = []
     var buttCVR: [NSLayoutConstraint] = []
+    var buimCVR: [NSLayoutConstraint] = []
 
     override func viewDidLoad()
     {
@@ -45,6 +55,9 @@ class MenuButtonViewController: UIViewController
         connectionsContainerView.alpha = 0
         exploreContainerView.alpha = 0
         profileContainerView.alpha = 0
+        
+        uploadBarRef.isHidden = true
+        uploadingTextRef.isHidden = true
         
         setupConstraints()
         
@@ -59,12 +72,14 @@ class MenuButtonViewController: UIViewController
         
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.toHome(notification:)), name: Notification.Name("toHomeNoti"), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(self.toConnections(notification:)), name: Notification.Name("toConnectionsNoti"), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(self.toExplore(notification:)), name: Notification.Name("toExploreNoti"), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(self.toProfile(notification:)), name: Notification.Name("toProfileNoti"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.uploadBar(notification:)), name: Notification.Name("uploadBar"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(uploadBarComplete(notification:)), name: Notification.Name("uploadBarComplete"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(uploadBarStart(notification:)), name: Notification.Name("uploadBarStart"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(closeMenuTab(notification:)), name: Notification.Name("closeMenuTab"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(logOut(notification:)), name: Notification.Name("logOut"), object: nil)
         
     }
     
@@ -77,6 +92,7 @@ class MenuButtonViewController: UIViewController
     
     func toggleMenuFunc()
     {
+        view.endEditing(true)
         
         menuToggle = !menuToggle
         
@@ -86,15 +102,17 @@ class MenuButtonViewController: UIViewController
         
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 1.0, options: .curveEaseInOut, animations:
             {
-                if(self.menuToggle)
+                if(menuToggle)
                 {
                     self.buttCVR[0].isActive = false
+                    self.buimCVR[0].isActive = false
                     self.homeCVR[0].isActive = false
                     self.connCVR[0].isActive = false
                     self.explCVR[0].isActive = false
                     self.profCVR[0].isActive = false
                     
                     self.buttCVR[1].isActive = true
+                    self.buimCVR[1].isActive = true
                     self.homeCVR[1].isActive = true
                     self.connCVR[1].isActive = true
                     self.explCVR[1].isActive = true
@@ -103,12 +121,14 @@ class MenuButtonViewController: UIViewController
                 {
                     
                     self.buttCVR[1].isActive = false
+                    self.buimCVR[1].isActive = false
                     self.homeCVR[1].isActive = false
                     self.connCVR[1].isActive = false
                     self.explCVR[1].isActive = false
                     self.profCVR[1].isActive = false
                     
                     self.buttCVR[0].isActive = true
+                    self.buimCVR[0].isActive = true
                     self.homeCVR[0].isActive = true
                     self.connCVR[0].isActive = true
                     self.explCVR[0].isActive = true
@@ -127,18 +147,27 @@ class MenuButtonViewController: UIViewController
     {
         
         buttonRef.translatesAutoresizingMaskIntoConstraints = false
+        buttonImageRef.translatesAutoresizingMaskIntoConstraints = false
         homeContainerView.translatesAutoresizingMaskIntoConstraints = false;
         connectionsContainerView.translatesAutoresizingMaskIntoConstraints = false;
         exploreContainerView.translatesAutoresizingMaskIntoConstraints = false;
         profileContainerView.translatesAutoresizingMaskIntoConstraints = false;
         
-        buttCVR.append(buttonRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 20.0))
+        buttCVR.append(buttonRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 0.0))
         buttCVR[0].isActive = true
-        buttCVR.append(buttonRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 20.0 + viewWid * CGFloat(menuPOS)))
+        buttCVR.append(buttonRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: viewWid * CGFloat(menuPOS)))
         buttCVR[1].isActive = false
-        buttonRef.widthAnchor.constraint(equalToConstant: 34.0).isActive = true
-        buttonRef.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
-        buttonRef.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15.0).isActive = true
+        buttonRef.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        buttonRef.heightAnchor.constraint(equalToConstant: 45.0).isActive = true
+        buttonRef.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0.0).isActive = true
+        
+        buimCVR.append(buttonImageRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 19.0))
+        buimCVR[0].isActive = true
+        buimCVR.append(buttonImageRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 19.0 + viewWid * CGFloat(menuPOS)))
+        buimCVR[1].isActive = false
+        buttonImageRef.widthAnchor.constraint(equalToConstant: 44.0).isActive = true
+        buttonImageRef.heightAnchor.constraint(equalToConstant: 36.0).isActive = true
+        buttonImageRef.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 8.0).isActive = true
         
         homeCVR.append(homeContainerView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor))
         homeCVR[0].isActive = true
@@ -209,6 +238,52 @@ class MenuButtonViewController: UIViewController
         profileContainerView.alpha = 1
         toggleMenuFunc()
     }
+    
+    @objc func uploadBarStart(notification: NSNotification)
+    {
+        self.uploadBarRef.isHidden = false
+        self.uploadingTextRef.isHidden = false
+        self.uploadBarRef.alpha = 0.0
+        self.uploadingTextRef.alpha = 0.0
+        UIView.animate(withDuration: 0.3, animations:
+        {
+            self.uploadBarRef.alpha = 1.0
+            self.uploadingTextRef.alpha = 1.0
+        }, completion: nil)
+    }
+    
+    @objc func uploadBar(notification: NSNotification)
+    {
+        uploadBarRef.progress = Float(uploadProgress)
+    }
+    
+    @objc func uploadBarComplete(notification: NSNotification)
+    {
+        uploadBarRef.progress = 1.0
+        UIView.animate(withDuration: 0.3, animations: {
+            self.uploadBarRef.alpha = 0.0
+            self.uploadingTextRef.alpha = 0.0
+        }) { _ in
+            self.uploadBarRef.isHidden = true
+            self.uploadingTextRef.isHidden = true
+            self.uploadBarRef.progress = 0.01
+            uploadProgress = 0.01
+        }
+    }
+    
+    @objc func closeMenuTab(notification: NSNotification)
+    {
+        if(menuToggle)
+        {
+            toggleMenuFunc()
+        }
+    }
+    
+    @objc func logOut(notification: NSNotification)
+    {
+        self.performSegue(withIdentifier: "logOutSegue", sender: self)
+    }
+
 
 }
 
@@ -218,5 +293,5 @@ extension Notification.Name
     static let toConnectionsNoti = Notification.Name("toConnectionsNoti")
     static let toExploreNoti = Notification.Name("toExploreNoti")
     static let toProfileNoti = Notification.Name("toProfileNoti")
-    
+    static let closeMenuTab = Notification.Name("closeMenuTab")
 }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseStorage
 import FirebaseDatabase
 
 class SetupViewController: UIViewController, UITextFieldDelegate {
@@ -31,6 +32,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet var roleButtons: [UIButton]!
     
+    let st = Storage.storage().reference()
+    
     @IBAction func handleSelections(_ sender: UIButton)
     {
         roleButtons.forEach
@@ -52,12 +55,15 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         closeTap.cancelsTouchesInView = false
         view.addGestureRecognizer(closeTap)
         
-        keyboards.forEach
+        keyboards?.forEach
         { (keyboard) in
                 keyboard.delegate = self
         }
         
         forEmail.text = "for email: \(rawEmail!)"
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         
     }
     
@@ -84,7 +90,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     {
         var AccCounter: Int = 0
         name = nameKB.text!
-        username = usernameKB.text!
+        username = usernameKB.text!.lowercased()
         
         if(role != "")
         {
@@ -117,6 +123,29 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         if(username != "" && username.isAlphanumeric && username.count < 17)
         {
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            // NEED TO ADD UNIQUE USERNAME TO SETUP
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             AccCounter += 1
             usernameFail.isHidden = true
         } else
@@ -128,23 +157,50 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         {
             let db = Database.database().reference()
             
+            guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
+            let uploadMetadata = StorageMetadata.init()
+            uploadMetadata.contentType = "image/jpeg"
+            st.child("profilepics/\(username).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
+                if let _ = error
+                {
+                    print("failureupload")
+                    return
+                }
+            }
+            
+            
+            db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
+            
             db.child("users/\(userEmail!)/username").setValue(username)
             db.child("users/\(userEmail!)/name").setValue(name)
             db.child("users/\(userEmail!)/account_type").setValue(role)
+            db.child("users/\(userEmail!)/stars").setValue(0)
             self.performSegue(withIdentifier: "setupToHome", sender: self)
+            currScene = "Home"
         }
     }
     
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @objc func keyboardWillShow(notification: NSNotification)
+    {
+        if(currScene == "Setup")
+        {
+            if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+            {
+                self.view.superview?.frame.origin.y = -keyboardSize.height * 0.7
+                self.view.layoutIfNeeded()
+            }
+        }
     }
-    */
+
+    @objc func keyboardWillHide(notification: NSNotification)
+    {
+        if(currScene == "Setup")
+        {
+            self.view.superview?.frame.origin.y = 0
+            self.view.layoutIfNeeded()
+        }
+    }
 
 }
 

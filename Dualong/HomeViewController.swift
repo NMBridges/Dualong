@@ -15,8 +15,18 @@ class HomeViewController: UIViewController
     {
         super.viewDidLoad()
         
-        
+        let homecloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
+        homecloseTap.cancelsTouchesInView = false
+        view.addGestureRecognizer(homecloseTap)
         
     }
 
+    
+    @objc func closeMenu()
+    {
+        if(menuToggle)
+        {
+            NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
+        }
+    }
 }

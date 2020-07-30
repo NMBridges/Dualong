@@ -20,25 +20,33 @@ class MenuViewController: UIViewController
     
     @IBAction func homeButton(_ sender: UIButton)
     {
-        print("tohome")
+        currScene = "Home"
         NotificationCenter.default.post(name: Notification.Name("toHomeNoti"), object: nil)
     }
     
     @IBAction func connectionsButton(_ sender: UIButton)
     {
-        print("toconnections")
+        currScene = "Connections"
         NotificationCenter.default.post(name: Notification.Name("toConnectionsNoti"), object: nil)
     }
     
     @IBAction func exploreButton(_ sender: UIButton)
     {
-        print("toexplore")
+        currScene = "Explore"
         NotificationCenter.default.post(name: Notification.Name("toExploreNoti"), object: nil)
     }
     
     @IBAction func profileButton(_ sender: UIButton)
     {
-        print("toprofile")
+        currScene = "Profile"
         NotificationCenter.default.post(name: Notification.Name("toProfileNoti"), object: nil)
     }
+    
+    @IBAction func logOutButton(_ sender: UIButton)
+    {
+        currScene = "Login"
+        menuToggle = false
+        NotificationCenter.default.post(name: Notification.Name("logOut"), object: nil)
+    }
+    
 }

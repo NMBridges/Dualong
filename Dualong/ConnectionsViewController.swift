@@ -17,9 +17,19 @@ class ConnectionsViewController: UIViewController
     {
         super.viewDidLoad()
         
+        let conncloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
+        conncloseTap.cancelsTouchesInView = false
+        view.addGestureRecognizer(conncloseTap)
         
     }
     
+    @objc func closeMenu()
+    {
+        if(menuToggle)
+        {
+            NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
+        }
+    }
 
     
 

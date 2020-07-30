@@ -8,6 +8,7 @@
 
 import UIKit
 import GoogleSignIn
+import FirebaseStorage
 import FirebaseDatabase
 import FirebaseAuth
 
@@ -16,6 +17,7 @@ var rawEmail: String! = ""
 var role: String = ""
 var name: String = ""
 var username: String = ""
+var currScene: String = "Login"
 
 class MainViewController: UIViewController
 {
@@ -25,6 +27,8 @@ class MainViewController: UIViewController
     @IBOutlet weak var textBox: UITextView!
     
     @IBOutlet var signInButton: GIDSignInButton!
+    
+    let st = Storage.storage().reference()
     
     override func viewDidLoad()
     {
@@ -47,8 +51,8 @@ class MainViewController: UIViewController
     
     @objc func setEmail(notification: NSNotification)
     {
-        userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email
-        rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email
+        userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+        rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
         userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         
         let db = Database.database().reference()
@@ -72,12 +76,26 @@ class MainViewController: UIViewController
                     if let value = SNAP.value as? String
                     {
                         username = value
+                        self.st.child("profilepics/\(username).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
+                            if error != nil
+                            {
+                                print("error loading image \(error!)")
+                            }
+                            if let data = data
+                            {
+                                ownProfPic = UIImage(data: data)
+                                NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
+                            }
+                        })
                     }
                 }
+                
                 self.performSegue(withIdentifier: "loginToHome", sender: self)
+                currScene = "Home"
             } else
             {
                 self.performSegue(withIdentifier: "LoginToSetup", sender: self)
+                currScene = "Setup"
             }
         })
     }
