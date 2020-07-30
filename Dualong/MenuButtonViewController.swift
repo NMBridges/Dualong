@@ -34,8 +34,10 @@ class MenuButtonViewController: UIViewController
     let viewWid = UIScreen.main.bounds.width
     let viewHei = UIScreen.main.bounds.height
     var barOffset: CGFloat = 0
-    var instantiatedSubview: Bool = false
     var menuPOS: Double = 0.3
+    var instantiatedSubview: Bool = false
+    var menuONCE: Bool = true
+    var CLOSING: Bool = false
     
     var menuVC: MenuViewController = MenuViewController()
     
@@ -59,8 +61,14 @@ class MenuButtonViewController: UIViewController
         uploadBarRef.isHidden = true
         uploadingTextRef.isHidden = true
         
-        setupConstraints()
         
+        setupConstraints()
+        if(menuONCE)
+        {
+            
+            menuONCE = false
+        }
+            
         if(!instantiatedSubview)
         {
             menuVC = (storyboard?.instantiateViewController(identifier: "MenuScene"))!
@@ -80,7 +88,23 @@ class MenuButtonViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(uploadBarStart(notification:)), name: Notification.Name("uploadBarStart"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(closeMenuTab(notification:)), name: Notification.Name("closeMenuTab"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(logOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(menuTabClosed(notification:)), name: Notification.Name("menuTabClosed"), object: nil)
         
+    }
+    
+    @objc func setEmail(notification: NSNotification)
+    {
+        homeContainerView.alpha = 1
+        connectionsContainerView.alpha = 0
+        exploreContainerView.alpha = 0
+        profileContainerView.alpha = 0
+        
+        uploadBarRef.isHidden = true
+        uploadingTextRef.isHidden = true
+        
+
+        menuVC.view.isHidden = true
     }
     
     @IBAction func menuPressed(_ sender: UIButton)
@@ -139,12 +163,27 @@ class MenuButtonViewController: UIViewController
                 
                 self.view.layoutIfNeeded()
                 
-        }, completion: nil)
+        }, completion: { _ in
+            if(self.CLOSING)
+            {
+                NotificationCenter.default.post(name: Notification.Name("menuTabClosed"), object: nil)
+                self.CLOSING = false
+            }
+        })
         
     }
     
     func setupConstraints()
     {
+        
+        print("bruh")
+        
+        homeCVR.removeAll()
+        connCVR.removeAll()
+        explCVR.removeAll()
+        profCVR.removeAll()
+        buttCVR.removeAll()
+        buimCVR.removeAll()
         
         buttonRef.translatesAutoresizingMaskIntoConstraints = false
         buttonImageRef.translatesAutoresizingMaskIntoConstraints = false
@@ -152,6 +191,13 @@ class MenuButtonViewController: UIViewController
         connectionsContainerView.translatesAutoresizingMaskIntoConstraints = false;
         exploreContainerView.translatesAutoresizingMaskIntoConstraints = false;
         profileContainerView.translatesAutoresizingMaskIntoConstraints = false;
+        
+        buttonRef.removeConstraints(buttonRef.constraints)
+        buttonImageRef.removeConstraints(buttonImageRef.constraints)
+        homeContainerView.removeConstraints(homeContainerView.constraints)
+        connectionsContainerView.removeConstraints(connectionsContainerView.constraints)
+        exploreContainerView.removeConstraints(exploreContainerView.constraints)
+        profileContainerView.removeConstraints(profileContainerView.constraints)
         
         buttCVR.append(buttonRef.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 0.0))
         buttCVR[0].isActive = true
@@ -281,7 +327,16 @@ class MenuButtonViewController: UIViewController
     
     @objc func logOut(notification: NSNotification)
     {
+        CLOSING = true
+        toggleMenuFunc()
+    }
+    
+    @objc func menuTabClosed(notification: NSNotification)
+    {
+        //menuVC.dismiss(animated: false, completion: nil)
         self.performSegue(withIdentifier: "logOutSegue", sender: self)
+        //self.dismiss(animated: true, completion: nil)
+        print("shitttt")
     }
 
 
@@ -294,4 +349,5 @@ extension Notification.Name
     static let toExploreNoti = Notification.Name("toExploreNoti")
     static let toProfileNoti = Notification.Name("toProfileNoti")
     static let closeMenuTab = Notification.Name("closeMenuTab")
+    static let menuTabClosed = Notification.Name("menuTabClosed")
 }

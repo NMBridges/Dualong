@@ -15,9 +15,12 @@ class HomeViewController: UIViewController
     {
         super.viewDidLoad()
         
+        print("home loaded")
         let homecloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
         homecloseTap.cancelsTouchesInView = false
         view.addGestureRecognizer(homecloseTap)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
         
     }
 
@@ -28,5 +31,10 @@ class HomeViewController: UIViewController
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
+    }
+    
+    @objc func loggingOut(notification: NSNotification)
+    {
+        
     }
 }

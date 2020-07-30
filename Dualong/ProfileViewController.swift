@@ -55,6 +55,7 @@ class ProfileViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(closeProfEdit(notification:)), name: Notification.Name("closeProfEdit"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(animateOffEditProf(notification:)), name: Notification.Name("animateOffEditProf"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(profImageLoaded(notification:)), name: Notification.Name("profImageLoaded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
     }
     
     @objc func updateProfInfo(notification: NSNotification)
@@ -80,7 +81,7 @@ class ProfileViewController: UIViewController
     @IBAction func editProfPressed(_ sender: UIButton)
     {
         epVC.view.isHidden = false
-        
+        self.epVC.view.frame = CGRect(x: self.viewWid, y: 0, width: self.viewWid, height: self.viewHei)
         NotificationCenter.default.post(name: Notification.Name("editProf"), object: nil)
         
         UIView.animate(withDuration: 0.3)
@@ -92,6 +93,7 @@ class ProfileViewController: UIViewController
     @objc func animateOffEditProf(notification: NSNotification)
     {
         actuallyUpdateProfInfoAndUpdateScene()
+        self.epVC.view.frame = CGRect(x: 0, y: 0, width: self.viewWid, height: self.viewHei)
         UIView.animate(withDuration: 0.3, animations:
         {
             self.epVC.view.frame = CGRect(x: self.viewWid, y: 0, width: self.viewWid, height: self.viewHei)
@@ -111,6 +113,11 @@ class ProfileViewController: UIViewController
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
+    }
+    
+    @objc func loggingOut(notification: NSNotification)
+    {
+        epVC.view.isHidden = true
     }
 
 }

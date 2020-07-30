@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseStorage
 import FirebaseDatabase
+import GoogleSignIn
 
 class SetupViewController: UIViewController, UITextFieldDelegate {
     
@@ -60,11 +61,17 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
                 keyboard.delegate = self
         }
         
-        forEmail.text = "for email: \(rawEmail!)"
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         
+    }
+    
+    @objc func setEmail(notification: NSNotification)
+    {
+        let gEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+        forEmail.text = "for email: \(gEmail!)"
     }
     
     @IBAction func roleTapped(_ sender: UIButton)
@@ -175,8 +182,15 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             db.child("users/\(userEmail!)/name").setValue(name)
             db.child("users/\(userEmail!)/account_type").setValue(role)
             db.child("users/\(userEmail!)/stars").setValue(0)
-            self.performSegue(withIdentifier: "setupToHome", sender: self)
+            
+            
+            NotificationCenter.default.post(name: Notification.Name("updateProf"), object: nil)
+            
+            
             currScene = "Home"
+            
+            
+            self.performSegue(withIdentifier: "setupToHome", sender: self)
         }
     }
     
@@ -200,6 +214,11 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             self.view.superview?.frame.origin.y = 0
             self.view.layoutIfNeeded()
         }
+    }
+    
+    @objc func loggingOut(notification: NSNotification)
+    {
+        
     }
 
 }

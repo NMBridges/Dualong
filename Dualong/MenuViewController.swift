@@ -45,7 +45,6 @@ class MenuViewController: UIViewController
     @IBAction func logOutButton(_ sender: UIButton)
     {
         currScene = "Login"
-        menuToggle = false
         NotificationCenter.default.post(name: Notification.Name("logOut"), object: nil)
     }
     

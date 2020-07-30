@@ -18,6 +18,7 @@ var role: String = ""
 var name: String = ""
 var username: String = ""
 var currScene: String = "Login"
+var onlyOnce: Bool = true
 
 class MainViewController: UIViewController
 {
@@ -30,21 +31,30 @@ class MainViewController: UIViewController
     
     let st = Storage.storage().reference()
     
+    let db = Database.database().reference()
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
+        print(onlyOnce)
+        
         guard let shIns = GIDSignIn.sharedInstance() else { return }
         shIns.presentingViewController = self
-        cover.isHidden = true
-        if(shIns.hasPreviousSignIn())
+        //shIns.delegate = self
+        if(onlyOnce)
         {
-            cover.isHidden = false
-            shIns.restorePreviousSignIn()
+            cover.isHidden = true
+            if(shIns.hasPreviousSignIn())
+            {
+                cover.isHidden = false
+                shIns.restorePreviousSignIn()
+            }
+            onlyOnce = false
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
     }
     
     
@@ -55,24 +65,22 @@ class MainViewController: UIViewController
         rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
         userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         
-        let db = Database.database().reference()
-        
         db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists()
             {
-                db.child("users/\(userEmail!)/account_type").observeSingleEvent(of: .value) { (SNAP) in
+                self.db.child("users/\(userEmail!)/account_type").observeSingleEvent(of: .value) { (SNAP) in
                     if let value = SNAP.value as? String
                     {
                         role = value
                     }
                 }
-                db.child("users/\(userEmail!)/name").observeSingleEvent(of: .value) { (SNAP) in
+                self.db.child("users/\(userEmail!)/name").observeSingleEvent(of: .value) { (SNAP) in
                     if let value = SNAP.value as? String
                     {
                         name = value
                     }
                 }
-                db.child("users/\(userEmail!)/username").observeSingleEvent(of: .value) { (SNAP) in
+                self.db.child("users/\(userEmail!)/username").observeSingleEvent(of: .value) { (SNAP) in
                     if let value = SNAP.value as? String
                     {
                         username = value
@@ -89,11 +97,12 @@ class MainViewController: UIViewController
                         })
                     }
                 }
-                
                 self.performSegue(withIdentifier: "loginToHome", sender: self)
                 currScene = "Home"
             } else
             {
+                NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
+                
                 self.performSegue(withIdentifier: "LoginToSetup", sender: self)
                 currScene = "Setup"
             }
@@ -101,7 +110,7 @@ class MainViewController: UIViewController
     }
     
     
-    @objc func signOut(_ sender: UIButton)
+    /*@objc func signOut(_ sender: UIButton)
     {
         print("signing out")
         GIDSignIn.sharedInstance()?.signOut()
@@ -118,8 +127,34 @@ class MainViewController: UIViewController
         }
         
         print("Signed out")
-    }
+    }*/
 
+    @objc func loggingOut(notification: NSNotification)
+    {
+        name = ""
+        username = ""
+        ownProfPic = UIImage(named: "defaultProfileImageSolid")
+        userEmail = ""
+        rawEmail = ""
+        
+        cover.isHidden = true
+        print("signing out")
+        GIDSignIn.sharedInstance()?.signOut()
+        
+        let firebaseAuth = Auth.auth()
+        do
+        {
+            try firebaseAuth.signOut()
+        } catch let signOutError as NSError
+        {
+            print("failed to sign out")
+            print(signOutError)
+            return
+        }
+        
+        print("Signed out")
+    }
+    
 }
 
 extension Notification.Name

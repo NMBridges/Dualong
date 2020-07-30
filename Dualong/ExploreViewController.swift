@@ -52,6 +52,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(createStackView(notification:)), name: Notification.Name("profImageLoaded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
     }
     
     func createStackViewMember(passedUsername: String)
@@ -244,15 +245,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         
     }
     
-    
-}
-
-struct ExploreUserTab
-{
-    let tabView: UIView = UIView()
-    
-    init()
+    @objc func loggingOut(notification: NSNotification)
     {
         
     }
+    
+    
 }

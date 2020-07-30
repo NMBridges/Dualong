@@ -21,6 +21,9 @@ class ConnectionsViewController: UIViewController
         conncloseTap.cancelsTouchesInView = false
         view.addGestureRecognizer(conncloseTap)
         
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        
     }
     
     @objc func closeMenu()
@@ -31,6 +34,10 @@ class ConnectionsViewController: UIViewController
         }
     }
 
+    @objc func loggingOut(notification: NSNotification)
+    {
+        
+    }
     
 
 }

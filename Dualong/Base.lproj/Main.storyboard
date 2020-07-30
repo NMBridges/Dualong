@@ -10,7 +10,7 @@
         <!--Login-->
         <scene sceneID="chE-Fk-OpO">
             <objects>
-                <viewController modalPresentationStyle="fullScreen" id="zPa-iw-Nf7" userLabel="Login" customClass="MainViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="overFullScreen" id="zPa-iw-Nf7" userLabel="Login" customClass="MainViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ArN-Zi-AAL">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -92,7 +92,7 @@
         <!--Account Setup-->
         <scene sceneID="m7g-pH-jnc">
             <objects>
-                <viewController modalTransitionStyle="flipHorizontal" modalPresentationStyle="fullScreen" id="P3b-QX-Kki" userLabel="Account Setup" customClass="SetupViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="P3b-QX-Kki" userLabel="Account Setup" customClass="SetupViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="iiP-K1-xqI">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -297,7 +297,7 @@
         <!--Main-->
         <scene sceneID="Wgd-7u-VVD">
             <objects>
-                <viewController title="HomeViewController" modalTransitionStyle="flipHorizontal" modalPresentationStyle="fullScreen" id="SP4-8J-2D3" userLabel="Main" customClass="MenuButtonViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="HomeViewController" modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="SP4-8J-2D3" userLabel="Main" customClass="MenuButtonViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3b8-4y-fJV">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <subviews>
