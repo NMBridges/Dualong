@@ -19,40 +19,60 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
     
     @IBOutlet weak var searchBarRef: UISearchBar!
     
+    @IBOutlet weak var titleRef: UILabel!
+    
     let db = Database.database().reference()
     let st = Storage.storage().reference()
     
     let xWid = UIScreen.main.bounds.width
     let yHei = UIScreen.main.bounds.height
+    var isMe: Bool = true
+    var continueLoad: Bool = true
     
     var buttList: [UIButton]! = []
+    
+    var loadCircle = UIView()
+    var circle = UIBezierPath()
+    var displayLink: CADisplayLink!
+    var shapeLayer: CAShapeLayer!
+    var time = CACurrentMediaTime()
+    var ogtime = CACurrentMediaTime()
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        let closeTap = UITapGestureRecognizer(target: self, action: #selector(closeMenus))
-        closeTap.cancelsTouchesInView = false
-        view.addGestureRecognizer(closeTap)
         
-        searchBarRef.delegate = self
-        
-        searchBarRef.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
-        
-        
-        
-        
-        // MAKE SCROLL VIEW START SLIGHTLY LOWER, ALSO ADJUST WHEN SCROLL UP/DOWN
-        
-        
-        
-        
-        
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(createStackView(notification:)), name: Notification.Name("profImageLoaded"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        if(isMe)
+        {
+            let closeTap = UITapGestureRecognizer(target: self, action: #selector(closeMenus))
+            closeTap.cancelsTouchesInView = false
+            view.addGestureRecognizer(closeTap)
+            
+            searchBarRef.delegate = self
+            
+            searchBarRef.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+            
+            setupLoadCircle()
+            displayLink = CADisplayLink(target: self, selector: #selector(loadAnimations))
+            displayLink.add(to: RunLoop.main, forMode: .default)
+            
+            
+            // MAKE SCROLL VIEW START SLIGHTLY LOWER, ALSO ADJUST WHEN SCROLL UP/DOWN
+            
+            
+            
+            
+            
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(createStackView(notification:)), name: Notification.Name("reloadStackView"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(toExplore(notification:)), name: Notification.Name("toExploreNoti"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(cancelLoading(notification:)), name: Notification.Name("expTurnOffLoading"), object: nil)
+            
+        }
     }
     
     func createStackViewMember(passedUsername: String)
@@ -88,10 +108,12 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
                                     tRole = helper2
                                     
                                     newView.heightAnchor.constraint(equalToConstant: barHeight).isActive = true
-                                    newView.backgroundColor = UIColor.red
+                                    newView.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1)
                                     
-                                    newButton.setTitle("", for: .normal)
                                     newButton.frame = CGRect(x: 0, y: 0, width: self.xWid, height: barHeight)
+                                    newButton.setTitle("\(self.buttList.count - 1)", for: .normal)
+                                    newButton.alpha = 0.1
+                                    newButton.setTitleColor(newView.backgroundColor, for: .normal)
                                     self.buttList.append(newButton)
                                     self.buttList[self.buttList.count - 1].addTarget(self, action: #selector(self.listItemSelected), for: UIControl.Event.touchUpInside)
                                     
@@ -119,7 +141,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
                                     newView.addSubview(newName)
                                     newView.addSubview(newRole)
                                     newView.addSubview(newImage)
-
+                                    
                                     self.stackView.addArrangedSubview(newView)
                                     
                                     self.st.child("profilepics/\(tUsername).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
@@ -157,6 +179,11 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
     
     func loadStackView()
     {
+        stackView.subviews.forEach({vieww in
+            stackView.removeArrangedSubview(vieww)
+            vieww.removeFromSuperview()
+        })
+        buttList.removeAll()
         
         if(role == "Learner, Student, or Parent")
         {
@@ -167,14 +194,15 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
                     let snap = child as! DataSnapshot
                     let dict = snap.value as! [String : Any]
                     let USERNAMe = dict["username"] as! String
-                    print(USERNAMe)
-                    self.createStackViewMember(passedUsername: USERNAMe)
+                    if (dict["account_type"] as! String == "Tutor or Teacher")
+                    {
+                        self.createStackViewMember(passedUsername: USERNAMe)
+                        self.loadCircle.isHidden = true
+                    }
                 }
                 
             })
-        }
-        
-        if(role == "Tutor or Teacher")
+        } else if(role == "Tutor or Teacher")
         {
             let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observe(.value, with: { (snap) in
                  
@@ -183,8 +211,11 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
                     let snap = child as! DataSnapshot
                     let dict = snap.value as! [String : Any]
                     let USERNAMe = dict["username"] as! String
-                    print(USERNAMe)
-                    self.createStackViewMember(passedUsername: USERNAMe)
+                    if (dict["account_type"] as! String == "Learner, Student, or Parent")
+                    {
+                        self.createStackViewMember(passedUsername: USERNAMe)
+                        self.loadCircle.isHidden = true
+                    }
                 }
                 
             })
@@ -193,9 +224,32 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
     }
     
     
+    @objc func toExplore(notification: NSNotification)
+    {
+        if(isMe && continueLoad)
+        {
+            if(role == "Tutor or Teacher")
+            {
+                titleRef.text = "Explore Learners"
+            } else if(role == "Learner, Student, or Parent")
+            {
+                titleRef.text = "Explore Tutors"
+            } else
+            {
+                titleRef.text = "Explore"
+            }
+            loadCircle.isHidden = false
+        } else if(!continueLoad)
+        {
+            continueLoad = true
+        }
+    }
     
-    
-    
+    @objc func cancelLoading(notification: NSNotification)
+    {
+        continueLoad = false
+        loadCircle.isHidden = true
+    }
     
     
     @objc func closeMenus()
@@ -210,13 +264,46 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         }
     }
     
+    func setupLoadCircle()
+    {
+        ogtime = CACurrentMediaTime()
+        circle = UIBezierPath(arcCenter: CGPoint(x: 50.0, y: 50.0), radius: 25, startAngle: 0, endAngle: 1.57, clockwise: true)
+        shapeLayer = CAShapeLayer()
+        loadCircle = UIView()
+        shapeLayer.path = circle.cgPath
+        shapeLayer.strokeColor = UIColor(displayP3Red: 1, green: 1, blue: 1, alpha: 1).cgColor
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = 3.0
+        loadCircle.translatesAutoresizingMaskIntoConstraints = false
+        loadCircle.isHidden = false
+        self.view.addSubview(loadCircle)
+        loadCircle.backgroundColor = UIColor.clear
+        loadCircle.layer.insertSublayer(shapeLayer, at: 0)
+        loadCircle.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        loadCircle.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        loadCircle.widthAnchor.constraint(equalToConstant: 100.0).isActive = true
+        loadCircle.heightAnchor.constraint(equalToConstant: 100.0).isActive = true
+    }
+    
+    @objc func loadAnimations()
+    {
+        if(isMe)
+        {
+            time = CACurrentMediaTime()
+            let startAng: CGFloat = CGFloat((time - ogtime) * 12.0 + sin((time - ogtime) * 8.0) * 0.9)
+            let endAng: CGFloat = CGFloat(((time - ogtime) * 12.0 + 1.5) + sin((time - ogtime) * 8.0 + 1.0) * 0.9)
+            circle = UIBezierPath(arcCenter: CGPoint(x: 50.0, y: 50.0), radius: 25, startAngle: startAng, endAngle: endAng, clockwise: true)
+            shapeLayer.path = circle.cgPath
+        }
+    }
+    
     @objc func keyboardWillShow(notification: NSNotification)
     {
-        if(menuToggle)
+        if(menuToggle && isMe)
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
-        /*if(currScene == "Explore")
+        /*if(currScene == "Explore" && isMe)
         {
             if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             {
@@ -228,26 +315,35 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
 
     @objc func keyboardWillHide(notification: NSNotification)
     {
-        /*if(currScene == "Explore")
+        if(isMe)
         {
-            self.view.frame.origin.y = 0
-            self.view.layoutIfNeeded()
-        }*/
+            /*if(currScene == "Explore")
+            {
+                self.view.frame.origin.y = 0
+                self.view.layoutIfNeeded()
+            }*/
+        }
     }
     
     @objc func createStackView(notification: NSNotification)
     {
-        loadStackView()
+        if(isMe)
+        {
+            loadStackView()
+        }
     }
     
     @objc func listItemSelected(_ sender: UIButton)
     {
-        
+        let number = Int(sender.title(for: .normal)!)! + 1
     }
     
     @objc func loggingOut(notification: NSNotification)
     {
-        
+        if(isMe)
+        {
+            isMe = false
+        }
     }
     
     

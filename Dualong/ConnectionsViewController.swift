@@ -12,23 +12,27 @@ import FirebaseDatabase
 class ConnectionsViewController: UIViewController
 {
     let db = Database.database().reference()
+    var isMe: Bool = true
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        let conncloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
-        conncloseTap.cancelsTouchesInView = false
-        view.addGestureRecognizer(conncloseTap)
-        
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        if(isMe)
+        {
+            let conncloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
+            conncloseTap.cancelsTouchesInView = false
+            view.addGestureRecognizer(conncloseTap)
+            
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        }
         
     }
     
     @objc func closeMenu()
     {
-        if(menuToggle)
+        if(menuToggle && isMe)
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
@@ -36,7 +40,10 @@ class ConnectionsViewController: UIViewController
 
     @objc func loggingOut(notification: NSNotification)
     {
-        
+        if(isMe)
+        {
+            isMe = false
+        }
     }
     
 

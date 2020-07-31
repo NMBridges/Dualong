@@ -37,8 +37,6 @@ class MainViewController: UIViewController
     {
         super.viewDidLoad()
         
-        print(onlyOnce)
-        
         guard let shIns = GIDSignIn.sharedInstance() else { return }
         shIns.presentingViewController = self
         //shIns.delegate = self
@@ -153,6 +151,11 @@ class MainViewController: UIViewController
         }
         
         print("Signed out")
+    }
+    
+    @IBAction func unwindToLogin(_ sender: UIStoryboardSegue)
+    {
+        
     }
     
 }

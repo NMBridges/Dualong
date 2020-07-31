@@ -27,6 +27,8 @@ class MenuButtonViewController: UIViewController
     
     @IBOutlet weak var connectionsContainerView: UIView!
     
+    @IBOutlet weak var logOutButtonRef: UIButton!
+    
     @IBOutlet weak var exploreContainerView: UIView!
     
     @IBOutlet weak var profileContainerView: UIView!
@@ -47,6 +49,7 @@ class MenuButtonViewController: UIViewController
     var profCVR: [NSLayoutConstraint] = []
     var buttCVR: [NSLayoutConstraint] = []
     var buimCVR: [NSLayoutConstraint] = []
+    var lobuCVR: [NSLayoutConstraint] = []
 
     override func viewDidLoad()
     {
@@ -60,7 +63,7 @@ class MenuButtonViewController: UIViewController
         
         uploadBarRef.isHidden = true
         uploadingTextRef.isHidden = true
-        
+        logOutButtonRef.isHidden = true
         
         setupConstraints()
         if(menuONCE)
@@ -118,11 +121,16 @@ class MenuButtonViewController: UIViewController
     {
         view.endEditing(true)
         
+        logOutButtonRef.isHidden = menuToggle
+        
         menuToggle = !menuToggle
         
         menuVC.view.isHidden = false
         
         barOffset = viewWid * CGFloat(menuPOS) - barOffset
+        
+        
+        self.view.bringSubviewToFront(logOutButtonRef)
         
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1.0, initialSpringVelocity: 1.0, options: .curveEaseInOut, animations:
             {
@@ -130,6 +138,7 @@ class MenuButtonViewController: UIViewController
                 {
                     self.buttCVR[0].isActive = false
                     self.buimCVR[0].isActive = false
+                    self.lobuCVR[0].isActive = false
                     self.homeCVR[0].isActive = false
                     self.connCVR[0].isActive = false
                     self.explCVR[0].isActive = false
@@ -137,6 +146,7 @@ class MenuButtonViewController: UIViewController
                     
                     self.buttCVR[1].isActive = true
                     self.buimCVR[1].isActive = true
+                    self.lobuCVR[1].isActive = true
                     self.homeCVR[1].isActive = true
                     self.connCVR[1].isActive = true
                     self.explCVR[1].isActive = true
@@ -146,6 +156,7 @@ class MenuButtonViewController: UIViewController
                     
                     self.buttCVR[1].isActive = false
                     self.buimCVR[1].isActive = false
+                    self.lobuCVR[1].isActive = false
                     self.homeCVR[1].isActive = false
                     self.connCVR[1].isActive = false
                     self.explCVR[1].isActive = false
@@ -153,6 +164,7 @@ class MenuButtonViewController: UIViewController
                     
                     self.buttCVR[0].isActive = true
                     self.buimCVR[0].isActive = true
+                    self.lobuCVR[0].isActive = true
                     self.homeCVR[0].isActive = true
                     self.connCVR[0].isActive = true
                     self.explCVR[0].isActive = true
@@ -176,17 +188,17 @@ class MenuButtonViewController: UIViewController
     func setupConstraints()
     {
         
-        print("bruh")
-        
         homeCVR.removeAll()
         connCVR.removeAll()
         explCVR.removeAll()
         profCVR.removeAll()
         buttCVR.removeAll()
         buimCVR.removeAll()
+        lobuCVR.removeAll()
         
         buttonRef.translatesAutoresizingMaskIntoConstraints = false
         buttonImageRef.translatesAutoresizingMaskIntoConstraints = false
+        logOutButtonRef.translatesAutoresizingMaskIntoConstraints = false
         homeContainerView.translatesAutoresizingMaskIntoConstraints = false;
         connectionsContainerView.translatesAutoresizingMaskIntoConstraints = false;
         exploreContainerView.translatesAutoresizingMaskIntoConstraints = false;
@@ -194,6 +206,7 @@ class MenuButtonViewController: UIViewController
         
         buttonRef.removeConstraints(buttonRef.constraints)
         buttonImageRef.removeConstraints(buttonImageRef.constraints)
+        logOutButtonRef.removeConstraints(buttonImageRef.constraints)
         homeContainerView.removeConstraints(homeContainerView.constraints)
         connectionsContainerView.removeConstraints(connectionsContainerView.constraints)
         exploreContainerView.removeConstraints(exploreContainerView.constraints)
@@ -214,6 +227,14 @@ class MenuButtonViewController: UIViewController
         buttonImageRef.widthAnchor.constraint(equalToConstant: 44.0).isActive = true
         buttonImageRef.heightAnchor.constraint(equalToConstant: 36.0).isActive = true
         buttonImageRef.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 8.0).isActive = true
+        
+        lobuCVR.append(logOutButtonRef.centerXAnchor.constraint(equalTo: self.view.leadingAnchor, constant: -viewWid * CGFloat(menuPOS) / 2.0))
+        lobuCVR[0].isActive = true
+        lobuCVR.append(logOutButtonRef.centerXAnchor.constraint(equalTo: self.view.leadingAnchor, constant: viewWid * CGFloat(menuPOS) / 2.0))
+        lobuCVR[1].isActive = false
+        logOutButtonRef.centerYAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -55.0).isActive = true
+        logOutButtonRef.widthAnchor.constraint(equalToConstant: 35.0).isActive = true
+        logOutButtonRef.heightAnchor.constraint(equalToConstant: 35.0).isActive = true
         
         homeCVR.append(homeContainerView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor))
         homeCVR[0].isActive = true
@@ -325,6 +346,12 @@ class MenuButtonViewController: UIViewController
         }
     }
     
+    @IBAction func logOutButton(_ sender: UIButton)
+    {
+        currScene = "Login"
+        NotificationCenter.default.post(name: Notification.Name("logOut"), object: nil)
+    }
+    
     @objc func logOut(notification: NSNotification)
     {
         CLOSING = true
@@ -333,10 +360,7 @@ class MenuButtonViewController: UIViewController
     
     @objc func menuTabClosed(notification: NSNotification)
     {
-        //menuVC.dismiss(animated: false, completion: nil)
-        self.performSegue(withIdentifier: "logOutSegue", sender: self)
-        //self.dismiss(animated: true, completion: nil)
-        print("shitttt")
+        
     }
 
 
@@ -350,4 +374,6 @@ extension Notification.Name
     static let toProfileNoti = Notification.Name("toProfileNoti")
     static let closeMenuTab = Notification.Name("closeMenuTab")
     static let menuTabClosed = Notification.Name("menuTabClosed")
+    static let reloadStackView = Notification.Name("reloadStackView")
+    static let expTurnOffLoading = Notification.Name("expTurnOffLoading")
 }

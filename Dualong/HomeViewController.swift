@@ -10,24 +10,27 @@ import UIKit
 
 class HomeViewController: UIViewController
 {
+    var isMe: Bool = true
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        print("home loaded")
-        let homecloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
-        homecloseTap.cancelsTouchesInView = false
-        view.addGestureRecognizer(homecloseTap)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        if(isMe)
+        {
+            let homecloseTap = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
+            homecloseTap.cancelsTouchesInView = false
+            view.addGestureRecognizer(homecloseTap)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        }
         
     }
 
     
     @objc func closeMenu()
     {
-        if(menuToggle)
+        if(menuToggle && isMe)
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
@@ -35,6 +38,9 @@ class HomeViewController: UIViewController
     
     @objc func loggingOut(notification: NSNotification)
     {
-        
+        if(isMe)
+        {
+            isMe = false
+        }
     }
 }
