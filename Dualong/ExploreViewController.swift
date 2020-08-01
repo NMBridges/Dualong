@@ -21,6 +21,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
     
     @IBOutlet weak var titleRef: UILabel!
     
+    @IBOutlet weak var requestButRef: UIButton!
+    
     let db = Database.database().reference()
     let st = Storage.storage().reference()
     
@@ -37,6 +39,13 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
     var shapeLayer: CAShapeLayer!
     var time = CACurrentMediaTime()
     var ogtime = CACurrentMediaTime()
+    
+    var addReqView: UIView! = UIView()
+    var reqCVR: [NSLayoutConstraint]! = []
+    var addRVBC: UIView! = UIView()
+    var addRVTC: UIColor = UIColor(displayP3Red: 115.0 / 255.0, green: 105.0 / 255.0, blue: 190.0 / 255.0, alpha: 1.0)
+    var addRVBOOL: Bool = false
+    var closeRVBut: UIButton! = UIButton()
     
     override func viewDidLoad()
     {
@@ -71,6 +80,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
             NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(toExplore(notification:)), name: Notification.Name("toExploreNoti"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(cancelLoading(notification:)), name: Notification.Name("expTurnOffLoading"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(closeRequest(notification:)), name: Notification.Name("closeRequest"), object: nil)
             
         }
     }
@@ -177,6 +187,164 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         }
     }
     
+    @IBAction func addRequestButton(_ sender: UIButton)
+    {
+        if(isMe)
+        {
+            addRVBOOL = true
+            addReqView = UIView()
+            addReqView.isHidden = false
+            self.view.addSubview(addReqView)
+            addReqView.backgroundColor = addRVTC
+            addReqView.backgroundColor?.withAlphaComponent(0.0)
+            addReqView.alpha = 1.0
+            addReqView.layer.cornerRadius = 15.0
+            addReqView.layer.borderWidth = 2.0
+            addReqView.layer.borderColor = UIColor.clear.cgColor
+            addReqView.translatesAutoresizingMaskIntoConstraints = false
+            addReqView.removeConstraints(addReqView.constraints)
+            reqCVR.removeAll()
+            reqCVR.append(addReqView.trailingAnchor.constraint(equalTo: requestButRef.trailingAnchor))
+            reqCVR[0].isActive = true
+            reqCVR.append(addReqView.topAnchor.constraint(equalTo: requestButRef.topAnchor))
+            reqCVR[1].isActive = true
+            reqCVR.append(addReqView.leadingAnchor.constraint(equalTo: requestButRef.trailingAnchor, constant: -30.0))
+            reqCVR[2].isActive = true
+            reqCVR.append(addReqView.bottomAnchor.constraint(equalTo: requestButRef.topAnchor, constant: 30.0))
+            reqCVR[3].isActive = true
+            reqCVR.append(addReqView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor))
+            reqCVR[4].isActive = false
+            reqCVR.append(addReqView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50))
+            reqCVR[5].isActive = false
+            reqCVR.append(addReqView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor))
+            reqCVR[6].isActive = false
+            reqCVR.append(addReqView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
+            reqCVR[7].isActive = false
+            
+            addRVBC = UIView()
+            addRVBC.isHidden = false
+            addReqView.addSubview(addRVBC)
+            addRVBC.alpha = 1.0
+            addRVBC.backgroundColor = UIColor.systemIndigo
+            addRVBC.translatesAutoresizingMaskIntoConstraints = false
+            addRVBC.removeConstraints(addRVBC.constraints)
+            addRVBC.trailingAnchor.constraint(equalTo: requestButRef.trailingAnchor).isActive = true
+            addRVBC.leadingAnchor.constraint(equalTo: requestButRef.leadingAnchor).isActive = true
+            addRVBC.topAnchor.constraint(equalTo: requestButRef.topAnchor).isActive = true
+            addRVBC.bottomAnchor.constraint(equalTo: requestButRef.bottomAnchor).isActive = true
+            
+            closeRVBut = UIButton()
+            closeRVBut.isHidden = false
+            addReqView.addSubview(closeRVBut)
+            closeRVBut.alpha = 1.0
+            closeRVBut.translatesAutoresizingMaskIntoConstraints = false
+            closeRVBut.removeConstraints(closeRVBut.constraints)
+            closeRVBut.setTitle("", for: .normal)
+            closeRVBut.trailingAnchor.constraint(equalTo: requestButRef.trailingAnchor).isActive = true
+            closeRVBut.leadingAnchor.constraint(equalTo: requestButRef.leadingAnchor).isActive = true
+            closeRVBut.topAnchor.constraint(equalTo: requestButRef.topAnchor).isActive = true
+            closeRVBut.bottomAnchor.constraint(equalTo: requestButRef.bottomAnchor).isActive = true
+            closeRVBut.setBackgroundImage(UIImage(systemName: "plus"), for: .normal)
+            closeRVBut.tintColor = UIColor.white
+            closeRVBut.transform = closeRVBut.transform.rotated(by: 0.0)
+            closeRVBut.addTarget(self, action: #selector(closeRequestButton(_:)), for: UIControl.Event.touchUpInside)
+            addReqView.bringSubviewToFront(closeRVBut)
+            
+            self.view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.3)
+            {
+                self.reqCVR[0].isActive = false
+                self.reqCVR[1].isActive = false
+                self.reqCVR[2].isActive = false
+                self.reqCVR[3].isActive = false
+                self.reqCVR[4].isActive = true
+                self.reqCVR[5].isActive = true
+                self.reqCVR[6].isActive = true
+                self.reqCVR[7].isActive = true
+                //self.addReqView.layer.cornerRadius = 0.0
+                self.addReqView.backgroundColor = self.addRVTC
+                self.addRVBC.backgroundColor = self.addRVTC
+                self.addReqView.layer.borderColor = UIColor.white.cgColor
+                self.closeRVBut.transform = self.closeRVBut.transform.rotated(by: .pi / 4.0)
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    @objc func closeRequestButton(_ sender: UIButton!)
+    {
+        if(isMe)
+        {
+            self.view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                self.reqCVR[4].isActive = false
+                self.reqCVR[5].isActive = false
+                self.reqCVR[6].isActive = false
+                self.reqCVR[7].isActive = false
+                self.reqCVR[0].isActive = true
+                self.reqCVR[1].isActive = true
+                self.reqCVR[2].isActive = true
+                self.reqCVR[3].isActive = true
+                //self.addReqView.layer.cornerRadius = 0.0
+                self.addReqView.backgroundColor = UIColor(displayP3Red: 115.0 / 255.0, green: 105.0 / 255.0, blue: 190.0 / 255.0, alpha: 0.0)
+                self.addReqView.layer.borderColor = UIColor.clear.cgColor
+                self.addRVBC.backgroundColor = UIColor.systemIndigo
+                self.closeRVBut.transform = self.closeRVBut.transform.rotated(by: .pi / 4.0)
+                self.closeRVBut.alpha = 1.0
+                self.view.layoutIfNeeded()
+            }) { _ in
+                self.closeRVBut.removeFromSuperview()
+                self.addRVBC.removeFromSuperview()
+                self.addReqView.removeFromSuperview()
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    @objc func closeRequest(notification: NSNotification)
+    {
+        if(isMe && addRVBOOL)
+        {
+            self.view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                self.reqCVR[4].isActive = false
+                self.reqCVR[5].isActive = false
+                self.reqCVR[6].isActive = false
+                self.reqCVR[7].isActive = false
+                self.reqCVR[0].isActive = true
+                self.reqCVR[1].isActive = true
+                self.reqCVR[2].isActive = true
+                self.reqCVR[3].isActive = true
+                //self.addReqView.layer.cornerRadius = 0.0
+                self.addReqView.backgroundColor = UIColor(displayP3Red: 115.0 / 255.0, green: 105.0 / 255.0, blue: 190.0 / 255.0, alpha: 0.0)
+                self.addReqView.layer.borderColor = UIColor.clear.cgColor
+                self.addRVBC.backgroundColor = UIColor.systemIndigo
+                self.closeRVBut.transform = self.closeRVBut.transform.rotated(by: .pi / 4.0)
+                self.closeRVBut.alpha = 1.0
+                self.view.layoutIfNeeded()
+            }) { _ in
+                self.closeRVBut.removeFromSuperview()
+                self.addRVBC.removeFromSuperview()
+                self.addReqView.removeFromSuperview()
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    
+    // make it so it doesn't load users for tutors but instead loads tutoring requests
+    
+    
+    
+    
+    
+    
+    
+    
+    
     func loadStackView()
     {
         stackView.subviews.forEach({vieww in
@@ -187,34 +355,68 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         
         if(role == "Learner, Student, or Parent")
         {
+            requestButRef.isHidden = false
             let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Tutor or Teacher").observe(.value, with: { (snap) in
                  
                 for child in snap.children
                 {
                     let snap = child as! DataSnapshot
                     let dict = snap.value as! [String : Any]
+                    let NAMe = dict["name"] as! String
                     let USERNAMe = dict["username"] as! String
                     if (dict["account_type"] as! String == "Tutor or Teacher")
                     {
-                        self.createStackViewMember(passedUsername: USERNAMe)
-                        self.loadCircle.isHidden = true
+                        if let intChildren = snap.childSnapshot(forPath: "interests").children.allObjects as? [DataSnapshot]
+                        {
+                            var intListT: [String]! = []
+                            for child2 in intChildren
+                            {
+                                intListT.append((child2.value as? String)!)
+                            }
+                            let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
+                            if(contains)
+                            {
+                                if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
+                                {
+                                    self.createStackViewMember(passedUsername: USERNAMe)
+                                    self.loadCircle.isHidden = true
+                                }
+                            }
+                        }
                     }
                 }
                 
             })
         } else if(role == "Tutor or Teacher")
         {
+            requestButRef.isHidden = true
             let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observe(.value, with: { (snap) in
                  
                 for child in snap.children
                 {
                     let snap = child as! DataSnapshot
                     let dict = snap.value as! [String : Any]
+                    let NAMe = dict["name"] as! String
                     let USERNAMe = dict["username"] as! String
                     if (dict["account_type"] as! String == "Learner, Student, or Parent")
                     {
-                        self.createStackViewMember(passedUsername: USERNAMe)
-                        self.loadCircle.isHidden = true
+                        if let intChildren = snap.childSnapshot(forPath: "interests").children.allObjects as? [DataSnapshot]
+                        {
+                            var intListT: [String]! = []
+                            for child2 in intChildren
+                            {
+                                intListT.append((child2.value as? String)!)
+                            }
+                            let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
+                            if(contains)
+                            {
+                                if(self.searchBarRef.text! == "" || USERNAMe.lowercased().contains(self.searchBarRef.text!.lowercased()) || NAMe.lowercased().contains(self.searchBarRef.text!.lowercased()))
+                                {
+                                    self.createStackViewMember(passedUsername: USERNAMe)
+                                    self.loadCircle.isHidden = true
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -223,6 +425,21 @@ class ExploreViewController: UIViewController, UISearchBarDelegate
         
     }
     
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
+    {
+        if(isMe)
+        {
+            loadStackView()
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
+    {
+        if(isMe)
+        {
+            loadStackView()
+        }
+    }
     
     @objc func toExplore(notification: NSNotification)
     {

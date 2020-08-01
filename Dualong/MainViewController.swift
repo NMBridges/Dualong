@@ -16,9 +16,11 @@ var userEmail: String! = ""
 var rawEmail: String! = ""
 var role: String = ""
 var name: String = ""
+var interests: [String]! = []
 var username: String = ""
 var currScene: String = "Login"
 var onlyOnce: Bool = true
+var stars: Double = -1
 
 class MainViewController: UIViewController
 {
@@ -62,6 +64,7 @@ class MainViewController: UIViewController
         userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
         rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
         userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
+        interests.removeAll()
         
         db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists()
@@ -93,6 +96,21 @@ class MainViewController: UIViewController
                                 NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
                             }
                         })
+                    }
+                }
+                self.db.child("users/\(userEmail!)/stars").observeSingleEvent(of: .value) { (SNAP) in
+                    if let value = SNAP.value as? Double
+                    {
+                        stars = value
+                    }
+                }
+                self.db.child("users/\(userEmail!)/interests").observeSingleEvent(of: .value) { (SNAP) in
+                    if let children = SNAP.children.allObjects as? [DataSnapshot]
+                    {
+                        for child in children
+                        {
+                            interests.append((child.value as? String)!)
+                        }
                     }
                 }
                 self.performSegue(withIdentifier: "loginToHome", sender: self)
@@ -134,6 +152,8 @@ class MainViewController: UIViewController
         ownProfPic = UIImage(named: "defaultProfileImageSolid")
         userEmail = ""
         rawEmail = ""
+        stars = 0
+        interests = []
         
         cover.isHidden = true
         print("signing out")

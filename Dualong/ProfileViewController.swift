@@ -113,6 +113,7 @@ class ProfileViewController: UIViewController
     {
         if(isMe)
         {
+            NotificationCenter.default.post(name: Notification.Name("animateOffInterests"), object: nil)
             actuallyUpdateProfInfoAndUpdateScene()
             self.epVC.view.frame = CGRect(x: 0, y: 0, width: self.viewWid, height: self.viewHei)
             UIView.animate(withDuration: 0.3, animations:
@@ -164,4 +165,7 @@ extension Notification.Name
     static let uploadBar = Notification.Name("uploadBar")
     static let uploadBarComplete = Notification.Name("uploadBarComplete")
     static let uploadBarStart = Notification.Name("uploadBarStart")
+    static let setEmailSetup = Notification.Name("setEmailSetup")
+    static let animateOffInterests = Notification.Name("animateOffInterests")
+    static let closeRequest = Notification.Name("closeRequest")
 }

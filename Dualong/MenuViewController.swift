@@ -28,6 +28,7 @@ class MenuViewController: UIViewController
         {
             currScene = "Home"
             NotificationCenter.default.post(name: Notification.Name("toHomeNoti"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("closeRequest"), object: nil)
         }
     }
     
@@ -37,6 +38,7 @@ class MenuViewController: UIViewController
         {
             currScene = "Connections"
             NotificationCenter.default.post(name: Notification.Name("toConnectionsNoti"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("closeRequest"), object: nil)
         }
     }
     
@@ -54,6 +56,7 @@ class MenuViewController: UIViewController
             }
             currScene = "Explore"
             NotificationCenter.default.post(name: Notification.Name("toExploreNoti"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("closeRequest"), object: nil)
         }
     }
     
@@ -63,6 +66,7 @@ class MenuViewController: UIViewController
         {
             currScene = "Profile"
             NotificationCenter.default.post(name: Notification.Name("toProfileNoti"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("closeRequest"), object: nil)
         }
     }
     
@@ -70,6 +74,7 @@ class MenuViewController: UIViewController
     {
         if(isMe)
         {
+            NotificationCenter.default.post(name: Notification.Name("closeRequest"), object: nil)
             isMe = false
         }
     }

@@ -35,6 +35,15 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     let st = Storage.storage().reference()
     
+    var interestView: UIView! = UIView()
+    var intvVC: [NSLayoutConstraint]! = []
+    var interestTitle: UITextView! = UITextView()
+    var interestScrollView: UIScrollView! = UIScrollView()
+    var intStackView: UIStackView! = UIStackView()
+    var interestsTemp: [String]! = []
+    var createAccButton: UIButton! = UIButton()
+    var selectOptionsFail: UITextView! = UITextView()
+    
     @IBAction func handleSelections(_ sender: UIButton)
     {
         roleButtons.forEach
@@ -61,11 +70,149 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
                 keyboard.delegate = self
         }
         
+        instantiateInterestsView()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: Notification.Name("setEmailSetup"), object: nil)
+
+        NotificationCenter.default.post(name: Notification.Name("setEmailSetup"), object: nil)
         
+    }
+    
+    func instantiateInterestsView()
+    {
+        
+        intvVC.removeAll()
+        
+        self.view.addSubview(interestView)
+        interestView.translatesAutoresizingMaskIntoConstraints = false
+        interestView.removeConstraints(interestView.constraints)
+        interestView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        interestView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        intvVC.append(interestView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0))
+        intvVC[0].isActive = false
+        intvVC.append(interestView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0.0))
+        intvVC[1].isActive = false
+        intvVC.append(interestView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: UIScreen.main.bounds.width))
+        intvVC[2].isActive = true
+        intvVC.append(interestView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: UIScreen.main.bounds.width))
+        intvVC[3].isActive = true
+        interestView.backgroundColor = UIColor.systemBlue
+        
+        interestView.addSubview(interestScrollView)
+        interestScrollView.translatesAutoresizingMaskIntoConstraints = false
+        interestScrollView.removeConstraints(interestScrollView.constraints)
+        interestScrollView.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 200.0).isActive = true
+        interestScrollView.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.2 - 20).isActive = true
+        interestScrollView.leadingAnchor.constraint(equalTo: interestView.leadingAnchor, constant: 25).isActive = true
+        interestScrollView.trailingAnchor.constraint(equalTo: interestView.trailingAnchor, constant: -25).isActive = true
+        interestScrollView.contentSize = interestScrollView.frame.size
+        
+        intStackView.axis = .vertical
+        intStackView.distribution  = .fill
+        intStackView.alignment = .fill
+        intStackView.spacing = 5.0
+        interestScrollView.addSubview(intStackView)
+        intStackView.translatesAutoresizingMaskIntoConstraints = false
+        intStackView.removeConstraints(intStackView.constraints)
+        intStackView.leadingAnchor.constraint(equalTo: interestScrollView.contentLayoutGuide.leadingAnchor).isActive = true
+        intStackView.trailingAnchor.constraint(equalTo: interestScrollView.contentLayoutGuide.trailingAnchor).isActive = true
+        intStackView.topAnchor.constraint(equalTo: interestScrollView.contentLayoutGuide.topAnchor).isActive = true
+        intStackView.bottomAnchor.constraint(equalTo: interestScrollView.contentLayoutGuide.bottomAnchor).isActive = true
+        intStackView.widthAnchor.constraint(equalTo: interestScrollView.frameLayoutGuide.widthAnchor).isActive = true
+        
+        interestTitle = UITextView()
+        interestView.addSubview(interestTitle)
+        interestTitle.translatesAutoresizingMaskIntoConstraints = false
+        interestTitle.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 50).isActive = true
+        interestTitle.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+        interestTitle.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
+        interestTitle.heightAnchor.constraint(equalToConstant: 120).isActive = true
+        interestTitle.textAlignment = NSTextAlignment.center
+        interestTitle.text = "What subjects are you interested in learning or tutoring?"
+        interestTitle.font = UIFont(name: "HelveticaNeue-Light", size: 30)
+        interestTitle.textColor = UIColor.white
+        interestTitle.backgroundColor = UIColor.clear
+        
+        selectOptionsFail = UITextView()
+        interestView.addSubview(selectOptionsFail)
+        selectOptionsFail.translatesAutoresizingMaskIntoConstraints = false
+        selectOptionsFail.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 165).isActive = true
+        selectOptionsFail.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+        selectOptionsFail.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
+        selectOptionsFail.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        selectOptionsFail.textAlignment = NSTextAlignment.center
+        selectOptionsFail.text = "Please select at least one subject"
+        selectOptionsFail.font = UIFont(name: "HelveticaNeue", size: 15)
+        selectOptionsFail.textColor = UIColor.white
+        selectOptionsFail.backgroundColor = UIColor.clear
+        selectOptionsFail.isHidden = true
+        
+        interestView.addSubview(createAccButton)
+        createAccButton.setTitle("Create Account", for: .normal)
+        createAccButton.setTitleColor(UIColor.systemBlue, for: .normal)
+        createAccButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Bold", size: UIScreen.main.bounds.width * 0.05)
+        createAccButton.backgroundColor = UIColor.white
+        createAccButton.translatesAutoresizingMaskIntoConstraints = false
+        createAccButton.removeConstraints(createAccButton.constraints)
+        createAccButton.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
+        createAccButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.5).isActive = true
+        createAccButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.12).isActive = true
+        createAccButton.centerYAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.1 - 10).isActive = true
+        createAccButton.addTarget(self, action: #selector(createAccountNow(_:)), for: UIControl.Event.touchUpInside)
+        
+        
+        let buttonHeight: CGFloat = 60.0
+        let buttonList: [String]! = ["Math","Biology","Chemistry","Physics","English (for non-native speakers)","Spanish (for non-native speakers)","Fitness","AP Review"]
+        let buttonTextSize: [CGFloat]! = [23.0, 23.0, 23.0, 23.0, 18.0, 18.0, 23.0, 23.0]
+        var listC = 0
+        buttonList.forEach( { button in
+            let tempButton = UIButton()
+            tempButton.translatesAutoresizingMaskIntoConstraints = false
+            tempButton.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
+            tempButton.setTitle(button, for: .normal)
+            tempButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: buttonTextSize[listC])
+            tempButton.contentVerticalAlignment = UIControl.ContentVerticalAlignment.center
+            tempButton.contentHorizontalAlignment = UIControl.ContentHorizontalAlignment.center
+            tempButton.alpha = 0.5
+            tempButton.layer.borderWidth = 1
+            tempButton.layer.borderColor = UIColor.white.cgColor
+            tempButton.addTarget(self, action: #selector(interestButtonPressed(_:)), for: UIControl.Event.touchUpInside)
+            intStackView.addArrangedSubview(tempButton)
+            listC += 1
+        })
+        
+        interestView.isHidden = true
+        
+    }
+    
+    @objc func interestButtonPressed(_ sender: UIButton!)
+    {
+        if(sender.alpha == 0.5)
+        {
+            interestsTemp.append(sender.title(for: .normal)!)
+            sender.alpha = 1.0
+        } else if(sender.alpha == 1.0)
+        {
+            interestsTemp.removeAll { $0 == sender.title(for: .normal)!}
+            sender.alpha = 0.5
+        }
+    }
+    
+    @objc func createAccountNow(_ sender: UIButton!)
+    {
+        if(interestsTemp.count != 0)
+        {
+            interests = interestsTemp
+            selectOptionsFail.isHidden = true
+            uploadAccount()
+        } else
+        {
+            selectOptionsFail.isHidden = false
+        }
     }
     
     @objc func setEmail(notification: NSNotification)
@@ -162,36 +309,58 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         if(AccCounter == 3)
         {
-            let db = Database.database().reference()
             
-            guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
-            let uploadMetadata = StorageMetadata.init()
-            uploadMetadata.contentType = "image/jpeg"
-            st.child("profilepics/\(username).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
-                if let _ = error
-                {
-                    print("failureupload")
-                    return
-                }
-            }
+            interestView.isHidden = false
             
+            UIView.animate(withDuration: 0.3, animations: {
+                self.intvVC[2].isActive = false
+                self.intvVC[3].isActive = false
+                self.intvVC[0].isActive = true
+                self.intvVC[1].isActive = true
+                self.view.layoutIfNeeded()
+            }, completion: nil)
             
-            db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
-            
-            db.child("users/\(userEmail!)/username").setValue(username)
-            db.child("users/\(userEmail!)/name").setValue(name)
-            db.child("users/\(userEmail!)/account_type").setValue(role)
-            db.child("users/\(userEmail!)/stars").setValue(0)
-            
-            
-            NotificationCenter.default.post(name: Notification.Name("updateProf"), object: nil)
-            
-            
-            currScene = "Home"
-            
-            
-            self.performSegue(withIdentifier: "setupToHome", sender: self)
+            //uploadAccount()
         }
+    }
+    
+    func uploadAccount()
+    {
+        let db = Database.database().reference()
+        
+        guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
+        let uploadMetadata = StorageMetadata.init()
+        uploadMetadata.contentType = "image/jpeg"
+        st.child("profilepics/\(username).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
+            if let _ = error
+            {
+                print("failureupload")
+                return
+            }
+        }
+        
+        
+        db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
+        
+        db.child("users/\(userEmail!)/username").setValue(username)
+        db.child("users/\(userEmail!)/name").setValue(name)
+        db.child("users/\(userEmail!)/account_type").setValue(role)
+        db.child("users/\(userEmail!)/stars").setValue(Double(0))
+        
+        
+        for i in 0...(interests.count - 1)
+        {
+            db.child("users/\(userEmail!)/interests/\(i)").setValue(interests[i])
+        }
+        
+        
+        NotificationCenter.default.post(name: Notification.Name("updateProf"), object: nil)
+        
+        
+        currScene = "Home"
+        
+        
+        self.performSegue(withIdentifier: "setupToHome", sender: self)
     }
     
     
