@@ -416,6 +416,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
     {
         if(isMe)
         {
+            roleButtonPressed(roleButtonRef)
             var AccCounter: Int = 0
             tempName = nameKB.text!
             tempUsername = usernameKB.text!.lowercased()

@@ -113,6 +113,15 @@ class MainViewController: UIViewController
                         }
                     }
                 }
+                self.db.child("users/\(userEmail!)/requests").observeSingleEvent(of: .value) { (SNAP) in
+                    if let children = SNAP.children.allObjects as? [DataSnapshot]
+                    {
+                        for child in children
+                        {
+                            requests.append((child.value as? String)!)
+                        }
+                    }
+                }
                 self.performSegue(withIdentifier: "loginToHome", sender: self)
                 currScene = "Home"
             } else

@@ -647,10 +647,10 @@
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WFg-ji-l1K">
-                                <rect key="frame" x="0.0" y="155" width="414" height="581"/>
+                                <rect key="frame" x="5" y="155" width="404" height="581"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="y9H-zK-F2E">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="200"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="y9H-zK-F2E">
+                                        <rect key="frame" x="0.0" y="0.0" width="404" height="200"/>
                                     </stackView>
                                 </subviews>
                                 <constraints>
@@ -680,15 +680,15 @@
                         <constraints>
                             <constraint firstItem="Iyl-8n-zyW" firstAttribute="top" secondItem="UXN-0C-0XD" secondAttribute="topMargin" constant="50" id="08d-Vn-EhG"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Iyl-8n-zyW" secondAttribute="trailing" id="6jj-q2-lcE"/>
-                            <constraint firstItem="WFg-ji-l1K" firstAttribute="leading" secondItem="6U5-se-bgv" secondAttribute="leading" id="CNV-e5-pRa"/>
-                            <constraint firstItem="WFg-ji-l1K" firstAttribute="trailing" secondItem="6U5-se-bgv" secondAttribute="trailing" id="GWR-FP-CIL"/>
+                            <constraint firstItem="WFg-ji-l1K" firstAttribute="leading" secondItem="6U5-se-bgv" secondAttribute="leading" constant="5" id="CNV-e5-pRa"/>
+                            <constraint firstItem="WFg-ji-l1K" firstAttribute="trailing" secondItem="6U5-se-bgv" secondAttribute="trailing" constant="-5" id="GWR-FP-CIL"/>
                             <constraint firstItem="UEl-c8-gWM" firstAttribute="top" secondItem="6U5-se-bgv" secondAttribute="top" constant="63" id="PQ3-8k-Blu"/>
                             <constraint firstItem="EuR-rz-qLl" firstAttribute="leading" secondItem="6U5-se-bgv" secondAttribute="leading" constant="10" id="PeA-6F-rLd"/>
                             <constraint firstItem="Iyl-8n-zyW" firstAttribute="leading" secondItem="UXN-0C-0XD" secondAttribute="leading" constant="21" id="SzH-st-Jpf"/>
                             <constraint firstItem="WFg-ji-l1K" firstAttribute="top" secondItem="EuR-rz-qLl" secondAttribute="bottom" constant="5" id="Uml-uS-Jp7"/>
                             <constraint firstItem="EuR-rz-qLl" firstAttribute="trailing" secondItem="6U5-se-bgv" secondAttribute="trailing" constant="-10" id="iXl-7f-wEY"/>
                             <constraint firstItem="6U5-se-bgv" firstAttribute="trailing" secondItem="UEl-c8-gWM" secondAttribute="trailing" constant="21" id="nDI-9j-0Yj"/>
-                            <constraint firstItem="WFg-ji-l1K" firstAttribute="bottom" secondItem="6U5-se-bgv" secondAttribute="bottom" id="ssq-GR-rQL"/>
+                            <constraint firstItem="WFg-ji-l1K" firstAttribute="bottom" secondItem="6U5-se-bgv" secondAttribute="bottom" constant="-5" id="ssq-GR-rQL"/>
                             <constraint firstItem="EuR-rz-qLl" firstAttribute="top" secondItem="Iyl-8n-zyW" secondAttribute="bottom" constant="6" id="xCs-kf-gqy"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6U5-se-bgv"/>
