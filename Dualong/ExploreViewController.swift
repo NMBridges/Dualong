@@ -151,13 +151,6 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         let newName = UILabel()
         let newRole = UILabel()
         
-        let itemC = cachedUsernames.count
-        cachedNames.insert("", at: cc)
-        cachedUsernames.insert("", at: cc)
-        cachedProfPics.insert(UIImage(), at: cc)
-        cachedRequests.insert("", at: cc)
-        buttList.insert(UIButton(), at: cc)
-        
         if(tUsername != "")
         {
             db.child("usernames/\(tUsername)").observeSingleEvent(of: .value)
@@ -170,6 +163,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         if let helper1 = snapshot1.value as? String
                         {
                             tName = helper1
+                            self.cachedNames[cc] = tName
+                            self.cachedUsernames[cc] = tUsername
+                            self.cachedProfPics[cc] = UIImage(named: "defaultProfileImageSolid")!
+                            
                             self.db.child("users/\(tEmail)/account_type").observeSingleEvent(of: .value)
                             { (snapshot2) in
                                 if let helper2 = snapshot2.value as? String
@@ -212,7 +209,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     newView.addSubview(newRole)
                                     newView.addSubview(newImage)
                                     
-                                    self.stackView.addArrangedSubview(newView)
+                                    self.stackView.insertArrangedSubview(newView, at: cc)
                                     
                                     self.st.child("profilepics/\(tUsername).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
                                         if error != nil
@@ -223,9 +220,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                         {
                                             tImage = UIImage(data: data)!
                                             newImage.image = tImage
-                                            self.cachedNames[itemC] = tName
-                                            self.cachedUsernames[itemC] = tUsername
-                                            self.cachedProfPics[itemC] = tImage
+                                            self.cachedProfPics[cc] = tImage
                                         }
                                     })
                                     
@@ -265,12 +260,6 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         let newName = UILabel()
         let newReq = UILabel()
         
-        cachedNames.insert("", at: cc)
-        cachedUsernames.insert("", at: cc)
-        cachedProfPics.insert(UIImage(), at: cc)
-        cachedRequests.insert(req, at: cc)
-        buttList.insert(UIButton(), at: cc)
-        
         if(tUsername != "")
         {
             db.child("usernames/\(tUsername)").observeSingleEvent(of: .value)
@@ -283,6 +272,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         if let helper1 = snapshot1.value as? String
                         {
                             tName = helper1
+
+                            self.cachedUsernames[cc] = tUsername
+                            self.cachedRequests[cc] = req
+                            self.cachedNames[cc] = tName
                             
                             newView.heightAnchor.constraint(equalToConstant: barHeight * 0.35 + req.heightWithConstrainedWidth(width: self.scrollViewRef.frame.width, font: UIFont(name: "HelveticaNeue", size: 20.0)!)).isActive = true
                             newView.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1)
@@ -336,10 +329,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 newImage.layer.cornerRadius = newImage.frame.height / 2.0
                                 newImage.clipsToBounds = true
                                 newView.addSubview(newImage)
-                                self.stackView.insertArrangedSubview(newView, at: 0)
+                                self.stackView.insertArrangedSubview(newView, at: cc)
                             } else
                             {
-                                self.stackView.insertArrangedSubview(newView, at: 0)
+                                self.stackView.insertArrangedSubview(newView, at: cc)
                             }
                             
                             
@@ -356,16 +349,12 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     {
                                         tImage = UIImage(data: data)!
                                         newImage.image = tImage
-                                        self.cachedNames[0] = tName
-                                        self.cachedUsernames[0] = tUsername
-                                        self.cachedProfPics[0] = tImage
+                                        self.cachedProfPics[cc] = tImage
                                     }
                                 })
                             } else
                             {
-                                self.cachedNames[0] = tName
-                                self.cachedUsernames[0] = tUsername
-                                self.cachedProfPics[0] = UIImage()
+                                self.cachedProfPics[cc] = UIImage()
                             }
 
                             self.loadCircle.isHidden = true
@@ -485,6 +474,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 tvCVR.append(reqTextView.bottomAnchor.constraint(equalTo: addReqView.topAnchor, constant: 175.0))
                 tvCVR[7].isActive = false
             }
+            reqTextView.layer.cornerRadius = 15.0
             reqTextView.isHidden = false
             reqTextView.alpha = 0.0
             reqTextView.text = "tutoring request details..."
@@ -518,6 +508,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 prqCV[7].isActive = false
                 postReqButt.addTarget(self, action: #selector(postRequestButton(_:)), for: UIControl.Event.touchUpInside)
             }
+            postReqButt.layer.cornerRadius = UIScreen.main.bounds.width * 0.03
             postReqButt.isHidden = false
             postReqButt.alpha = 0.0
             postReqButt.setTitle("Post", for: .normal)
@@ -526,6 +517,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             addReqView.bringSubviewToFront(postReqButt)
             
             addRVBOOL = true
+            
+            view.endEditing(true)
             
             self.view.layoutIfNeeded()
             
@@ -645,7 +638,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     {
         if(reqTextView.text != "" && reqTextView.text != "tutoring request details..." && isMe)
         {
-            requests.append(reqTextView.text)
+            requests.append("\(reqTextView.text!.prefix(500))")
             for i in 0...(requests.count - 1)
             {
                 db.child("users/\(userEmail!)/requests/\(i)").setValue(requests[i])
@@ -737,6 +730,13 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             requestButRef.isHidden = false
             
             var cc: Int = 0
+            requests.forEach { _ in
+                cachedNames.append("")
+                cachedUsernames.append("")
+                cachedRequests.append("")
+                cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                buttList.append(UIButton())
+            }
             requests.forEach { beep in
                 self.createRequestStackViewMember(passedUsername: username, req: beep, cc: cc)
                 cc += 1
@@ -764,6 +764,11 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             {
                                 if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
                                 {
+                                    self.cachedNames.append("")
+                                    self.cachedUsernames.append("")
+                                    self.cachedRequests.append("")
+                                    self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                                    self.buttList.append(UIButton())
                                     self.createStackViewMember(passedUsername: USERNAMe, cc: cc)
                                     cc += 1
                                 }
@@ -775,9 +780,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             })
         } else if(role == "Tutor or Teacher")
         {
+            var pp: Int = 0
             requestButRef.isHidden = true
             let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observe(.value, with: { (snap) in
-                 
+                
                 for child in snap.children
                 {
                     let snap = child as! DataSnapshot
@@ -800,7 +806,14 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 {
                                     if(self.searchBarRef.text! == "" || USERNAMe.lowercased().contains(self.searchBarRef.text!.lowercased()) || NAMe.lowercased().contains(self.searchBarRef.text!.lowercased()))
                                     {
-                                        var pp: Int = 0
+                                        
+                                        REQUESTs.forEach { _ in
+                                            self.cachedNames.append("")
+                                            self.cachedUsernames.append("")
+                                            self.cachedRequests.append("")
+                                            self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                                            self.buttList.append(UIButton())
+                                        }
                                         REQUESTs.forEach { request in
                                             self.createRequestStackViewMember(passedUsername: USERNAMe, req: request, cc: pp)
                                             pp += 1
@@ -963,18 +976,29 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         } else
         {
             let c = Int(sender.title(for: .normal)!)!
-            if(cachedUsernames[c] != username && cachedUsernames[c] != "")
+
+            if(role == "Learner, Student, or Parent")
+            {
+                if(cachedUsernames[c] != username && cachedUsernames[c] != "")
+                {
+                    if(!popUP)
+                    {
+                        createPersonPopup(usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
+                        lastPressed = c
+                    }
+                } else
+                {
+                    if(!delUP)
+                    {
+                        createDeleteRequestPopup(usernameP: cachedUsernames[c], sender: sender)
+                        lastPressed = c
+                    }
+                }
+            } else if (role == "Tutor or Teacher")
             {
                 if(!popUP)
                 {
                     createPersonPopup(usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
-                    lastPressed = c
-                }
-            } else
-            {
-                if(!delUP)
-                {
-                    createDeleteRequestPopup(usernameP: cachedUsernames[c], sender: sender)
                     lastPressed = c
                 }
             }
@@ -1093,7 +1117,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 puusVR.removeAll()
                 puusVR = []
                 puName.centerXAnchor.constraint(equalTo: popupView.centerXAnchor).isActive = true
-                puName.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.10 + 5).isActive = true
+                puName.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.10 + 10).isActive = true
                 puName.widthAnchor.constraint(equalTo: popupView.widthAnchor).isActive = true
                 puName.heightAnchor.constraint(equalToConstant: sqrt(UIScreen.main.bounds.width) * 19 * 0.08).isActive = true
             }
@@ -1108,16 +1132,23 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 makeConn = UIButton()
                 popupView.addSubview(makeConn)
                 makeConn.translatesAutoresizingMaskIntoConstraints = false
-                makeConn.addTarget(self, action: #selector(closePopupButton(_:)), for: UIControl.Event.touchUpInside)
+                makeConn.addTarget(self, action: #selector(makeConnectionButton(_:)), for: UIControl.Event.touchUpInside)
                 makeConn.removeConstraints(closePUBut.constraints)
                 makeConn.trailingAnchor.constraint(equalTo: popupView.trailingAnchor, constant: -UIScreen.main.bounds.width * 0.2).isActive = true
                 makeConn.leadingAnchor.constraint(equalTo: popupView.leadingAnchor, constant: UIScreen.main.bounds.width * 0.2).isActive = true
-                makeConn.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.20 + 5).isActive = true
-                makeConn.bottomAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.30 + 15).isActive = true
+                makeConn.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.20 + 10).isActive = true
+                makeConn.bottomAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.30 + 20).isActive = true
             }
             makeConn.alpha = 0.0
             makeConn.isHidden = false
-            makeConn.setTitle("Make Connection", for: .normal)
+            makeConn.layer.cornerRadius = (sqrt(UIScreen.main.bounds.width) * 19 * 0.10 + 10) / 4.0
+            if(connections[usernameP] != "" && connections[usernameP] != nil)
+            {
+                makeConn.setTitle("Already Connected", for: .normal)
+            } else
+            {
+                makeConn.setTitle("Make Connection", for: .normal)
+            }
             makeConn.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: sqrt(UIScreen.main.bounds.width) * 19 * 0.05)
             makeConn.setTitleColor(UIColor.systemIndigo, for: .normal)
             makeConn.backgroundColor = UIColor.white
@@ -1127,6 +1158,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             popupBOOL = true
             popUP = true
+            
+            view.endEditing(true)
             
             closeRequestTab()
             
@@ -1173,6 +1206,38 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     {
         if(isMe)
         {
+            closePopupScript()
+        }
+    }
+    
+    @objc func makeConnectionButton(_ sender: UIButton!)
+    {
+        if(isMe)
+        {
+            if(connections[cachedUsernames[lastPressed]] != "")
+            {
+                let date = Date()
+                var calendar = Calendar.current
+                calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                let hour = calendar.component(.hour, from: date)
+                let minutes = calendar.component(.minute, from: date)
+                let seconds = calendar.component(.second, from: date)
+                let randomID = db.child("connections").childByAutoId()
+                randomID.child("\(username)/message_list").childByAutoId().child("message").setValue("\(name) has made a connection!")
+                randomID.child("last_message_time/time").setValue("\(hour):\(minutes):\(seconds)")
+                randomID.child("\(username)/status").setValue("healthy")
+                randomID.child("\(cachedUsernames[lastPressed])/status").setValue("healthy")
+                let stringDate = "\(date)"
+                randomID.child("last_message_time/date").setValue("\(stringDate.prefix(10))")
+                connections[cachedUsernames[lastPressed]] = "\(randomID.key!)"
+                db.child("users/\(userEmail!)/connections/\(cachedUsernames[lastPressed])").setValue("\(randomID.key!)")
+                db.child("usernames/\(cachedUsernames[lastPressed])").observeSingleEvent(of: .value) { (snap) in
+                    if let val = snap.value as? String
+                    {
+                        self.db.child("users/\(val)/connections/\(username)").setValue("\(randomID.key!)")
+                    }
+                }
+            }
             closePopupScript()
         }
     }
@@ -1293,6 +1358,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 delReqBU.topAnchor.constraint(equalTo: delView.topAnchor, constant: 20.0).isActive = true
                 delReqBU.bottomAnchor.constraint(equalTo: delView.bottomAnchor, constant: -20.0).isActive = true
             }
+            delReqBU.layer.cornerRadius = 10.0
             delReqBU.alpha = 0.0
             delReqBU.isHidden = false
             delReqBU.setTitle("Delete Request?", for: .normal)
@@ -1304,6 +1370,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             delBOOL = true
             delUP = true
+            
+            view.endEditing(true)
             
             self.view.layoutIfNeeded()
             

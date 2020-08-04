@@ -21,6 +21,7 @@ var username: String = ""
 var currScene: String = "Login"
 var onlyOnce: Bool = true
 var stars: Double = -1
+var connections: [String: String]! = [:]
 
 class MainViewController: UIViewController
 {
@@ -38,6 +39,8 @@ class MainViewController: UIViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
+
+        AppUtility.lockOrientation(.portrait)
         
         guard let shIns = GIDSignIn.sharedInstance() else { return }
         shIns.presentingViewController = self
@@ -119,6 +122,15 @@ class MainViewController: UIViewController
                         for child in children
                         {
                             requests.append((child.value as? String)!)
+                        }
+                    }
+                }
+                self.db.child("users/\(userEmail!)/connections").observeSingleEvent(of: .value) { (SNAP) in
+                    if let children = SNAP.children.allObjects as? [DataSnapshot]
+                    {
+                        for child in children
+                        {
+                            connections["\(child.key)"] = (child.value as? String)!
                         }
                     }
                 }

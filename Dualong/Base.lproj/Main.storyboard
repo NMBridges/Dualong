@@ -610,7 +610,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="NWB-JV-45J" firstAttribute="top" secondItem="cr9-qJ-wVs" secondAttribute="topMargin" constant="50" id="OB8-ki-0Qh"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="NWB-JV-45J" secondAttribute="trailing" constant="100" id="VKJ-Tq-INK"/>

@@ -243,6 +243,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     @IBAction func createAccount(_ sender: UIButton)
     {
         var AccCounter: Int = 0
+        connections = [:]
+        connections["NiMBLeInteractive"] = "healthy"
         name = nameKB.text!
         username = usernameKB.text!.lowercased()
         
@@ -346,6 +348,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         db.child("users/\(userEmail!)/name").setValue(name)
         db.child("users/\(userEmail!)/account_type").setValue(role)
         db.child("users/\(userEmail!)/stars").setValue(Double(0))
+        db.child("users/\(userEmail!)/connections/NiMBLeInteractive").setValue("healthy")
         
         
         for i in 0...(interests.count - 1)
