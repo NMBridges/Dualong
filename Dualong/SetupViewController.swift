@@ -7,9 +7,9 @@
 //
 
 import UIKit
+import GoogleSignIn
 import FirebaseStorage
 import FirebaseDatabase
-import GoogleSignIn
 
 class SetupViewController: UIViewController, UITextFieldDelegate {
     
@@ -236,8 +236,12 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     func textFieldShouldReturn(_ keyboards: UITextField) -> Bool
     {
-        self.view.endEditing(true)
-        return true
+        if(currScene == "Setup")
+        {
+            self.view.endEditing(true)
+            return true
+        }
+        return false
     }
     
     @IBAction func createAccount(_ sender: UIButton)

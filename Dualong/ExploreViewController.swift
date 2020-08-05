@@ -833,7 +833,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     
     func textViewDidBeginEditing(_ textView: UITextView)
     {
-        if(textView.text == "tutoring request details..." && isMe)
+        if(textView.text == "tutoring request details..." && isMe && currScene == "Explore")
         {
             textView.text = ""
         }
@@ -841,7 +841,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar)
     {
-        if(isMe)
+        if(isMe && currScene == "Explore")
         {
             loadStackView()
         }
@@ -849,7 +849,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)
     {
-        if(isMe)
+        if(isMe && currScene == "Explore")
         {
             loadStackView()
         }
@@ -945,7 +945,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     
     @objc func keyboardWillShow(notification: NSNotification)
     {
-        if(menuToggle && isMe)
+        if(menuToggle && isMe && currScene == "Explore")
         {
             NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
         }
@@ -1223,13 +1223,17 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 let minutes = calendar.component(.minute, from: date)
                 let seconds = calendar.component(.second, from: date)
                 let randomID = db.child("connections").childByAutoId()
-                randomID.child("\(username)/message_list").childByAutoId().child("message").setValue("\(name) has made a connection!")
-                randomID.child("last_message_time/time").setValue("\(hour):\(minutes):\(seconds)")
-                randomID.child("\(username)/status").setValue("healthy")
-                randomID.child("\(cachedUsernames[lastPressed])/status").setValue("healthy")
+                let randomID2 = randomID.child("message_list").childByAutoId()
+                randomID2.child("username").setValue("\(username)")
+                randomID2.child("message").setValue("\(name) has made a connection!")
                 let stringDate = "\(date)"
+                randomID2.child("timestamp/date").setValue("\(stringDate.prefix(10))")
+                randomID2.child("timestamp/time").setValue("\(hour):\(minutes):\(seconds)")
+                randomID.child("last_message_time/time").setValue("\(hour):\(minutes):\(seconds)")
                 randomID.child("last_message_time/date").setValue("\(stringDate.prefix(10))")
                 connections[cachedUsernames[lastPressed]] = "\(randomID.key!)"
+                randomID.child("\(username)/status").setValue("healthy")
+                randomID.child("\(cachedUsernames[lastPressed])/status").setValue("healthy")
                 db.child("users/\(userEmail!)/connections/\(cachedUsernames[lastPressed])").setValue("\(randomID.key!)")
                 db.child("usernames/\(cachedUsernames[lastPressed])").observeSingleEvent(of: .value) { (snap) in
                     if let val = snap.value as? String

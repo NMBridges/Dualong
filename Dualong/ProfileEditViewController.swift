@@ -416,7 +416,10 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
     {
         if(isMe)
         {
-            roleButtonPressed(roleButtonRef)
+            if(!roleButtonCollection[0].isHidden)
+            {
+                roleButtonPressed(roleButtonRef)
+            }
             var AccCounter: Int = 0
             tempName = nameKB.text!
             tempUsername = usernameKB.text!.lowercased()
@@ -650,7 +653,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
     
     @IBAction func editPPPressed(_ sender: UIButton)
     {
-        if(isMe)
+        if(isMe && currScene == "EditProfile")
         {
             let picker = UIImagePickerController()
             
@@ -664,7 +667,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
     {
-        if(isMe)
+        if(isMe && currScene == "EditProfile")
         {
         
             if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")]
@@ -715,7 +718,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController)
     {
-        if(isMe)
+        if(isMe && currScene == "EditProfile")
         {
             dismiss(animated: true, completion: nil)
         }

@@ -43,23 +43,7 @@
                             </view>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vod-wg-tiH" userLabel="cover">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Logging in..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EPk-8a-kug" userLabel="logging in text">
-                                        <rect key="frame" x="0.0" y="293" width="414" height="150"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="150" id="zO2-hp-cuV"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="35"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </label>
-                                </subviews>
                                 <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="EPk-8a-kug" secondAttribute="trailing" id="1Ig-ht-jKX"/>
-                                    <constraint firstItem="EPk-8a-kug" firstAttribute="leading" secondItem="Vod-wg-tiH" secondAttribute="leading" id="PwR-f2-are"/>
-                                    <constraint firstItem="EPk-8a-kug" firstAttribute="centerY" secondItem="Vod-wg-tiH" secondAttribute="centerY" id="qon-dJ-T62"/>
-                                </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -618,6 +602,9 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="EVz-G3-8Te"/>
                     </view>
+                    <connections>
+                        <outlet property="connTitleRef" destination="NWB-JV-45J" id="Wb6-4f-eCp"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8jg-xK-cX8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -1063,7 +1050,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Dqw-jH-tv7"/>
+        <segue reference="UIT-X0-DRj"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="arrow.left" catalog="system" width="128" height="98"/>

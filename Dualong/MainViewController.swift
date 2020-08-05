@@ -36,11 +36,24 @@ class MainViewController: UIViewController
     
     let db = Database.database().reference()
     
+    var loadCircle = UIView()
+    var circle = UIBezierPath()
+    var displayLink: CADisplayLink!
+    var shapeLayer: CAShapeLayer!
+    var time = CACurrentMediaTime()
+    var ogtime = CACurrentMediaTime()
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
 
         AppUtility.lockOrientation(.portrait)
+        
+        setupLoadCircle()
+        displayLink = CADisplayLink(target: self, selector: #selector(loadAnimations))
+        displayLink.add(to: RunLoop.main, forMode: .default)
+        
+        loadCircle.isHidden = true
         
         guard let shIns = GIDSignIn.sharedInstance() else { return }
         shIns.presentingViewController = self
@@ -50,6 +63,7 @@ class MainViewController: UIViewController
             cover.isHidden = true
             if(shIns.hasPreviousSignIn())
             {
+                loadCircle.isHidden = false
                 cover.isHidden = false
                 shIns.restorePreviousSignIn()
             }
@@ -134,12 +148,14 @@ class MainViewController: UIViewController
                         }
                     }
                 }
+                self.loadCircle.isHidden = true
                 self.performSegue(withIdentifier: "loginToHome", sender: self)
                 currScene = "Home"
             } else
             {
                 NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
-                
+
+                self.loadCircle.isHidden = true
                 self.performSegue(withIdentifier: "LoginToSetup", sender: self)
                 currScene = "Setup"
             }
@@ -197,6 +213,36 @@ class MainViewController: UIViewController
     @IBAction func unwindToLogin(_ sender: UIStoryboardSegue)
     {
         
+    }
+    
+    func setupLoadCircle()
+    {
+        ogtime = CACurrentMediaTime()
+        circle = UIBezierPath(arcCenter: CGPoint(x: 50.0, y: 50.0), radius: 25, startAngle: 0, endAngle: 1.57, clockwise: true)
+        shapeLayer = CAShapeLayer()
+        loadCircle = UIView()
+        shapeLayer.path = circle.cgPath
+        shapeLayer.strokeColor = UIColor(displayP3Red: 1, green: 1, blue: 1, alpha: 1).cgColor
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = 3.0
+        loadCircle.translatesAutoresizingMaskIntoConstraints = false
+        loadCircle.isHidden = false
+        self.view.addSubview(loadCircle)
+        loadCircle.backgroundColor = UIColor.clear
+        loadCircle.layer.insertSublayer(shapeLayer, at: 0)
+        loadCircle.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        loadCircle.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        loadCircle.widthAnchor.constraint(equalToConstant: 100.0).isActive = true
+        loadCircle.heightAnchor.constraint(equalToConstant: 100.0).isActive = true
+    }
+    
+    @objc func loadAnimations()
+    {
+        time = CACurrentMediaTime()
+        let startAng: CGFloat = CGFloat((time - ogtime) * 12.0 + sin((time - ogtime) * 8.0) * 0.9)
+        let endAng: CGFloat = CGFloat(((time - ogtime) * 12.0 + 1.5) + sin((time - ogtime) * 8.0 + 1.0) * 0.9)
+        circle = UIBezierPath(arcCenter: CGPoint(x: 50.0, y: 50.0), radius: 25, startAngle: startAng, endAngle: endAng, clockwise: true)
+        shapeLayer.path = circle.cgPath
     }
     
 }
