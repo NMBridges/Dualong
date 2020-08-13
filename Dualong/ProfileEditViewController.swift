@@ -456,7 +456,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
                 nameFail.isHidden = false
             }
             
-            if(tempUsername != "" && tempUsername.isAlphanumeric && tempUsername.count < 17)
+            if(tempUsername != "" && tempUsername.isAlphanumeric && tempUsername.count < 18)
             {
                 usernameFail.isHidden = true
                 db.child("usernames/\(tempUsername)").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -471,10 +471,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
                             AccCounter += 1
                             if(AccCounter == 3)
                             {
-                                db.child("users/\(userEmail!)/username").setValue(self.tempUsername)
-                                db.child("users/\(userEmail!)/name").setValue(self.tempName)
-                                db.child("users/\(userEmail!)/account_type").setValue(self.tempRole)
-                                
+                                db.child("users/\(userEmail!)").updateChildValues(["username":"\(self.tempUsername)", "name":"\(self.tempName)", "account_type":"\(self.tempRole)"])
 
                                 interests = self.interestsTemp
                                 
@@ -516,7 +513,6 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
                                         ownProfPic = self.ppImageRef.image
                                         NotificationCenter.default.post(name: Notification.Name("uploadBarComplete"), object: nil)
                                         NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
-                                        
                                     }
                                     
                                     self.needToUpdate = false
@@ -541,11 +537,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
                             db.child("usernames/\(username)").removeValue()
                             db.child("usernames/\(self.tempUsername)").setValue("\(userEmail!)")
                             
-                            db.child("users/\(userEmail!)/username").setValue(self.tempUsername)
-                            db.child("users/\(userEmail!)/name").setValue(self.tempName)
-                            db.child("users/\(userEmail!)/account_type").setValue(self.tempRole)
-                            
-                            
+                            db.child("users/\(userEmail!)").updateChildValues(["username":"\(self.tempUsername)", "name":"\(self.tempName)", "account_type":"\(self.tempRole)"])
                             
                             name = self.tempName
                             role = self.tempRole

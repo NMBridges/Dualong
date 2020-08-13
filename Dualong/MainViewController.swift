@@ -46,6 +46,8 @@ class MainViewController: UIViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        self.view.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
 
         AppUtility.lockOrientation(.portrait)
         
@@ -72,6 +74,7 @@ class MainViewController: UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(SHOWLOADCIRCLE(notification:)), name: Notification.Name("LOGGGGIN"), object: nil)
     }
     
     
@@ -162,6 +165,11 @@ class MainViewController: UIViewController
         })
     }
     
+    @objc func SHOWLOADCIRCLE(notification: NSNotification)
+    {
+        cover.isHidden = false
+        loadCircle.isHidden = false
+    }
     
     /*@objc func signOut(_ sender: UIButton)
     {
@@ -193,6 +201,7 @@ class MainViewController: UIViewController
         interests = []
         
         cover.isHidden = true
+        loadCircle.isHidden = true
         print("signing out")
         GIDSignIn.sharedInstance()?.signOut()
         
@@ -250,5 +259,6 @@ class MainViewController: UIViewController
 extension Notification.Name
 {
     static let signedin = Notification.Name("signedin")
+    static let LOGGGGIN = Notification.Name("LOGGGGIN")
 }
 

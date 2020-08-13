@@ -281,7 +281,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             nameFail.isHidden = false
         }
         
-        if(username != "" && username.isAlphanumeric && username.count < 17)
+        if(username != "" && username.isAlphanumeric && username.count < 18)
         {
             
             
@@ -348,12 +348,24 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
         
-        db.child("users/\(userEmail!)/username").setValue(username)
-        db.child("users/\(userEmail!)/name").setValue(name)
-        db.child("users/\(userEmail!)/account_type").setValue(role)
-        db.child("users/\(userEmail!)/stars").setValue(Double(0))
-        db.child("users/\(userEmail!)/connections/NiMBLeInteractive").setValue("healthy")
+        db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/nimbleinteractive":"healthy"])
         
+        let date = Date()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(abbreviation: "PDT")!
+        let hour = calendar.component(.hour, from: date)
+        let minutes = calendar.component(.minute, from: date)
+        let seconds = calendar.component(.second, from: date)
+        let randomID = db.child("connections").childByAutoId()
+        let randomID2 = randomID.child("message_list").childByAutoId()
+        let stringDate = "\(date)"
+        if(username != "nimbleinteractive")
+        {
+            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/username":"\(username)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(username)/status":"healthy","nimbleinteractive/status":"healthy"])
+            connections["nimbleinteractive"] = "\(randomID.key!)"
+            db.child("users/\(userEmail!)/connections/nimbleinteractive").setValue("\(randomID.key!)")
+            db.child("users/contact,nimbleinteractive@gmail,com/connections/\(username)").setValue("\(randomID.key!)")
+        }
         
         for i in 0...(interests.count - 1)
         {

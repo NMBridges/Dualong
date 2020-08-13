@@ -49,6 +49,8 @@ class MenuButtonViewController: UIViewController
     var buttCVR: [NSLayoutConstraint] = []
     var buimCVR: [NSLayoutConstraint] = []
     var lobuCVR: [NSLayoutConstraint] = []
+    
+    var menuButtonOpacityToggle: Bool = true
 
     override func viewDidLoad()
     {
@@ -92,6 +94,8 @@ class MenuButtonViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(logOut(notification:)), name: Notification.Name("logOut"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(menuTabClosed(notification:)), name: Notification.Name("menuTabClosed"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(toggleMenuOpacity(notification:)), name: Notification.Name("toggleMenuOpacity"), object: nil)
+        
         
     }
     
@@ -360,6 +364,22 @@ class MenuButtonViewController: UIViewController
     @objc func menuTabClosed(notification: NSNotification)
     {
         
+    }
+    
+    @objc func toggleMenuOpacity(notification: NSNotification)
+    {
+        var a: CGFloat = 1.0
+        if(menuButtonOpacityToggle)
+        {
+            a = 0.0
+        }
+        UIView.animate(withDuration: 0.2, animations: {
+            self.buttonImageRef.alpha = a
+            self.view.layoutIfNeeded()
+        }, completion: { _ in
+            self.buttonRef.isHidden = self.menuButtonOpacityToggle
+            self.menuButtonOpacityToggle = !self.menuButtonOpacityToggle
+        })
     }
 
 

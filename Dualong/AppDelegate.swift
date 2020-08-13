@@ -19,11 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     {
         if error != nil
         {
+            print("ERROR: \(error!.localizedDescription)")
+            NotificationCenter.default.post(name: Notification.Name("logOut"), object: nil)
             return
         }
 
-        
         // Firebase log in
+        
+        NotificationCenter.default.post(name: Notification.Name("LOGGGGIN"), object: nil)
         
         guard let authentication = user.authentication else { return }
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,

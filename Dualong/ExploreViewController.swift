@@ -1224,16 +1224,9 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 let seconds = calendar.component(.second, from: date)
                 let randomID = db.child("connections").childByAutoId()
                 let randomID2 = randomID.child("message_list").childByAutoId()
-                randomID2.child("username").setValue("\(username)")
-                randomID2.child("message").setValue("\(name) has made a connection!")
                 let stringDate = "\(date)"
-                randomID2.child("timestamp/date").setValue("\(stringDate.prefix(10))")
-                randomID2.child("timestamp/time").setValue("\(hour):\(minutes):\(seconds)")
-                randomID.child("last_message_time/time").setValue("\(hour):\(minutes):\(seconds)")
-                randomID.child("last_message_time/date").setValue("\(stringDate.prefix(10))")
+                randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/username":"\(username)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(username)/status":"healthy","\(cachedUsernames[lastPressed])/status":"healthy"])
                 connections[cachedUsernames[lastPressed]] = "\(randomID.key!)"
-                randomID.child("\(username)/status").setValue("healthy")
-                randomID.child("\(cachedUsernames[lastPressed])/status").setValue("healthy")
                 db.child("users/\(userEmail!)/connections/\(cachedUsernames[lastPressed])").setValue("\(randomID.key!)")
                 db.child("usernames/\(cachedUsernames[lastPressed])").observeSingleEvent(of: .value) { (snap) in
                     if let val = snap.value as? String
@@ -1486,5 +1479,11 @@ extension String
         let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
         let boundingBox = self.boundingRect(with: constraintRect, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: font], context: nil)
         return boundingBox.height
+    }
+    func WidthCalc(font: UIFont) -> CGFloat
+    {
+        let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: 60.0)
+        let boundingBox = self.boundingRect(with: constraintRect, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: font], context: nil)
+        return boundingBox.width
     }
 }

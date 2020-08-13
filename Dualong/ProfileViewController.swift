@@ -168,4 +168,5 @@ extension Notification.Name
     static let setEmailSetup = Notification.Name("setEmailSetup")
     static let animateOffInterests = Notification.Name("animateOffInterests")
     static let closeRequest = Notification.Name("closeRequest")
+    static let toggleMenuOpacity = Notification.Name("toggleMenuOpacity")
 }
