@@ -54,6 +54,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var prqCV: [NSLayoutConstraint]! = []
     var noRotationReq: UIButton = UIButton()
     
+    var cachedEmails: [String]! = []
     var cachedUsernames: [String]! = []
     var cachedNames: [String]! = []
     var cachedProfPics: [UIImage]! = []
@@ -103,6 +104,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             searchBarRef.delegate = self
             searchBarRef.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+            searchBarRef.searchTextField.backgroundColor = UIColor(displayP3Red: 116.0 / 255.0, green: 114.0 / 255.0, blue: 233.0 / 255.0, alpha: 1)
             
             setupLoadCircle()
             displayLink = CADisplayLink(target: self, selector: #selector(loadAnimations))
@@ -163,6 +165,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         if let helper1 = snapshot1.value as? String
                         {
                             tName = helper1
+                            self.cachedEmails[cc] = tEmail
                             self.cachedNames[cc] = tName
                             self.cachedUsernames[cc] = tUsername
                             self.cachedProfPics[cc] = UIImage(named: "defaultProfileImageSolid")!
@@ -174,7 +177,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     tRole = helper2
                                     
                                     newView.heightAnchor.constraint(equalToConstant: barHeight).isActive = true
-                                    newView.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1)
+                                    newView.backgroundColor = UIColor(displayP3Red: 116.0 / 255.0, green: 114.0 / 255.0, blue: 233.0 / 255.0, alpha: 1)
                                     newView.layer.cornerRadius = 15.0
                                     
                                     newButton.frame = CGRect(x: 0, y: 0, width: self.xWid - 10.0, height: barHeight)
@@ -272,13 +275,14 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         if let helper1 = snapshot1.value as? String
                         {
                             tName = helper1
-
+                            
+                            self.cachedEmails[cc] = tEmail
                             self.cachedUsernames[cc] = tUsername
                             self.cachedRequests[cc] = req
                             self.cachedNames[cc] = tName
                             
                             newView.heightAnchor.constraint(equalToConstant: barHeight * 0.35 + req.heightWithConstrainedWidth(width: self.scrollViewRef.frame.width, font: UIFont(name: "HelveticaNeue", size: 20.0)!)).isActive = true
-                            newView.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1)
+                            newView.backgroundColor = UIColor(displayP3Red: 116.0 / 255.0, green: 114.0 / 255.0, blue: 233.0 / 255.0, alpha: 1)
                             newView.layer.cornerRadius = 15.0
                             
                             newButton.frame = CGRect(x: 0.0, y: 0.0, width: self.xWid - 10.0, height: barHeight * 0.35 + req.heightWithConstrainedWidth(width: self.scrollViewRef.frame.width, font: UIFont(name: "HelveticaNeue", size: 20.0)!))
@@ -720,6 +724,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         })
         buttList.removeAll()
         buttList = []
+        cachedEmails = []
         cachedNames = []
         cachedUsernames = []
         cachedProfPics = []
@@ -731,6 +736,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             var cc: Int = 0
             requests.forEach { _ in
+                cachedEmails.append("")
                 cachedNames.append("")
                 cachedUsernames.append("")
                 cachedRequests.append("")
@@ -764,6 +770,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             {
                                 if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
                                 {
+                                    self.cachedEmails.append("")
                                     self.cachedNames.append("")
                                     self.cachedUsernames.append("")
                                     self.cachedRequests.append("")
@@ -808,6 +815,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     {
                                         
                                         REQUESTs.forEach { _ in
+                                            self.cachedEmails.append("")
                                             self.cachedNames.append("")
                                             self.cachedUsernames.append("")
                                             self.cachedRequests.append("")
@@ -983,7 +991,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 {
                     if(!popUP)
                     {
-                        createPersonPopup(usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
+                        createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
                         lastPressed = c
                     }
                 } else
@@ -998,14 +1006,14 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             {
                 if(!popUP)
                 {
-                    createPersonPopup(usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
+                    createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
                     lastPressed = c
                 }
             }
         }
     }
     
-    func createPersonPopup(usernameP: String, nameP: String, profpicP: UIImage!, sender: UIButton!)
+    func createPersonPopup(emailP: String, usernameP: String, nameP: String, profpicP: UIImage!, sender: UIButton!)
     {
         if(isMe)
         {
@@ -1142,7 +1150,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             makeConn.alpha = 0.0
             makeConn.isHidden = false
             makeConn.layer.cornerRadius = (sqrt(UIScreen.main.bounds.width) * 19 * 0.10 + 10) / 4.0
-            if(connections[usernameP] != "" && connections[usernameP] != nil)
+            if(connections[emailP] != "" && connections[emailP] != nil)
             {
                 makeConn.setTitle("Already Connected", for: .normal)
             } else
@@ -1214,7 +1222,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     {
         if(isMe)
         {
-            if(connections[cachedUsernames[lastPressed]] != "")
+            if(connections[cachedEmails[lastPressed]] == nil)
             {
                 let date = Date()
                 var calendar = Calendar.current
@@ -1225,15 +1233,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 let randomID = db.child("connections").childByAutoId()
                 let randomID2 = randomID.child("message_list").childByAutoId()
                 let stringDate = "\(date)"
-                randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/username":"\(username)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(username)/status":"healthy","\(cachedUsernames[lastPressed])/status":"healthy"])
-                connections[cachedUsernames[lastPressed]] = "\(randomID.key!)"
-                db.child("users/\(userEmail!)/connections/\(cachedUsernames[lastPressed])").setValue("\(randomID.key!)")
-                db.child("usernames/\(cachedUsernames[lastPressed])").observeSingleEvent(of: .value) { (snap) in
-                    if let val = snap.value as? String
-                    {
-                        self.db.child("users/\(val)/connections/\(username)").setValue("\(randomID.key!)")
-                    }
-                }
+                randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"\(userEmail!)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","\(cachedEmails[lastPressed])/status":"healthy"])
+                connections[cachedEmails[lastPressed]] = "\(randomID.key!)"
+                db.child("users/\(userEmail!)/connections/\(cachedEmails[lastPressed])").setValue("\(randomID.key!)")
+                db.child("users/\(cachedEmails[lastPressed])/connections/\(userEmail!)").setValue("\(randomID.key!)")
             }
             closePopupScript()
         }

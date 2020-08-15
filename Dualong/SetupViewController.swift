@@ -248,7 +248,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     {
         var AccCounter: Int = 0
         connections = [:]
-        connections["NiMBLeInteractive"] = "healthy"
+        connections["contact,nimbleinteractive@gmail,com"] = "healthy"
         name = nameKB.text!
         username = usernameKB.text!.lowercased()
         
@@ -348,7 +348,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
         
-        db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/nimbleinteractive":"healthy"])
+        db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy"])
         
         let date = Date()
         var calendar = Calendar.current
@@ -361,10 +361,10 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         let stringDate = "\(date)"
         if(username != "nimbleinteractive")
         {
-            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/username":"\(username)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(username)/status":"healthy","nimbleinteractive/status":"healthy"])
+            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"\(userEmail!)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","contact,nimbleinteractive@gmail,com/status":"healthy"])
             connections["nimbleinteractive"] = "\(randomID.key!)"
-            db.child("users/\(userEmail!)/connections/nimbleinteractive").setValue("\(randomID.key!)")
-            db.child("users/contact,nimbleinteractive@gmail,com/connections/\(username)").setValue("\(randomID.key!)")
+            db.child("users/\(userEmail!)/connections/contact,nimbleinteractive@gmail,com").setValue("\(randomID.key!)")
+            db.child("users/contact,nimbleinteractive@gmail,com/connections/\(userEmail!)").setValue("\(randomID.key!)")
         }
         
         for i in 0...(interests.count - 1)

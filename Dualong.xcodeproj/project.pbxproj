@@ -334,8 +334,8 @@
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/build/GoogleSignIn",
-					"\"$(SRCROOT)/**",
+					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
+					"$(PODS_ROOT)/FirebaseAuth/Frameworks",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -399,8 +399,8 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/build/GoogleSignIn",
-					"\"$(SRCROOT)/**",
+					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
+					"$(PODS_ROOT)/FirebaseAuth/Frameworks",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -503,8 +503,8 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/leveldb-library\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/nanopb\"",
 					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
+					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
 					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
-					"\"$(PODS_ROOT)/GoogleSignIn/Frameworks\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

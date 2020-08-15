@@ -85,6 +85,28 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var MSVIDList: [String]! = []
     
     var lastHeight: CGFloat = 0
+    
+    var wbView: UIView = UIView()
+    var wbLC: [NSLayoutConstraint]! = []
+    var wbSV: UIScrollView = UIScrollView()
+    var wbUP: Bool = false
+    var wbBackgroundView: UIView = UIView()
+    var wbImageView: UIImageView! = UIImageView()
+    var wbImageLoaded: Bool = false
+    var wbModeView: UIView = UIView()
+    var wbmLC: [NSLayoutConstraint]! = []
+    var wbMode: String = ""
+    var wbImageWid: CGFloat = 0.0
+    var wbImageHei: CGFloat = 0.0
+    var wbWidToImage: CGFloat = 0.0
+    var wbHeiToImage: CGFloat = 0.0
+    var imageDrawingOn: String = ""
+    
+    var wbMyPositions: [String]! = []  // keeps an array of the last line drawn -- need to copy to small scale variable before uploading so it doesn't get overridden
+    var lineList: [CAShapeLayer] = []
+    var lineIDList: [String] = []
+    var currLinePath: UIBezierPath = UIBezierPath()
+    var cnol: Int = 0
 
     override func viewDidLoad()
     {
@@ -114,60 +136,75 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             NotificationCenter.default.addObserver(self, selector: #selector(closeMessages(notification:)), name: Notification.Name("toHomeNoti"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(closeMessages(notification:)), name: Notification.Name("toProfileNoti"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(closeMessages(notification:)), name: Notification.Name("toExploreNoti"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(closeMessages(notification:)), name: Notification.Name("toProfileNoti"), object: nil)
         }
         
     }
     
     @objc func connectionPressed(_ sender: UIButton!)
     {
-        let num = Int(sender.title(for: .normal)!)!
-        
-        NotificationCenter.default.post(name: Notification.Name("toggleMenuOpacity"), object: nil)
-        
-        nameInfo = nameList[num]
-        mNameLabel.text = nameInfo
-        usernameInfo = usernameList[num]
-        emailInfo = emailList[num]
-        profpicInfo = profpicList[num]
-        idInfo = idList[num]
-        
-        loadCircle.isHidden = false
-        lcLC[0].isActive = false
-        lcLC[1].isActive = true
-        
-        connTitleRef.alpha = 1.0
-        
-        self.view.layoutIfNeeded()
-        
-        loadMessages(id: idInfo)
-        
-        UIView.animate(withDuration: 0.2, animations: {
+        if(isMe)
+        {
+            if(menuToggle)
+            {
+                NotificationCenter.default.post(name: Notification.Name("closeMenuTab"), object: nil)
+            }
             
-            self.svLC[0].isActive = false
-            self.svLC[1].isActive = false
+            let num = Int(sender.title(for: .normal)!)!
             
-            self.svLC[2].isActive = true
-            self.svLC[3].isActive = true
+            NotificationCenter.default.post(name: Notification.Name("toggleMenuOpacity"), object: nil)
             
-            self.mvLC[0].isActive = false
-            self.mvLC[1].isActive = false
+            nameInfo = nameList[num]
+            mNameLabel.text = nameInfo
+            usernameInfo = usernameList[num]
+            emailInfo = emailList[num]
+            profpicInfo = profpicList[num]
+            idInfo = idList[num]
             
-            self.mvLC[2].isActive = true
-            self.mvLC[3].isActive = true
+            loadCircle.isHidden = false
+            lcLC[0].isActive = false
+            lcLC[1].isActive = true
             
-            sender.backgroundColor = UIColor(displayP3Red: 120.0 / 255.0, green: 110.0 / 255.0, blue: 220.0 / 255.0, alpha: 0.8)
-            self.connTitleRef.alpha = 0.0
+            connTitleRef.alpha = 1.0
             
             self.view.layoutIfNeeded()
             
-        }) { _ in
+            loadMessages(id: idInfo)
             
-            sender.backgroundColor = UIColor.clear
-            self.view.layoutIfNeeded()
-            
+            UIView.animate(withDuration: 0.2, animations: {
+                
+                self.svLC[0].isActive = false
+                self.svLC[1].isActive = false
+                
+                self.svLC[2].isActive = true
+                self.svLC[3].isActive = true
+                
+                self.mvLC[0].isActive = false
+                self.mvLC[1].isActive = false
+                
+                self.mvLC[2].isActive = true
+                self.mvLC[3].isActive = true
+                
+                sender.backgroundColor = UIColor(displayP3Red: 120.0 / 255.0, green: 110.0 / 255.0, blue: 220.0 / 255.0, alpha: 0.8)
+                self.connTitleRef.alpha = 0.0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { _ in
+                
+                AppUtility.lockOrientation(.all)
+                
+                sender.backgroundColor = UIColor.clear
+                self.view.layoutIfNeeded()
+                
+            }
         }
         
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    {
+        self.view.autoresizesSubviews = true
+        self.view.layoutIfNeeded()
     }
     
     func loadMessages(id: String)
@@ -209,7 +246,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     {
                         for child2 in subChildren
                         {
-                            if(child2.key == "username")
+                            if(child2.key == "user")
                             {
                                 self.MSVUserList[Q] = (child2.value as? String)!
                                 if(self.MSVUserList[totalCount - 1] != "" && self.MSVMessageList[totalCount - 1] != "" && self.MSVTimeList[totalCount - 1] != "" && self.MSVDateList[totalCount - 1] != "")
@@ -333,7 +370,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         
         for q in 0...(itemOrder.count - 1)
         {
-            if(MSVUserList[itemOrder[q]] == username)
+            if(MSVUserList[itemOrder[q]] == userEmail!)
             {
                 if("\(Array(MSVMessageList[itemOrder[q]])[0])\(Array(MSVMessageList[itemOrder[q]])[1])" == "/m")
                 {
@@ -381,7 +418,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         stackView.addArrangedSubview(VIEW)
         VIEW.heightAnchor.constraint(equalToConstant: barHeight).isActive = true
         VIEW.layer.cornerRadius = UIScreen.main.bounds.width * 0.03
-        VIEW.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1)
+        VIEW.backgroundColor = UIColor(displayP3Red: 116.0 / 255.0, green: 114.0 / 255.0, blue: 233.0 / 255.0, alpha: 1)
         VIEW.alpha = 1.0
         
         BUTTON.translatesAutoresizingMaskIntoConstraints = false
@@ -502,12 +539,12 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             b += 1
         }
         
-        loadCircle.isHidden = true
-        
         for q in 0...(itemOrder.count - 1)
         {
             addStackViewMember(cc: itemOrder[q])
         }
+        
+        loadCircle.isHidden = true
         
     }
     
@@ -575,15 +612,16 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 {
                     let _ = value
                     let c = PP
-                    self.usernameList[c] = key
-                    self.db.child("usernames/\(key)").observeSingleEvent(of: .value) { snap in
-                        if let tEmail = snap.value as? String
+                    self.emailList[c] = key
+                    let tEmail = key
+                    self.db.child("users/\(key)/username").observeSingleEvent(of: .value) { snap in
+                        if let tUsername = snap.value as? String
                         {
                             
                             // INDEX OUT OF RANGE ERROR AT self.emailList[c] = tEmail
                             
                             
-                            self.emailList[c] = tEmail
+                            self.usernameList[c] = tEmail
                             self.db.child("users/\(tEmail)/name").observeSingleEvent(of: .value) { snap2 in
                                 if let tName = snap2.value as? String
                                 {
@@ -596,7 +634,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                                 if let randID = snap4.value as? String
                                                 {
                                                     self.idList[c] = randID
-                                                    self.db.child("connections/\(randID)/\(username)/status").observeSingleEvent(of: .value) { snap5 in
+                                                    self.db.child("connections/\(randID)/\(userEmail!)/status").observeSingleEvent(of: .value) { snap5 in
                                                         if let tStatus = snap5.value as? String
                                                         {
                                                             self.connStatus[c] = tStatus
@@ -612,7 +650,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                                                             {
                                                                                 self.sortStackViews()
                                                                             }
-                                                                            self.st.child("profilepics/\(key).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
+                                                                            self.st.child("profilepics/\(tUsername).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
                                                                                 if error != nil
                                                                                 {
                                                                                     print("error loading image \(error!)")
@@ -1069,41 +1107,44 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func sendProposal(_ sender: UIButton!)
     {
-        let proposalSubject: String! = mPropTextField.text!
-        
-        let dateTemp = mPropDate.date.convertToTimeZone(initTimeZone: TimeZone(abbreviation: "GMT")!, timeZone: TimeZone(abbreviation: "PDT")!)
-        let dateAsString: String = "\(dateTemp)"
-        let components = Calendar.current.dateComponents([.day, .month, .year, .hour, .minute],
-                                                         from: mPropDate.date)
-        
-        let proposalDate: String = "\(dateAsString.prefix(10))"
-        
-        let hr = components.hour!
-        var mn = "\(components.minute!)"
-        if(mn.count == 1)
+        if(isMe)
         {
-            mn = "0\(mn)"
+            let proposalSubject: String! = mPropTextField.text!
+            
+            let dateTemp = mPropDate.date.convertToTimeZone(initTimeZone: TimeZone(abbreviation: "GMT")!, timeZone: TimeZone(abbreviation: "PDT")!)
+            let dateAsString: String = "\(dateTemp)"
+            let components = Calendar.current.dateComponents([.day, .month, .year, .hour, .minute],
+                                                             from: mPropDate.date)
+            
+            let proposalDate: String = "\(dateAsString.prefix(10))"
+            
+            let hr = components.hour!
+            var mn = "\(components.minute!)"
+            if(mn.count == 1)
+            {
+                mn = "0\(mn)"
+            }
+            
+            let proposalTime: String = "\(hr):\(mn):00"
+            
+            let DATE = Date()
+            var calendar = Calendar.current
+            calendar.timeZone = TimeZone(abbreviation: "PDT")!
+            let hour = calendar.component(.hour, from: DATE)
+            let minutes = calendar.component(.minute, from: DATE)
+            let seconds = calendar.component(.second, from: DATE)
+            let stringDate = "\(DATE)"
+            let messRef = self.db.child("connections/\(self.idInfo!)/message_list/").childByAutoId()
+            let proposalDateTimeSubject: String = "\(proposalDate)|\(proposalTime)|\(proposalSubject!)|\(messRef.key!)|pending|\(userEmail!)|\(emailInfo!)"
+            self.MSVIDList.append(messRef.key!)
+            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/t\(proposalDateTimeSubject)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+            
+            createTextView(text: "\(proposalDateTimeSubject)", atindex: -1, userself: true, isImage: false, imagee: UIImage(), isProposal: true)
+            
+            self.view.endEditing(true)
+            closePropSession()
+            toggleOptionsPopup()
         }
-        
-        let proposalTime: String = "\(hr):\(mn):00"
-        
-        let DATE = Date()
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone(abbreviation: "PDT")!
-        let hour = calendar.component(.hour, from: DATE)
-        let minutes = calendar.component(.minute, from: DATE)
-        let seconds = calendar.component(.second, from: DATE)
-        let stringDate = "\(DATE)"
-        let messRef = self.db.child("connections/\(self.idInfo!)/message_list/").childByAutoId()
-        let proposalDateTimeSubject: String = "\(proposalDate)|\(proposalTime)|\(proposalSubject!)|\(messRef.key!)|pending|\(username)"
-        self.MSVIDList.append(messRef.key!)
-        messRef.updateChildValues(["username":"\(username)", "message":"/t\(proposalDateTimeSubject)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
-        
-        createTextView(text: "\(proposalDateTimeSubject)", atindex: -1, userself: true, isImage: false, imagee: UIImage(), isProposal: true)
-        
-        self.view.endEditing(true)
-        closePropSession()
-        toggleOptionsPopup()
         
     }
     
@@ -1138,7 +1179,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func bringUpOptions(_ sender: UIButton!)
     {
-        if(!togglingOptions)
+        if(!togglingOptions && isMe)
         {
             
             self.view.endEditing(true)
@@ -1227,29 +1268,32 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func proposeSessionPressed(_ sender: UIButton!)
     {
-        mPropView.alpha = 1.0 - mPropView.alpha
-        
-        mPropToggle = true
-        
-        var dateComponents = Calendar.current.dateComponents([.day, .month, .year, .hour, .minute, .second],
-        from: Date())
-        dateComponents.minute = dateComponents.minute! + 5
-        mPropDate.minimumDate = Calendar.current.date(from: dateComponents)
-        
-        UIView.animate(withDuration: 0.35, animations: {
+        if(isMe)
+        {
+            mPropView.alpha = 1.0 - mPropView.alpha
             
-            self.mpvLC[2].isActive = false
-            self.mpvLC[3].isActive = false
+            mPropToggle = true
             
-            self.mpvLC[0].isActive = true
-            self.mpvLC[1].isActive = true
+            var dateComponents = Calendar.current.dateComponents([.day, .month, .year, .hour, .minute, .second],
+            from: Date())
+            dateComponents.minute = dateComponents.minute! + 5
+            mPropDate.minimumDate = Calendar.current.date(from: dateComponents)
             
-            self.mPropView.alpha = 1.0
-            
-            self.view.layoutIfNeeded()
-            
-        }) { _ in
-            self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.35, animations: {
+                
+                self.mpvLC[2].isActive = false
+                self.mpvLC[3].isActive = false
+                
+                self.mpvLC[0].isActive = true
+                self.mpvLC[1].isActive = true
+                
+                self.mPropView.alpha = 1.0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { _ in
+                self.view.layoutIfNeeded()
+            }
         }
     }
     
@@ -1275,7 +1319,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func closePropSessionButtonPressed(_ sender: UIButton!)
     {
-        closePropSession()
+        if(isMe)
+        {
+            closePropSession()
+        }
     }
     
     @objc func uploadPicPressed(_ sender: UIButton!)
@@ -1331,7 +1378,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     let stringDate = "\(date)"
                     let messRef = self.db.child("connections/\(self.idInfo!)/message_list/\(self.passedAutoID)")
                     self.MSVIDList.append(messRef.key!)
-                    messRef.updateChildValues(["username":"\(username)", "message":"/i\(self.passedAutoID)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+                    messRef.updateChildValues(["user":"\(userEmail!)", "message":"/i\(self.passedAutoID)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
                     
                     self.view.layoutIfNeeded()
                     
@@ -1468,7 +1515,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             let stringDate = "\(date)"
             let messRef = db.child("connections/\(idInfo!)/message_list").childByAutoId()
             MSVIDList.append(messRef.key!)
-            messRef.updateChildValues(["username":"\(username)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
             
             self.view.layoutIfNeeded()
             
@@ -1480,46 +1527,49 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     func refreshChat()
     {
-        let observeR = db.child("connections/\(idInfo!)/message_list").observe(.childAdded, with: { snapshotT in
-            
-            if let value = snapshotT.value
-            {
-                let diction = value as! [String: Any]
-                let messageVAR = diction["message"] as? String
-                let userVAR = diction["username"] as? String
-                if(!self.MSVIDList.contains(snapshotT.key))
+        if(isMe)
+        {
+            let observeR = db.child("connections/\(idInfo!)/message_list").observe(.childAdded, with: { snapshotT in
+                
+                if let value = snapshotT.value
                 {
-                    self.MSVIDList.append(snapshotT.key)
-                    let arrrr = Array(messageVAR!)
-                    if("\(arrrr[0])\(arrrr[1])" == "/m")
+                    let diction = value as! [String: Any]
+                    let messageVAR = diction["message"] as? String
+                    let userVAR = diction["user"] as? String
+                    if(!self.MSVIDList.contains(snapshotT.key))
                     {
-                        let MESS = "\(messageVAR!.dropFirst(2))"
-                        self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == username), isImage: false, imagee: UIImage(), isProposal: false)
-                    } else if("\(arrrr[0])\(arrrr[1])" == "/i")
-                    {
-                        let MESS = "\(messageVAR!.dropFirst(2))"
-                        self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == username), isImage: true, imagee: UIImage(named: "loadImage"), isProposal: false)
-                    
-                    } else if("\(arrrr[0])\(arrrr[1])" == "/t")
-                    {
-                        let MESS = "\(messageVAR!.dropFirst(2))"
-                        self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == username), isImage: false, imagee: UIImage(named: "loadImage"), isProposal: true)
-                   
+                        self.MSVIDList.append(snapshotT.key)
+                        let arrrr = Array(messageVAR!)
+                        if("\(arrrr[0])\(arrrr[1])" == "/m")
+                        {
+                            let MESS = "\(messageVAR!.dropFirst(2))"
+                            self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == userEmail!), isImage: false, imagee: UIImage(), isProposal: false)
+                        } else if("\(arrrr[0])\(arrrr[1])" == "/i")
+                        {
+                            let MESS = "\(messageVAR!.dropFirst(2))"
+                            self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == userEmail!), isImage: true, imagee: UIImage(named: "loadImage"), isProposal: false)
+                        
+                        } else if("\(arrrr[0])\(arrrr[1])" == "/t")
+                        {
+                            let MESS = "\(messageVAR!.dropFirst(2))"
+                            self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == userEmail!), isImage: false, imagee: UIImage(named: "loadImage"), isProposal: true)
+                       
+                        }
+                        
+                        // add option for time proposals
                     }
-                    
-                    // add option for time proposals
-                }
-                self.db.child("connections/\(self.idInfo!)/message_list/\(snapshotT.key)/timestamp").observeSingleEvent(of: .value) { timesnap in
-                    if let vall = timesnap.value
-                    {
-                        let diction2 = vall as! [String: Any]
-                        let dateVAR = diction2["date"] as? String
-                        let timeVAR = diction2["time"] as? String
-                        self.db.child("connections/\(self.idInfo!)/last_message_time").updateChildValues(["date":"\(dateVAR!)", "time":"\(timeVAR!)"])
+                    self.db.child("connections/\(self.idInfo!)/message_list/\(snapshotT.key)/timestamp").observeSingleEvent(of: .value) { timesnap in
+                        if let vall = timesnap.value
+                        {
+                            let diction2 = vall as! [String: Any]
+                            let dateVAR = diction2["date"] as? String
+                            let timeVAR = diction2["time"] as? String
+                            self.db.child("connections/\(self.idInfo!)/last_message_time").updateChildValues(["date":"\(dateVAR!)", "time":"\(timeVAR!)"])
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
     }
     
     func createTextView(text: String, atindex: Int, userself: Bool, isImage: Bool, imagee: UIImage!, isProposal: Bool)
@@ -1580,7 +1630,6 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 tempGOING = "\(separateParts[4])"
                 tempSENDER = "\(separateParts[5])"
                 viewWidth = screenWidth * 0.7
-                var pTS: String = "Proposed Tutoring Session"
                 subHeight = tempSUBJECT.heightWithConstrainedWidth(width: viewWidth, font: UIFont(name: "HelveticaNeue", size: 25.0)!) + 1.0
                 viewHeight = 15.0 + 18.0 + 5.0 + subHeight + 5.0 + 25.0 + 50.0 + 10.0
             }
@@ -1687,7 +1736,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 postBottomLabel.numberOfLines = 0
                 postBottomLabel.textAlignment = .left
                 
-                if(tempSENDER == username || tempGOING == "accepted" || tempGOING == "denied")
+                if(tempSENDER == userEmail! || tempGOING == "accepted" || tempGOING == "denied")
                 {
                     
                     neutralButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1780,7 +1829,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             postImage.topAnchor.constraint(equalTo: postView.topAnchor, constant: 20.0).isActive = true
             postImage.bottomAnchor.constraint(equalTo: postView.bottomAnchor, constant: -20.0).isActive = true
             postImage.setBackgroundImage(UIImage(named: "loadImage"), for: .normal)
-            postImage.setTitle("", for: .normal)
+            postImage.setTitle("\(text)", for: .normal)
+            postImage.setTitleColor(UIColor.clear, for: .normal)
+            postImage.addTarget(self, action: #selector(imagePressed(_:)), for: .touchUpInside)
             st.child("messages/\(idInfo!)/\(text).jpg").getData(maxSize: 25 * 1024 * 1024, completion: { (data, error) in
                 if error != nil
                 {
@@ -1804,81 +1855,525 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         
     }
     
-    @objc func yesToProposalPressed(_ sender: UIButton!)
+    @objc func imagePressed(_ sender: UIButton!)
     {
-        // take ID info (in button name) and change it in firebase to yes
         
-        let givenID: String = (sender.titleLabel?.text)!
+        wbView.removeFromSuperview()
+        wbView = UIView()
+        self.view.addSubview(wbView)
+        self.view.bringSubviewToFront(wbView)
+        wbView.translatesAutoresizingMaskIntoConstraints = false
+        wbView.removeConstraints(wbView.constraints)
+        wbLC = []
+        wbLC.append(wbView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        wbLC[0].isActive = false
+        wbLC.append(wbView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        wbLC[1].isActive = false
+        wbLC.append(wbView.topAnchor.constraint(equalTo: self.view.topAnchor))
+        wbLC[2].isActive = false
+        wbLC.append(wbView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor))
+        wbLC[3].isActive = false
+        wbLC.append(wbView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        wbLC[4].isActive = true
+        wbLC.append(wbView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        wbLC[5].isActive = true
+        wbLC.append(wbView.topAnchor.constraint(equalTo: self.view.bottomAnchor))
+        wbLC[6].isActive = true
+        wbLC.append(wbView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 200.0))
+        wbLC[7].isActive = true
+        wbView.backgroundColor = UIColor(displayP3Red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
+        wbView.alpha = 0.5
         
-        db.child("connections/\(idInfo!)/message_list/\(givenID)").observeSingleEvent(of: .value) { snap in
-            if let value = snap.value
+        let wbTopBarView: UIView = UIView()
+        wbTopBarView.translatesAutoresizingMaskIntoConstraints = false
+        wbTopBarView.removeConstraints(wbTopBarView.constraints)
+        wbView.addSubview(wbTopBarView)
+        wbTopBarView.trailingAnchor.constraint(equalTo: wbView.trailingAnchor, constant: 0.0).isActive = true
+        wbTopBarView.leadingAnchor.constraint(equalTo: wbView.leadingAnchor, constant: 0.0).isActive = true
+        wbTopBarView.topAnchor.constraint(equalTo: wbView.topAnchor, constant: 0.0).isActive = true
+        wbTopBarView.bottomAnchor.constraint(equalTo: wbView.topAnchor, constant: self.view.safeAreaInsets.top + 50.0).isActive = true
+        wbTopBarView.backgroundColor = UIColor.systemIndigo
+        
+        let wbCloseButton: UIButton! = UIButton()
+        wbCloseButton.translatesAutoresizingMaskIntoConstraints = false
+        wbCloseButton.removeConstraints(wbCloseButton.constraints)
+        wbTopBarView.addSubview(wbCloseButton)
+        wbCloseButton.trailingAnchor.constraint(equalTo: wbTopBarView.trailingAnchor, constant: -20.0).isActive = true
+        wbCloseButton.leadingAnchor.constraint(equalTo: wbTopBarView.trailingAnchor, constant: -50.0).isActive = true
+        wbCloseButton.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbCloseButton.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbCloseButton.tintColor = UIColor.white
+        wbCloseButton.setBackgroundImage(UIImage(systemName: "multiply"), for: .normal)
+        wbCloseButton.setTitle("", for: .normal)
+        wbCloseButton.addTarget(self, action: #selector(closeImagePopup(_:)), for: .touchUpInside)
+        
+        wbModeView = UIView()
+        wbModeView.translatesAutoresizingMaskIntoConstraints = false
+        wbModeView.removeConstraints(wbModeView.constraints)
+        wbTopBarView.addSubview(wbModeView)
+        wbmLC = []
+        
+        let wbDrawButton: UIButton! = UIButton()
+        wbDrawButton.translatesAutoresizingMaskIntoConstraints = false
+        wbDrawButton.removeConstraints(wbCloseButton.constraints)
+        wbTopBarView.addSubview(wbDrawButton)
+        wbDrawButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -10.0).isActive = true
+        wbDrawButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -40.0).isActive = true
+        wbDrawButton.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbDrawButton.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbDrawButton.tintColor = UIColor.white
+        wbDrawButton.setBackgroundImage(UIImage(systemName: "pencil"), for: .normal)
+        wbDrawButton.setTitle("", for: .normal)
+        wbDrawButton.addTarget(self, action: #selector(turnOnDrawMode(_:)), for: .touchUpInside)
+        
+        let wbScrollButton: UIButton! = UIButton()
+        wbScrollButton.translatesAutoresizingMaskIntoConstraints = false
+        wbScrollButton.removeConstraints(wbScrollButton.constraints)
+        wbTopBarView.addSubview(wbScrollButton)
+        wbScrollButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 40.0).isActive = true
+        wbScrollButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 10.0).isActive = true
+        wbScrollButton.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbScrollButton.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbScrollButton.tintColor = UIColor.white
+        wbScrollButton.setBackgroundImage(UIImage(systemName: "plus"), for: .normal)
+        wbScrollButton.setTitle("", for: .normal)
+        wbScrollButton.addTarget(self, action: #selector(turnOffDrawMode(_:)), for: .touchUpInside)
+        
+        wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbDrawButton.leadingAnchor, constant: -7.0))
+        wbmLC[0].isActive = false
+        wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbDrawButton.trailingAnchor, constant: 7.0))
+        wbmLC[1].isActive = false
+        wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbDrawButton.topAnchor, constant: -7.0))
+        wbmLC[2].isActive = false
+        wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbDrawButton.bottomAnchor, constant: 7.0))
+        wbmLC[3].isActive = false
+        wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbScrollButton.leadingAnchor, constant: -7.0))
+        wbmLC[4].isActive = true
+        wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbScrollButton.trailingAnchor, constant: 7.0))
+        wbmLC[5].isActive = true
+        wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbScrollButton.topAnchor, constant: -7.0))
+        wbmLC[6].isActive = true
+        wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbScrollButton.bottomAnchor, constant: 7.0))
+        wbmLC[7].isActive = true
+        wbModeView.backgroundColor = UIColor(displayP3Red: 0.56, green: 0.54, blue: 0.85, alpha: 1.0)
+        wbModeView.layer.cornerRadius = 5.0
+        wbModeView.alpha = 0.8
+        
+        wbMode = "scroll"
+        wbSV.panGestureRecognizer.isEnabled = true
+        wbSV.pinchGestureRecognizer?.isEnabled = true
+        wbMyPositions = []
+        lineList = []
+        lineIDList = []
+        
+        wbSV.removeFromSuperview()
+        wbSV = UIScrollView()
+        wbSV.translatesAutoresizingMaskIntoConstraints = false
+        wbView.addSubview(wbSV)
+        wbSV.removeConstraints(wbSV.constraints)
+        wbSV.delegate = self
+        wbSV.trailingAnchor.constraint(equalTo: wbView.trailingAnchor, constant: 0.0).isActive = true
+        wbSV.leadingAnchor.constraint(equalTo: wbView.leadingAnchor, constant: 0.0).isActive = true
+        wbSV.topAnchor.constraint(equalTo: wbView.topAnchor, constant: self.view.safeAreaInsets.top + 50.0).isActive = true
+        wbSV.bottomAnchor.constraint(equalTo: wbView.bottomAnchor, constant: 0.0).isActive = true
+        wbSV.showsHorizontalScrollIndicator = false
+        wbSV.showsVerticalScrollIndicator = false
+        wbSV.decelerationRate = .fast
+        
+        wbBackgroundView.removeFromSuperview()
+        wbBackgroundView = UIView()
+        wbBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+        wbSV.addSubview(wbBackgroundView)
+        wbBackgroundView.isUserInteractionEnabled = true
+        wbBackgroundView.removeConstraints(wbBackgroundView.constraints)
+        wbBackgroundView.trailingAnchor.constraint(equalTo: wbSV.contentLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        wbBackgroundView.leadingAnchor.constraint(equalTo: wbSV.contentLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        wbBackgroundView.topAnchor.constraint(equalTo: wbSV.contentLayoutGuide.topAnchor, constant: 0).isActive = true
+        wbBackgroundView.bottomAnchor.constraint(equalTo: wbSV.contentLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        wbBackgroundView.widthAnchor.constraint(equalTo: wbSV.frameLayoutGuide.widthAnchor, constant: 0).isActive = true
+        wbBackgroundView.heightAnchor.constraint(equalTo: wbSV.frameLayoutGuide.heightAnchor, constant: 0).isActive = true
+        wbBackgroundView.backgroundColor = UIColor(displayP3Red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
+        
+        wbImageView.removeFromSuperview()
+        wbImageView = UIImageView()
+        wbImageView.translatesAutoresizingMaskIntoConstraints = false
+        wbBackgroundView.addSubview(wbImageView)
+        wbImageView.isUserInteractionEnabled = true
+        wbImageView.removeConstraints(wbImageView.constraints)
+        wbImageView.centerXAnchor.constraint(equalTo: wbBackgroundView.centerXAnchor).isActive = true
+        wbImageView.centerYAnchor.constraint(equalTo: wbBackgroundView.centerYAnchor).isActive = true
+        wbImageView.heightAnchor.constraint(equalTo: wbBackgroundView.heightAnchor, constant: -20.0).isActive = true
+        wbImageView.widthAnchor.constraint(equalTo: wbBackgroundView.widthAnchor, constant: -20.0).isActive = true
+        wbImageView.contentMode = .scaleAspectFit
+        wbImageView.image = UIImage()
+        
+        wbImageLoaded = false
+        
+        loadCircle.isHidden = false
+        self.view.bringSubviewToFront(loadCircle)
+        let imageTag: String = sender.title(for: .normal)!
+        imageDrawingOn = imageTag
+        db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").removeAllObservers()
+        
+        st.child("messages/\(idInfo!)/\(imageTag).jpg").getData(maxSize: 25 * 1024 * 1024, completion: { (data, error) in
+            if error != nil
             {
-                let dictionary = value as! [String: Any]
-                let originalData = dictionary["message"] as? String
-                let sepParts = originalData!.split(separator: "|")
-                let newData: String = "\(sepParts[0])|\(sepParts[1])|\(sepParts[2])|\(sepParts[3])|accepted|\(sepParts[5])"
-                self.db.child("connections/\(self.idInfo!)/message_list/\(givenID)/message").setValue(newData)
-                
-                let newChild = self.db.child("users/\(userEmail!)/sessions").childByAutoId()
-                newChild.setValue(newData)
-                
-                self.db.child("usernames/\(sepParts[5])").observeSingleEvent(of: .value) { nameSnap in
-                    if let theval = nameSnap.value as? String
-                    {
-                        let newChild2 = self.db.child("users/\(theval)/sessions").childByAutoId()
-                        newChild2.setValue(newData)
-                    }
-                }
-                
-                let newCoverView = UIView()
-                let lcList = [NSLayoutConstraint]! = []
-                newCoverView.layer.cornerRadius = 10.0
-                newCoverView.translatesAutoresizingMaskIntoConstraints = false
-                newCoverView.removeConstraints(newCoverView.constraints)
-                lcList.append(newCoverView.leadingAnchor.constraint(equalTo: sender.leadingAnchor, constant: 0.0))
-                lcList[0].isActive = true
-                lcList.append(newCoverView.trailingAnchor.constraint(equalTo: sender.trailingAnchor, constant: 0.0))
-                lcList[1].isActive = true
-                lcList.append(newCoverView.trailingAnchor.constraint(equalTo: sender.trailingAnchor, constant: UIScreen.main.bounds.width * 0.35 - 15.0))
-                lcList[2].isActive = true
-                newCoverView.topAnchor.constraint(equalTo: sender.topAnchor, constant: 0.0).isActive = true
-                newCoverView.bottomAnchor.constraint(equalTo: sender.bottomAnchor, constant: 0.0).isActive = true
-                newCoverView.backgroundColor = sender.backgroundColor
-                
-                UIView.animate(withDuration: 0.3, animations: {
-                    
-                    lcList[1].isActive = false
-                    lcList[2].isActive = true
-                    
-                    newCoverView.backgroundColor = UIColor(displayP3Red: 0.6, green: 0.75, blue: 0.6, alpha: 1.0)
-                    
-                    sender.alpha = 0.0
-                    self.view.layoutIfNeeded()
-                    
-                }) { _ in
-                    
-                }
+                print("error loading image \(error!)")
             }
+            if let data = data
+            {
+                
+                if(!self.wbUP || sender.title(for: .normal)! != self.imageDrawingOn)
+                {
+                    return
+                }
+                
+                self.loadLines()
+                
+                self.wbImageLoaded = true
+                self.loadCircle.isHidden = true
+                self.wbImageView.image = UIImage(data: data)
+                self.wbSV.minimumZoomScale = 1.0
+                self.wbSV.maximumZoomScale = 5.0
+                self.wbSV.zoomScale = 1.0
+                
+                if((self.wbImageView.image?.size.height)! / (self.wbImageView.image?.size.width)! > self.wbBackgroundView.bounds.height / self.wbBackgroundView.bounds.width)
+                {
+                    self.wbImageHei = self.wbBackgroundView.bounds.height - 20.0
+                    self.wbImageWid = self.wbImageHei * (self.wbImageView.image?.size.width)! / (self.wbImageView.image?.size.height)!
+                    self.wbHeiToImage = 0.0
+                    self.wbWidToImage = (self.wbBackgroundView.bounds.width - self.wbImageWid) / 2.0 - 10.0
+                } else
+                {
+                    self.wbImageWid = self.wbBackgroundView.bounds.width - 20.0
+                    self.wbImageHei = self.wbImageWid * (self.wbImageView.image?.size.height)! / (self.wbImageView.image?.size.width)!
+                    self.wbWidToImage = 0.0
+                    self.wbHeiToImage = (self.wbBackgroundView.bounds.height - self.wbImageHei) / 2.0 - 10.0
+                }
+                
+            }
+        })
+        
+        self.view.layoutIfNeeded()
+        
+        wbView.isHidden = false
+        
+        wbUP = true
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            self.wbLC[4].isActive = false
+            self.wbLC[5].isActive = false
+            self.wbLC[6].isActive = false
+            self.wbLC[7].isActive = false
+            
+            self.wbLC[0].isActive = true
+            self.wbLC[1].isActive = true
+            self.wbLC[2].isActive = true
+            self.wbLC[3].isActive = true
+            
+            self.wbView.alpha = 1.0
+            
+            self.view.layoutIfNeeded()
+            
+        }) { _ in
+            self.view.layoutIfNeeded()
         }
         
     }
     
-    @objc func noToProposalPressed(_ sender: UIButton!)
+    @objc func turnOnDrawMode(_ sender: UIButton!)
     {
-        // change status to denied
         
-        let givenID: String = (sender.titleLabel?.text)!
+        wbMode = "draw"
+        wbSV.panGestureRecognizer.isEnabled = false
+        wbSV.pinchGestureRecognizer?.isEnabled = false
+        wbSV.isUserInteractionEnabled = false
         
-        db.child("connections/\(idInfo!)/message_list/\(givenID)").observeSingleEvent(of: .value) { snap in
-            if let value = snap.value
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            self.wbmLC[4].isActive = false
+            self.wbmLC[5].isActive = false
+            self.wbmLC[6].isActive = false
+            self.wbmLC[7].isActive = false
+            
+            self.wbmLC[0].isActive = true
+            self.wbmLC[1].isActive = true
+            self.wbmLC[2].isActive = true
+            self.wbmLC[3].isActive = true
+            
+            self.view.layoutIfNeeded()
+            
+        }) { _ in
+            self.view.layoutIfNeeded()
+        }
+        
+    }
+    
+    @objc func turnOffDrawMode(_ sender: UIButton!)
+    {
+        
+        wbMode = "scroll"
+        wbSV.panGestureRecognizer.isEnabled = true
+        wbSV.pinchGestureRecognizer?.isEnabled = true
+        wbSV.isUserInteractionEnabled = true
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            self.wbmLC[0].isActive = false
+            self.wbmLC[1].isActive = false
+            self.wbmLC[2].isActive = false
+            self.wbmLC[3].isActive = false
+            
+            self.wbmLC[4].isActive = true
+            self.wbmLC[5].isActive = true
+            self.wbmLC[6].isActive = true
+            self.wbmLC[7].isActive = true
+            
+            self.view.layoutIfNeeded()
+            
+        }) { _ in
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
+        if(wbMode == "draw" && wbUP && wbImageLoaded)
+        {
+            wbMyPositions = []
+            if let touch = touches.first
             {
-                let dictionary = value as! [String: Any]
-                let originalData = dictionary["message"] as? String
-                let sepParts = originalData!.split(separator: "|")
-                let newData: String = "\(sepParts[0])|\(sepParts[1])|\(sepParts[2])|\(sepParts[3])|denied|\(sepParts[5])"
-                self.db.child("connections/\(self.idInfo!)/message_list/\(givenID)/message").setValue(newData)
+                currLinePath = UIBezierPath()
+                currLinePath.removeAllPoints()
+                cnol = lineList.count
+                lineList.append(CAShapeLayer())
+                lineList[cnol].strokeColor = UIColor.black.cgColor
+                lineList[cnol].lineWidth = 3.0 / wbSV.zoomScale
+                lineList[cnol].path = currLinePath.cgPath
+                lineList[cnol].fillColor = UIColor.clear.cgColor
+                lineList[cnol].lineCap = .round
+                lineList[cnol].lineJoin = .round
+                wbImageView.layer.addSublayer(lineList[cnol])
+                
+                let position = touch.location(in: wbImageView)
+                var modifiedPos = position
+                modifiedPos.x -= wbWidToImage
+                modifiedPos.y -= wbHeiToImage
+                if(modifiedPos.isInRect(rect: CGRect(x: 0, y: 0, width: wbImageWid, height: wbImageHei)))
+                {
+                    modifiedPos.x *= 1000.0 / wbImageWid
+                    modifiedPos.y *= 1000.0 / wbImageHei
+                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 1000.0
+                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 1000.0
+                    currLinePath.move(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                    currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                    lineList[cnol].path = currLinePath.cgPath
+                    wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y)")
+                }
                 
             }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
+        if(wbMode == "draw" && wbUP && wbImageLoaded)
+        {
+            if let touch = touches.first
+            {
+                let position = touch.location(in: wbImageView)
+                var modifiedPos = position
+                modifiedPos.x -= wbWidToImage
+                modifiedPos.y -= wbHeiToImage
+                if(modifiedPos.isInRect(rect: CGRect(x: 0, y: 0, width: wbImageWid, height: wbImageHei)))
+                {
+                    modifiedPos.x *= 1000.0 / wbImageWid
+                    modifiedPos.y *= 1000.0 / wbImageHei
+                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 1000.0
+                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 1000.0
+                    if(wbMyPositions.count == 0)
+                    {
+                        currLinePath = UIBezierPath()
+                        currLinePath.removeAllPoints()
+                        cnol = lineList.count
+                        lineList.append(CAShapeLayer())
+                        lineList[cnol].strokeColor = UIColor.black.cgColor
+                        lineList[cnol].lineWidth = 3.0 / wbSV.zoomScale
+                        lineList[cnol].path = currLinePath.cgPath
+                        lineList[cnol].fillColor = UIColor.clear.cgColor
+                        lineList[cnol].lineCap = .round
+                        lineList[cnol].lineJoin = .round
+                        wbImageView.layer.addSublayer(lineList[cnol])
+                        currLinePath.move(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                        currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                        lineList[cnol].path = currLinePath.cgPath
+                        wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y)")
+                    } else if(wbMyPositions[wbMyPositions.count - 1] != "\(modifiedPos.x)|\(modifiedPos.y)")
+                    {
+                        currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                        lineList[cnol].path = currLinePath.cgPath
+                        wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y)")
+                    }
+                } else if(wbMyPositions.count > 0)
+                {
+                    let posList = wbMyPositions
+                    let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+                    lineIDList.append(base.key!)
+                    base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(3.0 / wbSV.zoomScale)", "points":posList!])
+                    
+                    drawLine(points: posList!, lineWidth: 3.0 / wbSV.zoomScale, lineColor: UIColor.black.cgColor)
+                    wbMyPositions = []
+                }
+                
+            }
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
+        if(wbMode == "draw" && wbUP && wbImageLoaded && wbMyPositions.count > 0)
+        {
+            
+            let posList = wbMyPositions
+            let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+            lineIDList.append(base.key!)
+            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(3.0 / wbSV.zoomScale)", "points":posList!])
+            
+            drawLine(points: posList!, lineWidth: 3.0 / wbSV.zoomScale, lineColor: UIColor.black.cgColor)
+            wbMyPositions = []
+        }
+    }
+    
+    func drawLine(points: [String]!, lineWidth: CGFloat, lineColor: CGColor)
+    {
+        let q = lineList.count
+        lineList.append(CAShapeLayer())
+        lineList[q].strokeColor = lineColor
+        lineList[q].lineWidth = lineWidth
+        let linePath: UIBezierPath = UIBezierPath()
+        linePath.removeAllPoints()
+        linePath.move(to: CGPoint(x: wbImageWid * CGFloat(truncating: NumberFormatter().number(from: "\(points[0].split(separator: "|")[0])")!) + wbWidToImage, y: wbImageHei * CGFloat(truncating: NumberFormatter().number(from: "\(points[0].split(separator: "|")[1])")!) + wbHeiToImage))
+        points.forEach { item in
+            let sub = item.split(separator: "|")
+            let xcoord = CGFloat(truncating: NumberFormatter().number(from: "\(sub[0])")!) * wbImageWid
+            let ycoord = CGFloat(truncating: NumberFormatter().number(from: "\(sub[1])")!) * wbImageHei
+            linePath.addLine(to: CGPoint(x: xcoord + wbWidToImage, y: ycoord + wbHeiToImage))
+        }
+        lineList[q].path = linePath.cgPath
+        lineList[q].fillColor = UIColor.clear.cgColor
+        lineList[q].lineCap = .round
+        lineList[q].lineJoin = .round
+        wbImageView.layer.addSublayer(lineList[q])
+    }
+    
+    func loadLines()
+    {
+        db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").observe(.childAdded) { datasnap in
+            if let value = datasnap.value
+            {
+                let dict = value as! [String: Any]
+                let colorStr = dict["color"] as? String
+                let color = UIColor(hue: CGFloat(truncating: NumberFormatter().number(from: colorStr!)!), saturation: 1.0, brightness: 1.0, alpha: 1.0).cgColor
+                let lineWid = CGFloat(truncating: NumberFormatter().number(from: (dict["thickness"] as? String)!)!)
+                if(!self.lineIDList.contains(datasnap.key))
+                {
+                    let pOINTS = datasnap.childSnapshot(forPath: "points").children.allObjects as? [DataSnapshot]
+                    var dataPoints: [String]! = []
+                    for _ in 0...(pOINTS!.count - 1)
+                    {
+                        dataPoints.append("")
+                    }
+                    for cHILD in pOINTS!
+                    {
+                        dataPoints[Int("\(cHILD.key)")!] = (cHILD.value as? String)!
+                    }
+                    self.drawLine(points: dataPoints, lineWidth: lineWid, lineColor: color)
+                    self.lineIDList.append(datasnap.key)
+                }
+            }
+        }
+    }
+    
+    @objc func closeImagePopup(_ sender: UIButton!)
+    {
+        self.view.layoutIfNeeded()
+
+        self.loadCircle.isHidden = true
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            self.wbLC[0].isActive = false
+            self.wbLC[1].isActive = false
+            self.wbLC[2].isActive = false
+            self.wbLC[3].isActive = false
+            
+            self.wbLC[4].isActive = true
+            self.wbLC[5].isActive = true
+            self.wbLC[6].isActive = true
+            self.wbLC[7].isActive = true
+            
+            self.wbView.alpha = 0.5
+            
+            self.view.layoutIfNeeded()
+            
+        }) { _ in
+            
+            self.wbImageView.image = UIImage()
+            self.wbBackgroundView.removeFromSuperview()
+            self.wbView.removeFromSuperview()
+            self.wbView.isHidden = true
+
+            self.wbUP = false
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc func yesToProposalPressed(_ sender: UIButton!)
+    {
+        if(isMe)
+        {
+            let givenID: String = (sender.titleLabel?.text)!
+            
+            db.child("connections/\(idInfo!)/message_list/\(givenID)").observeSingleEvent(of: .value) { snap in
+                if let value = snap.value
+                {
+                    let dictionary = value as! [String: Any]
+                    let originalData = dictionary["message"] as? String
+                    let sepParts = originalData!.split(separator: "|")
+                    let newData: String = "\(sepParts[0])|\(sepParts[1])|\(sepParts[2])|\(sepParts[3])|accepted|\(sepParts[5])|\(sepParts[6])"
+                    self.db.child("connections/\(self.idInfo!)/message_list/\(givenID)/message").setValue(newData)
+                    
+                    self.db.child("users/\(userEmail!)/sessions/\(self.idInfo!)").setValue(newData)
+                    self.db.child("users/\(sepParts[5])/sessions/\(self.idInfo!)").setValue(newData)
+                    
+                    self.loadMessages(id: self.idInfo!)
+                }
+            }
+        }
+    }
+    
+    @objc func noToProposalPressed(_ sender: UIButton!)
+    {
+        if(isMe)
+        {
+        
+            let givenID: String = (sender.titleLabel?.text)!
+            
+            db.child("connections/\(idInfo!)/message_list/\(givenID)").observeSingleEvent(of: .value) { snap in
+                if let value = snap.value
+                {
+                    let dictionary = value as! [String: Any]
+                    let originalData = dictionary["message"] as? String
+                    let sepParts = originalData!.split(separator: "|")
+                    let newData: String = "\(sepParts[0])|\(sepParts[1])|\(sepParts[2])|\(sepParts[3])|declined|\(sepParts[5])|\(sepParts[6])"
+                    self.db.child("connections/\(self.idInfo!)/message_list/\(givenID)/message").setValue(newData)
+                    
+                    self.loadMessages(id: self.idInfo!)
+                    
+                }
+            }
+            
         }
     }
     
@@ -1940,6 +2435,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         }
     }
     
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.wbBackgroundView
+    }
+    
 
 }
 
@@ -1994,5 +2493,19 @@ extension Date
     {
          let delta = TimeInterval(timeZone.secondsFromGMT(for: self) - initTimeZone.secondsFromGMT(for: self))
          return addingTimeInterval(delta)
+    }
+}
+
+extension CGPoint
+{
+    func isInRect(rect: CGRect) -> Bool
+    {
+        if(self.x >= rect.minX && self.x <= rect.maxX && self.y >= rect.minY && self.y <= rect.maxY)
+        {
+            return true
+        } else
+        {
+            return false
+        }
     }
 }
