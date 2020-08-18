@@ -22,11 +22,10 @@
 		30DACDD624CD20D200C5110A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30DACDD524CD20D200C5110A /* Assets.xcassets */; };
 		30DACE4024CFB1530026CC59 /* ProfileEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DACE3F24CFB1530026CC59 /* ProfileEditViewController.swift */; };
 		30E3A3C124CE8C5000E7D70F /* MenuButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E3A3C024CE8C5000E7D70F /* MenuButtonViewController.swift */; };
-		D382AE95C215110C590E76AB /* Pods_Dualong.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B93B58F88449866C5963729 /* Pods_Dualong.framework */; };
+		AB657343BE9B574DCBFC2A46 /* Pods_Dualong.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81B37F727A3B05A9F0DCC483 /* Pods_Dualong.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0B93B58F88449866C5963729 /* Pods_Dualong.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dualong.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3028A75224CF9DC700D49CC5 /* ExploreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewController.swift; sourceTree = "<group>"; };
 		3028A75424CF9DE500D49CC5 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		3035175224CA4D5800D8AB4A /* Dualong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dualong.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,8 +43,9 @@
 		30DACDD524CD20D200C5110A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30DACE3F24CFB1530026CC59 /* ProfileEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditViewController.swift; sourceTree = "<group>"; };
 		30E3A3C024CE8C5000E7D70F /* MenuButtonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuButtonViewController.swift; sourceTree = "<group>"; };
-		4C608D03B5C1EBBD4D8C70D5 /* Pods-Dualong.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dualong.release.xcconfig"; path = "Target Support Files/Pods-Dualong/Pods-Dualong.release.xcconfig"; sourceTree = "<group>"; };
-		65D07439C6B535C969BB1797 /* Pods-Dualong.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dualong.debug.xcconfig"; path = "Target Support Files/Pods-Dualong/Pods-Dualong.debug.xcconfig"; sourceTree = "<group>"; };
+		571E3A3FF58F8EF62A85D282 /* Pods-Dualong.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dualong.release.xcconfig"; path = "Target Support Files/Pods-Dualong/Pods-Dualong.release.xcconfig"; sourceTree = "<group>"; };
+		81B37F727A3B05A9F0DCC483 /* Pods_Dualong.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dualong.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6BE2C9677F6873A1B53C1B9 /* Pods-Dualong.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dualong.debug.xcconfig"; path = "Target Support Files/Pods-Dualong/Pods-Dualong.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,21 +53,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D382AE95C215110C590E76AB /* Pods_Dualong.framework in Frameworks */,
+				AB657343BE9B574DCBFC2A46 /* Pods_Dualong.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		01E7591B464D074DA981B1E6 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0B93B58F88449866C5963729 /* Pods_Dualong.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		3014FCA524CB86C100174F73 /* SupportFiles */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,7 +75,7 @@
 				3035175424CA4D5800D8AB4A /* Dualong */,
 				3035175324CA4D5800D8AB4A /* Products */,
 				A1C244449DC3270E17FBA9EE /* Pods */,
-				01E7591B464D074DA981B1E6 /* Frameworks */,
+				7D395C865AC8C264340D98A0 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,11 +109,19 @@
 			path = Dualong;
 			sourceTree = "<group>";
 		};
+		7D395C865AC8C264340D98A0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				81B37F727A3B05A9F0DCC483 /* Pods_Dualong.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A1C244449DC3270E17FBA9EE /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				65D07439C6B535C969BB1797 /* Pods-Dualong.debug.xcconfig */,
-				4C608D03B5C1EBBD4D8C70D5 /* Pods-Dualong.release.xcconfig */,
+				F6BE2C9677F6873A1B53C1B9 /* Pods-Dualong.debug.xcconfig */,
+				571E3A3FF58F8EF62A85D282 /* Pods-Dualong.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -133,12 +133,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3035176624CA4D5900D8AB4A /* Build configuration list for PBXNativeTarget "Dualong" */;
 			buildPhases = (
-				859972130EFD9D9E40644E65 /* [CP] Check Pods Manifest.lock */,
+				40F8459F4AD5BA9D77680A51 /* [CP] Check Pods Manifest.lock */,
 				3035174E24CA4D5800D8AB4A /* Sources */,
 				3035174F24CA4D5800D8AB4A /* Frameworks */,
 				3035175024CA4D5800D8AB4A /* Resources */,
-				0A29422CA3CCA9DC4F66D38B /* [CP] Embed Pods Frameworks */,
-				46030A396A33AD40D361210C /* [CP] Copy Pods Resources */,
+				27CD1B013F78DDA905F65756 /* [CP] Embed Pods Frameworks */,
+				5F4E6DEF6D4ECBA07735A90E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -197,7 +197,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0A29422CA3CCA9DC4F66D38B /* [CP] Embed Pods Frameworks */ = {
+		27CD1B013F78DDA905F65756 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -214,24 +214,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		46030A396A33AD40D361210C /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		859972130EFD9D9E40644E65 /* [CP] Check Pods Manifest.lock */ = {
+		40F8459F4AD5BA9D77680A51 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -251,6 +234,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5F4E6DEF6D4ECBA07735A90E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Dualong/Pods-Dualong-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -332,11 +332,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
-					"$(PODS_ROOT)/FirebaseAuth/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -397,11 +393,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
-					"$(PODS_ROOT)/FirebaseAuth/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -422,7 +414,7 @@
 		};
 		3035176724CA4D5900D8AB4A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 65D07439C6B535C969BB1797 /* Pods-Dualong.debug.xcconfig */;
+			baseConfigurationReference = F6BE2C9677F6873A1B53C1B9 /* Pods-Dualong.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -443,7 +435,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/leveldb-library\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/nanopb\"",
 					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
-					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
 					"\"$(PODS_ROOT)/GoogleSignIn/Frameworks\"",
 				);
 				HEADER_SEARCH_PATHS = (
@@ -482,7 +473,7 @@
 		};
 		3035176824CA4D5900D8AB4A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4C608D03B5C1EBBD4D8C70D5 /* Pods-Dualong.release.xcconfig */;
+			baseConfigurationReference = 571E3A3FF58F8EF62A85D282 /* Pods-Dualong.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -503,8 +494,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/leveldb-library\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/nanopb\"",
 					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
-					"$(PODS_ROOT)/GoogleSignIn/Frameworks",
-					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
+					"\"$(PODS_ROOT)/GoogleSignIn/Frameworks\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

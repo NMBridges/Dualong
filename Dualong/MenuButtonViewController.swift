@@ -49,6 +49,7 @@ class MenuButtonViewController: UIViewController
     var buttCVR: [NSLayoutConstraint] = []
     var buimCVR: [NSLayoutConstraint] = []
     var lobuCVR: [NSLayoutConstraint] = []
+    var menuCVR: [NSLayoutConstraint] = []
     
     var menuButtonOpacityToggle: Bool = true
 
@@ -77,7 +78,21 @@ class MenuButtonViewController: UIViewController
         {
             menuVC = (storyboard?.instantiateViewController(identifier: "MenuScene"))!
             menuVC.view.frame = CGRect(x: -viewWid * CGFloat(menuPOS), y: 0, width: viewWid * CGFloat(menuPOS), height: viewHei)
+            //menuVC.view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(menuVC.view)
+            /*menuVC.view.removeConstraints(menuVC.view.constraints)
+            menuCVR = []
+            menuCVR.append(menuVC.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0))
+            menuCVR[0].isActive = false
+            menuCVR.append(menuVC.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0.0))
+            menuCVR[1].isActive = false
+            menuCVR.append(menuVC.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: -viewWid * CGFloat(menuPOS)))
+            menuCVR[2].isActive = true
+            menuCVR.append(menuVC.view.trailingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0))
+            menuCVR[3].isActive = true
+            menuVC.view.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0.0).isActive = true
+            menuVC.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0.0).isActive = true*/
+            
             menuVC.view.isHidden = true
             instantiatedSubview = true
         }
@@ -146,6 +161,8 @@ class MenuButtonViewController: UIViewController
                     self.connCVR[0].isActive = false
                     self.explCVR[0].isActive = false
                     self.profCVR[0].isActive = false
+                    //self.menuCVR[2].isActive = false
+                    //self.menuCVR[3].isActive = false
                     
                     self.buttCVR[1].isActive = true
                     self.buimCVR[1].isActive = true
@@ -154,6 +171,8 @@ class MenuButtonViewController: UIViewController
                     self.connCVR[1].isActive = true
                     self.explCVR[1].isActive = true
                     self.profCVR[1].isActive = true
+                    //self.menuCVR[0].isActive = true
+                    //self.menuCVR[1].isActive = true
                 } else
                 {
                     
@@ -164,6 +183,8 @@ class MenuButtonViewController: UIViewController
                     self.connCVR[1].isActive = false
                     self.explCVR[1].isActive = false
                     self.profCVR[1].isActive = false
+                    //self.menuCVR[0].isActive = false
+                    //self.menuCVR[1].isActive = false
                     
                     self.buttCVR[0].isActive = true
                     self.buimCVR[0].isActive = true
@@ -172,6 +193,8 @@ class MenuButtonViewController: UIViewController
                     self.connCVR[0].isActive = true
                     self.explCVR[0].isActive = true
                     self.profCVR[0].isActive = true
+                    //self.menuCVR[2].isActive = true
+                    //self.menuCVR[3].isActive = true
                 }
                 
                 self.menuVC.view.frame = CGRect(x: -self.viewWid * CGFloat(self.menuPOS) + self.barOffset, y: 0, width: self.viewWid * CGFloat(self.menuPOS), height: self.viewHei)
@@ -183,6 +206,10 @@ class MenuButtonViewController: UIViewController
             {
                 NotificationCenter.default.post(name: Notification.Name("menuTabClosed"), object: nil)
                 self.CLOSING = false
+            }
+            if(!menuToggle)
+            {
+                self.menuVC.view.isHidden = true
             }
         })
         

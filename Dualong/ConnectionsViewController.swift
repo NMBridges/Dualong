@@ -96,17 +96,33 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var wbModeView: UIView = UIView()
     var wbmLC: [NSLayoutConstraint]! = []
     var wbMode: String = ""
+    var wbLastMode: String = ""
     var wbImageWid: CGFloat = 0.0
     var wbImageHei: CGFloat = 0.0
     var wbWidToImage: CGFloat = 0.0
     var wbHeiToImage: CGFloat = 0.0
     var imageDrawingOn: String = ""
+    var wbImageRadians: CGFloat = 0.0
+    var buttonBarList: [UIButton]! = []
+    var wbCoverView: UIView = UIView()
+    var wbEditSizeBut: UIButton! = UIButton()
+    var wbEditColorBut: UIButton! = UIButton()
+    var wbEraserBut: UIButton! = UIButton()
+    var wbSizeSliderView: UIView = UIView()
+    var wbSizeSlider: UISlider = UISlider()
+    var wbssLC: [NSLayoutConstraint] = []
+    var wbColorSliderView: UIView = UIView()
+    var wbColorSlider: UISlider = UISlider()
+    var wbcsLC: [NSLayoutConstraint] = []
+    var wbColor: CGFloat = 0.0
+    var wbSize: CGFloat = 3.0
     
     var wbMyPositions: [String]! = []  // keeps an array of the last line drawn -- need to copy to small scale variable before uploading so it doesn't get overridden
     var lineList: [CAShapeLayer] = []
     var lineIDList: [String] = []
     var currLinePath: UIBezierPath = UIBezierPath()
     var cnol: Int = 0
+    var drawingLine: Bool = false
 
     override func viewDidLoad()
     {
@@ -191,8 +207,6 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 
             }) { _ in
                 
-                AppUtility.lockOrientation(.all)
-                
                 sender.backgroundColor = UIColor.clear
                 self.view.layoutIfNeeded()
                 
@@ -201,10 +215,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    override func viewDidLayoutSubviews()
     {
-        self.view.autoresizesSubviews = true
-        self.view.layoutIfNeeded()
+        wbView.frame = self.view.bounds
     }
     
     func loadMessages(id: String)
@@ -1102,6 +1115,45 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     toggleOptionsPopup()
                 }
             }
+            
+            if(wbUP)
+            {
+                if(wbMode == "color" || wbMode == "size")
+                {
+                    self.view.layoutIfNeeded()
+                    
+                    wbMode = wbLastMode
+                    if(wbMode == "scroll")
+                    {
+                        wbSV.panGestureRecognizer.isEnabled = true
+                        wbSV.pinchGestureRecognizer?.isEnabled = true
+                        wbSV.isUserInteractionEnabled = true
+                        toScrollMode(UIButton())
+                    } else if(wbMode == "draw")
+                    {
+                        toDrawMode(UIButton())
+                    } else if(wbMode == "erase")
+                    {
+                        toEraserMode(UIButton())
+                    }
+                    
+                    UIView.animate(withDuration: 0.2, animations: {
+                        
+                        self.wbssLC[0].isActive = false
+                        self.wbssLC[1].isActive = true
+                        self.wbSizeSliderView.alpha = 0.0
+                        
+                        self.wbcsLC[0].isActive = false
+                        self.wbcsLC[1].isActive = true
+                        self.wbColorSliderView.alpha = 0.0
+                        
+                        self.view.layoutIfNeeded()
+                        
+                    }) { _ in
+                        self.view.layoutIfNeeded()
+                    }
+                }
+            }
         }
     }
     
@@ -1242,28 +1294,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func closeMessages(notification: NSNotification)
     {
-        /*if(isMe && currScene == "Connections")
+        if(isMe)
         {
-            NotificationCenter.default.post(name: Notification.Name("toggleMenuOpacity"), object: nil)
-            connTitleRef.alpha = 0.0
-            db.removeAllObservers()
-            if(optionsToggle)
-            {
-                toggleOptionsPopup()
-            }
-            loadConnections()
-            self.svLC[2].isActive = false
-            self.svLC[3].isActive = false
-            self.svLC[0].isActive = true
-            self.svLC[1].isActive = true
-            self.mvLC[2].isActive = false
-            self.mvLC[3].isActive = false
-            self.mvLC[0].isActive = true
-            self.mvLC[1].isActive = true
-            self.connTitleRef.alpha = 1.0
-            self.view.layoutIfNeeded()
-            
-        }*/
+            AppUtility.lockOrientation(.portrait)
+        }
     }
     
     @objc func proposeSessionPressed(_ sender: UIButton!)
@@ -1883,6 +1917,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         wbLC[7].isActive = true
         wbView.backgroundColor = UIColor(displayP3Red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
         wbView.alpha = 0.5
+        wbView.autoresizesSubviews = true
         
         let wbTopBarView: UIView = UIView()
         wbTopBarView.translatesAutoresizingMaskIntoConstraints = false
@@ -1912,32 +1947,80 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         wbModeView.removeConstraints(wbModeView.constraints)
         wbTopBarView.addSubview(wbModeView)
         wbmLC = []
+        wbColor = 0.0
+        wbSize = 3.0
+        
+        buttonBarList = []
         
         let wbDrawButton: UIButton! = UIButton()
         wbDrawButton.translatesAutoresizingMaskIntoConstraints = false
         wbDrawButton.removeConstraints(wbCloseButton.constraints)
-        wbTopBarView.addSubview(wbDrawButton)
-        wbDrawButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -10.0).isActive = true
-        wbDrawButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -40.0).isActive = true
+        buttonBarList.append(wbDrawButton)
+        wbTopBarView.addSubview(buttonBarList[0])
+        wbDrawButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -25.0).isActive = true
+        wbDrawButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -55.0).isActive = true
         wbDrawButton.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
         wbDrawButton.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
         wbDrawButton.tintColor = UIColor.white
         wbDrawButton.setBackgroundImage(UIImage(systemName: "pencil"), for: .normal)
         wbDrawButton.setTitle("", for: .normal)
-        wbDrawButton.addTarget(self, action: #selector(turnOnDrawMode(_:)), for: .touchUpInside)
+        wbDrawButton.addTarget(self, action: #selector(toDrawMode(_:)), for: .touchUpInside)
         
         let wbScrollButton: UIButton! = UIButton()
         wbScrollButton.translatesAutoresizingMaskIntoConstraints = false
         wbScrollButton.removeConstraints(wbScrollButton.constraints)
-        wbTopBarView.addSubview(wbScrollButton)
-        wbScrollButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 40.0).isActive = true
-        wbScrollButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 10.0).isActive = true
+        buttonBarList.append(wbScrollButton)
+        wbTopBarView.addSubview(buttonBarList[1])
+        wbScrollButton.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 55.0).isActive = true
+        wbScrollButton.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 25.0).isActive = true
         wbScrollButton.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
         wbScrollButton.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
         wbScrollButton.tintColor = UIColor.white
         wbScrollButton.setBackgroundImage(UIImage(systemName: "plus"), for: .normal)
         wbScrollButton.setTitle("", for: .normal)
-        wbScrollButton.addTarget(self, action: #selector(turnOffDrawMode(_:)), for: .touchUpInside)
+        wbScrollButton.addTarget(self, action: #selector(toScrollMode(_:)), for: .touchUpInside)
+        
+        wbEraserBut = UIButton()
+        wbEraserBut.translatesAutoresizingMaskIntoConstraints = false
+        wbEraserBut.removeConstraints(wbEraserBut.constraints)
+        buttonBarList.append(wbEraserBut)
+        wbTopBarView.addSubview(buttonBarList[2])
+        wbEraserBut.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 15.0).isActive = true
+        wbEraserBut.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -15.0).isActive = true
+        wbEraserBut.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbEraserBut.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbEraserBut.tintColor = UIColor.white
+        wbEraserBut.setBackgroundImage(UIImage(systemName: "multiply"), for: .normal)
+        wbEraserBut.setTitle("", for: .normal)
+        wbEraserBut.addTarget(self, action: #selector(toEraserMode(_:)), for: .touchUpInside)
+        
+        wbEditSizeBut.removeFromSuperview()
+        wbEditSizeBut = UIButton()
+        wbEditSizeBut.translatesAutoresizingMaskIntoConstraints = false
+        wbEditSizeBut.removeConstraints(wbEditSizeBut.constraints)
+        wbTopBarView.addSubview(wbEditSizeBut)
+        wbEditSizeBut.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 95.0).isActive = true
+        wbEditSizeBut.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: 65.0).isActive = true
+        wbEditSizeBut.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbEditSizeBut.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbEditSizeBut.tintColor = UIColor.white
+        wbEditSizeBut.setBackgroundImage(UIImage(systemName: "circle"), for: .normal)
+        wbEditSizeBut.setTitle("", for: .normal)
+        wbEditSizeBut.addTarget(self, action: #selector(toEditSizeMode(_:)), for: .touchUpInside)
+        
+        wbEditColorBut.removeFromSuperview()
+        wbEditColorBut = UIButton()
+        wbEditColorBut.translatesAutoresizingMaskIntoConstraints = false
+        wbEditColorBut.removeConstraints(wbEditColorBut.constraints)
+        wbTopBarView.addSubview(wbEditColorBut)
+        wbEditColorBut.trailingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -65.0).isActive = true
+        wbEditColorBut.leadingAnchor.constraint(equalTo: wbTopBarView.centerXAnchor, constant: -95.0).isActive = true
+        wbEditColorBut.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbEditColorBut.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbEditColorBut.tintColor = UIColor.white
+        wbEditColorBut.setBackgroundImage(UIImage(systemName: "circle"), for: .normal)
+        wbEditColorBut.setTitle("", for: .normal)
+        wbEditColorBut.addTarget(self, action: #selector(toEditColorMode(_:)), for: .touchUpInside)
         
         wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbDrawButton.leadingAnchor, constant: -7.0))
         wbmLC[0].isActive = false
@@ -1947,19 +2030,58 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         wbmLC[2].isActive = false
         wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbDrawButton.bottomAnchor, constant: 7.0))
         wbmLC[3].isActive = false
+        wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbEditSizeBut.leadingAnchor, constant: -7.0))
+        wbmLC[4].isActive = false
+        wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbEditSizeBut.trailingAnchor, constant: 7.0))
+        wbmLC[5].isActive = false
+        wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbEditSizeBut.topAnchor, constant: -7.0))
+        wbmLC[6].isActive = false
+        wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbEditSizeBut.bottomAnchor, constant: 7.0))
+        wbmLC[7].isActive = false
+        wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbEraserBut.leadingAnchor, constant: -7.0))
+        wbmLC[8].isActive = false
+        wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbEraserBut.trailingAnchor, constant: 7.0))
+        wbmLC[9].isActive = false
+        wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbEraserBut.topAnchor, constant: -7.0))
+        wbmLC[10].isActive = false
+        wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbEraserBut.bottomAnchor, constant: 7.0))
+        wbmLC[11].isActive = false
+        wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbEditColorBut.leadingAnchor, constant: -7.0))
+        wbmLC[12].isActive = false
+        wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbEditColorBut.trailingAnchor, constant: 7.0))
+        wbmLC[13].isActive = false
+        wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbEditColorBut.topAnchor, constant: -7.0))
+        wbmLC[14].isActive = false
+        wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbEditColorBut.bottomAnchor, constant: 7.0))
+        wbmLC[15].isActive = false
         wbmLC.append(wbModeView.leadingAnchor.constraint(equalTo: wbScrollButton.leadingAnchor, constant: -7.0))
-        wbmLC[4].isActive = true
+        wbmLC[16].isActive = true
         wbmLC.append(wbModeView.trailingAnchor.constraint(equalTo: wbScrollButton.trailingAnchor, constant: 7.0))
-        wbmLC[5].isActive = true
+        wbmLC[17].isActive = true
         wbmLC.append(wbModeView.topAnchor.constraint(equalTo: wbScrollButton.topAnchor, constant: -7.0))
-        wbmLC[6].isActive = true
+        wbmLC[18].isActive = true
         wbmLC.append(wbModeView.bottomAnchor.constraint(equalTo: wbScrollButton.bottomAnchor, constant: 7.0))
-        wbmLC[7].isActive = true
+        wbmLC[19].isActive = true
         wbModeView.backgroundColor = UIColor(displayP3Red: 0.56, green: 0.54, blue: 0.85, alpha: 1.0)
         wbModeView.layer.cornerRadius = 5.0
         wbModeView.alpha = 0.8
         
+        let wbRotateBut: UIButton! = UIButton()
+        wbRotateBut.translatesAutoresizingMaskIntoConstraints = false
+        wbRotateBut.removeConstraints(wbScrollButton.constraints)
+        buttonBarList.append(wbRotateBut)
+        wbTopBarView.addSubview(buttonBarList[3])
+        wbRotateBut.trailingAnchor.constraint(equalTo: wbTopBarView.leadingAnchor, constant: 50.0).isActive = true
+        wbRotateBut.leadingAnchor.constraint(equalTo: wbTopBarView.leadingAnchor, constant: 20.0).isActive = true
+        wbRotateBut.topAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 9.0).isActive = true
+        wbRotateBut.bottomAnchor.constraint(equalTo: wbTopBarView.topAnchor, constant: self.view.safeAreaInsets.top + 41.0).isActive = true
+        wbRotateBut.tintColor = UIColor.white
+        wbRotateBut.setBackgroundImage(UIImage(systemName: "divide"), for: .normal)
+        wbRotateBut.setTitle("", for: .normal)
+        wbRotateBut.addTarget(self, action: #selector(rotateImageView(_:)), for: .touchUpInside)
+        
         wbMode = "scroll"
+        wbLastMode = "scroll"
         wbSV.panGestureRecognizer.isEnabled = true
         wbSV.pinchGestureRecognizer?.isEnabled = true
         wbMyPositions = []
@@ -2006,9 +2128,69 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         wbImageView.widthAnchor.constraint(equalTo: wbBackgroundView.widthAnchor, constant: -20.0).isActive = true
         wbImageView.contentMode = .scaleAspectFit
         wbImageView.image = UIImage()
+        wbImageRadians = 0.0
+        
+        wbSizeSliderView.removeFromSuperview()
+        wbSizeSliderView = UIView()
+        wbSizeSliderView.translatesAutoresizingMaskIntoConstraints = false
+        wbSizeSliderView.removeConstraints(wbSizeSliderView.constraints)
+        wbView.addSubview(wbSizeSliderView)
+        wbssLC = []
+        wbSizeSliderView.leadingAnchor.constraint(equalTo: wbEditSizeBut.leadingAnchor, constant: -7.0).isActive = true
+        wbSizeSliderView.trailingAnchor.constraint(equalTo: wbEditSizeBut.trailingAnchor, constant: 7.0).isActive = true
+        wbSizeSliderView.topAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 2.0).isActive = true
+        wbssLC.append(wbSizeSliderView.bottomAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 200.0))
+        wbssLC[0].isActive = false
+        wbssLC.append(wbSizeSliderView.bottomAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 22.0))
+        wbssLC[1].isActive = true
+        wbSizeSliderView.layer.cornerRadius = 10.0
+        wbSizeSliderView.alpha = 0.0
+        wbSizeSliderView.backgroundColor = UIColor.systemIndigo
+        
+        wbSizeSlider.removeFromSuperview()
+        wbSizeSlider = UISlider()
+        wbSizeSlider.translatesAutoresizingMaskIntoConstraints = false
+        wbSizeSlider.removeConstraints(wbSizeSlider.constraints)
+        wbSizeSliderView.addSubview(wbSizeSlider)
+        wbSizeSlider.transform = CGAffineTransform(rotationAngle: .pi / -2.0)
+        wbSizeSlider.value = 0.25
+        wbSizeSlider.widthAnchor.constraint(equalTo: wbSizeSliderView.heightAnchor, constant: -21.0).isActive = true
+        wbSizeSlider.centerXAnchor.constraint(equalTo: wbSizeSliderView.centerXAnchor).isActive = true
+        wbSizeSlider.centerYAnchor.constraint(equalTo: wbSizeSliderView.centerYAnchor).isActive = true
+        wbSizeSlider.addTarget(self, action: #selector(sizeEdited(_:)), for: .valueChanged)
+        
+        wbColorSliderView.removeFromSuperview()
+        wbColorSliderView = UIView()
+        wbColorSliderView.translatesAutoresizingMaskIntoConstraints = false
+        wbColorSliderView.removeConstraints(wbColorSliderView.constraints)
+        wbView.addSubview(wbColorSliderView)
+        wbcsLC = []
+        wbColorSliderView.leadingAnchor.constraint(equalTo: wbEditColorBut.leadingAnchor, constant: -7.0).isActive = true
+        wbColorSliderView.trailingAnchor.constraint(equalTo: wbEditColorBut.trailingAnchor, constant: 7.0).isActive = true
+        wbColorSliderView.topAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 2.0).isActive = true
+        wbcsLC.append(wbColorSliderView.bottomAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 200.0))
+        wbcsLC[0].isActive = false
+        wbcsLC.append(wbColorSliderView.bottomAnchor.constraint(equalTo: wbTopBarView.bottomAnchor, constant: 22.0))
+        wbcsLC[1].isActive = true
+        wbColorSliderView.layer.cornerRadius = 10.0
+        wbColorSliderView.alpha = 0.0
+        wbColorSliderView.backgroundColor = UIColor.systemIndigo
+        
+        wbCoverView.removeFromSuperview()
+        wbCoverView = UIView()
+        wbView.addSubview(wbCoverView)
+        wbCoverView.translatesAutoresizingMaskIntoConstraints = false
+        wbCoverView.removeConstraints(wbCoverView.constraints)
+        wbCoverView.leadingAnchor.constraint(equalTo: wbView.leadingAnchor, constant: 0.0).isActive = true
+        wbCoverView.trailingAnchor.constraint(equalTo: wbView.trailingAnchor, constant: 0.0).isActive = true
+        wbCoverView.topAnchor.constraint(equalTo: wbView.topAnchor, constant: 0.0).isActive = true
+        wbCoverView.bottomAnchor.constraint(equalTo: wbView.bottomAnchor, constant: 0.0).isActive = true
+        wbCoverView.backgroundColor = UIColor.black
+        wbCoverView.alpha = 0.5
+        wbView.bringSubviewToFront(wbCoverView)
         
         wbImageLoaded = false
-        
+        drawingLine = false
         loadCircle.isHidden = false
         self.view.bringSubviewToFront(loadCircle)
         let imageTag: String = sender.title(for: .normal)!
@@ -2077,30 +2259,305 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             self.view.layoutIfNeeded()
             
         }) { _ in
+            
             self.view.layoutIfNeeded()
         }
         
     }
     
-    @objc func turnOnDrawMode(_ sender: UIButton!)
+    @objc func sizeEdited(_ sender: UISlider!)
+    {
+        wbSize = CGFloat(sender.value + 0.125) * 8.0
+    }
+    
+    @objc func toEditColorMode(_ sender: UIButton!)
     {
         
-        wbMode = "draw"
+        if(drawingLine)
+        {
+            let posList = wbMyPositions
+            let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+            lineIDList.append(base.key!)
+            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
+            drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
+            wbMyPositions = []
+            drawingLine = false
+        }
+        
+        if(wbMode != "color")
+        {
+        
+            wbMode = "color"
+            wbSV.panGestureRecognizer.isEnabled = false
+            wbSV.pinchGestureRecognizer?.isEnabled = false
+            wbSV.isUserInteractionEnabled = false
+            
+            let deactivate: [Int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19]
+            let activate: [Int] = [12, 13, 14, 15]
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                
+                for b in 0...(deactivate.count - 1)
+                {
+                    self.wbmLC[deactivate[b]].isActive = false
+                }
+                
+                for b in 0...(activate.count - 1)
+                {
+                    self.wbmLC[activate[b]].isActive = true
+                }
+                
+                self.wbssLC[0].isActive = false
+                self.wbssLC[1].isActive = true
+                self.wbSizeSliderView.alpha = 0.0
+                
+                self.wbcsLC[1].isActive = false
+                self.wbcsLC[0].isActive = true
+                self.wbColorSliderView.alpha = 1.0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { _ in
+                self.view.layoutIfNeeded()
+            }
+        } else
+        {
+            wbMode = wbLastMode
+            if(wbMode == "scroll")
+            {
+                wbSV.panGestureRecognizer.isEnabled = true
+                wbSV.pinchGestureRecognizer?.isEnabled = true
+                wbSV.isUserInteractionEnabled = true
+                toScrollMode(UIButton())
+            } else if(wbMode == "draw")
+            {
+                toDrawMode(UIButton())
+            } else if(wbMode == "erase")
+            {
+                toEraserMode(UIButton())
+            }
+            
+        }
+    }
+    
+    @objc func toEraserMode(_ sender: UIButton!)
+    {
+        
+        
+        wbMode = "erase"
+        wbLastMode = "erase"
         wbSV.panGestureRecognizer.isEnabled = false
         wbSV.pinchGestureRecognizer?.isEnabled = false
         wbSV.isUserInteractionEnabled = false
         
+        let deactivate: [Int] = [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19]
+        let activate: [Int] = [8, 9, 10, 11]
+        
         UIView.animate(withDuration: 0.2, animations: {
             
-            self.wbmLC[4].isActive = false
-            self.wbmLC[5].isActive = false
-            self.wbmLC[6].isActive = false
-            self.wbmLC[7].isActive = false
+            for b in 0...(deactivate.count - 1)
+            {
+                self.wbmLC[deactivate[b]].isActive = false
+            }
             
-            self.wbmLC[0].isActive = true
-            self.wbmLC[1].isActive = true
-            self.wbmLC[2].isActive = true
-            self.wbmLC[3].isActive = true
+            for b in 0...(activate.count - 1)
+            {
+                self.wbmLC[activate[b]].isActive = true
+            }
+            
+            self.wbssLC[0].isActive = false
+            self.wbssLC[1].isActive = true
+            self.wbSizeSliderView.alpha = 0.0
+            
+            self.wbcsLC[0].isActive = false
+            self.wbcsLC[1].isActive = true
+            self.wbColorSliderView.alpha = 0.0
+            
+            self.view.layoutIfNeeded()
+            
+        }) { _ in
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc func toEditSizeMode(_ sender: UIButton!)
+    {
+        
+        if(drawingLine)
+        {
+            let posList = wbMyPositions
+            let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+            lineIDList.append(base.key!)
+            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
+            drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
+            wbMyPositions = []
+            drawingLine = false
+        }
+        
+        if(wbMode != "size")
+        {
+            wbMode = "size"
+            wbSV.panGestureRecognizer.isEnabled = false
+            wbSV.pinchGestureRecognizer?.isEnabled = false
+            wbSV.isUserInteractionEnabled = false
+            
+            let deactivate: [Int] = [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+            let activate: [Int] = [4, 5, 6, 7]
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                
+                for b in 0...(deactivate.count - 1)
+                {
+                    self.wbmLC[deactivate[b]].isActive = false
+                }
+                
+                for b in 0...(activate.count - 1)
+                {
+                    self.wbmLC[activate[b]].isActive = true
+                }
+                
+                self.wbssLC[1].isActive = false
+                self.wbssLC[0].isActive = true
+                self.wbSizeSliderView.alpha = 1.0
+                
+                self.wbcsLC[0].isActive = false
+                self.wbcsLC[1].isActive = true
+                self.wbColorSliderView.alpha = 0.0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { _ in
+                self.view.layoutIfNeeded()
+            }
+        } else
+        {
+            wbMode = wbLastMode
+            if(wbMode == "scroll")
+            {
+                wbSV.panGestureRecognizer.isEnabled = true
+                wbSV.pinchGestureRecognizer?.isEnabled = true
+                wbSV.isUserInteractionEnabled = true
+                toScrollMode(UIButton())
+            } else if(wbMode == "draw")
+            {
+                toDrawMode(UIButton())
+            } else if(wbMode == "erase")
+            {
+                toEraserMode(UIButton())
+            }
+        }
+    }
+    
+    @objc func rotateImageView(_ sender: UIButton!)
+    {
+        if(wbUP && wbImageLoaded)
+        {
+            if(drawingLine)
+            {
+                let posList = wbMyPositions
+                let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+                lineIDList.append(base.key!)
+                base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
+                drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
+                wbMyPositions = []
+                drawingLine = false
+            }
+            
+            let imageHolder = wbImageView.image!
+            wbImageView.removeFromSuperview()
+            wbImageView = UIImageView()
+            wbImageView.translatesAutoresizingMaskIntoConstraints = false
+            wbBackgroundView.addSubview(wbImageView)
+            wbImageView.isUserInteractionEnabled = true
+            wbImageView.removeConstraints(wbImageView.constraints)
+            wbImageView.centerXAnchor.constraint(equalTo: wbBackgroundView.centerXAnchor).isActive = true
+            wbImageView.centerYAnchor.constraint(equalTo: wbBackgroundView.centerYAnchor).isActive = true
+            if(wbImageRadians.truncatingRemainder(dividingBy: .pi) != 0.0)
+            {
+                wbImageView.heightAnchor.constraint(equalTo: wbBackgroundView.heightAnchor, constant: -20.0).isActive = true
+                wbImageView.widthAnchor.constraint(equalTo: wbBackgroundView.widthAnchor, constant: -20.0).isActive = true
+            } else
+            {
+                wbImageView.widthAnchor.constraint(equalTo: wbBackgroundView.heightAnchor, constant: -20.0).isActive = true
+                wbImageView.heightAnchor.constraint(equalTo: wbBackgroundView.widthAnchor, constant: -20.0).isActive = true
+            }
+            
+            wbImageView.contentMode = .scaleAspectFit
+            wbImageView.image = imageHolder
+            wbImageRadians -= .pi / 2.0
+            wbImageView.transform = wbImageView.transform.rotated(by: wbImageRadians)
+            buttonBarList.forEach { (buttonn) in
+                buttonn.transform = buttonn.transform.rotated(by: .pi / -2.0)
+            }
+            wbSV.zoomScale = 1.0
+            lineIDList = []
+            wbCoverView.alpha = 0.5
+            self.loadLines()
+            if(wbImageRadians.truncatingRemainder(dividingBy: .pi) != 0.0)
+            {
+                if((wbImageView.image?.size.width)! / (wbImageView.image?.size.height)! > wbBackgroundView.bounds.height / wbBackgroundView.bounds.width)
+                {
+                    wbImageWid = wbBackgroundView.bounds.height - 20.0
+                    wbImageHei = wbImageWid * (wbImageView.image?.size.height)! / (wbImageView.image?.size.width)!
+                    wbWidToImage = 0.0
+                    wbHeiToImage = (wbBackgroundView.bounds.width - wbImageHei) / 2.0 - 10.0
+                } else
+                {
+                    wbImageHei = wbBackgroundView.bounds.width - 20.0
+                    wbImageWid = wbImageHei * (wbImageView.image?.size.width)! / (wbImageView.image?.size.height)!
+                    wbHeiToImage = 0.0
+                    wbWidToImage = (wbBackgroundView.bounds.height - wbImageWid) / 2.0 - 10.0
+                }
+            } else
+            {
+                if((wbImageView.image?.size.height)! / (wbImageView.image?.size.width)! > wbBackgroundView.bounds.height / wbBackgroundView.bounds.width)
+                {
+                    wbImageHei = wbBackgroundView.bounds.height - 20.0
+                    wbImageWid = wbImageHei * (wbImageView.image?.size.width)! / (wbImageView.image?.size.height)!
+                    wbHeiToImage = 0.0
+                    wbWidToImage = (wbBackgroundView.bounds.width - wbImageWid) / 2.0 - 10.0
+                } else
+                {
+                    wbImageWid = wbBackgroundView.bounds.width - 20.0
+                    wbImageHei = wbImageWid * (wbImageView.image?.size.height)! / (wbImageView.image?.size.width)!
+                    wbWidToImage = 0.0
+                    wbHeiToImage = (wbBackgroundView.bounds.height - wbImageHei) / 2.0 - 10.0
+                }
+            }
+        }
+    }
+    
+    @objc func toDrawMode(_ sender: UIButton!)
+    {
+        
+        wbMode = "draw"
+        wbLastMode = "draw"
+        wbSV.panGestureRecognizer.isEnabled = false
+        wbSV.pinchGestureRecognizer?.isEnabled = false
+        wbSV.isUserInteractionEnabled = false
+        
+        let deactivate: [Int] = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        let activate: [Int] = [0, 1, 2, 3]
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            for b in 0...(deactivate.count - 1)
+            {
+                self.wbmLC[deactivate[b]].isActive = false
+            }
+            
+            for b in 0...(activate.count - 1)
+            {
+                self.wbmLC[activate[b]].isActive = true
+            }
+            
+            self.wbssLC[0].isActive = false
+            self.wbssLC[1].isActive = true
+            self.wbSizeSliderView.alpha = 0.0
+            
+            self.wbcsLC[0].isActive = false
+            self.wbcsLC[1].isActive = true
+            self.wbColorSliderView.alpha = 0.0
             
             self.view.layoutIfNeeded()
             
@@ -2110,25 +2567,48 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         
     }
     
-    @objc func turnOffDrawMode(_ sender: UIButton!)
+    @objc func toScrollMode(_ sender: UIButton!)
     {
         
+        if(drawingLine)
+        {
+            let posList = wbMyPositions
+            let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
+            lineIDList.append(base.key!)
+            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
+            drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
+            wbMyPositions = []
+            drawingLine = false
+        }
+        
         wbMode = "scroll"
+        wbLastMode = "scroll"
         wbSV.panGestureRecognizer.isEnabled = true
         wbSV.pinchGestureRecognizer?.isEnabled = true
         wbSV.isUserInteractionEnabled = true
         
+        let deactivate: [Int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        let activate: [Int] = [16, 17, 18, 19]
+        
         UIView.animate(withDuration: 0.2, animations: {
             
-            self.wbmLC[0].isActive = false
-            self.wbmLC[1].isActive = false
-            self.wbmLC[2].isActive = false
-            self.wbmLC[3].isActive = false
+            for b in 0...(deactivate.count - 1)
+            {
+                self.wbmLC[deactivate[b]].isActive = false
+            }
             
-            self.wbmLC[4].isActive = true
-            self.wbmLC[5].isActive = true
-            self.wbmLC[6].isActive = true
-            self.wbmLC[7].isActive = true
+            for b in 0...(activate.count - 1)
+            {
+                self.wbmLC[activate[b]].isActive = true
+            }
+            
+            self.wbssLC[0].isActive = false
+            self.wbssLC[1].isActive = true
+            self.wbSizeSliderView.alpha = 0.0
+            
+            self.wbcsLC[0].isActive = false
+            self.wbcsLC[1].isActive = true
+            self.wbColorSliderView.alpha = 0.0
             
             self.view.layoutIfNeeded()
             
@@ -2149,7 +2629,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 cnol = lineList.count
                 lineList.append(CAShapeLayer())
                 lineList[cnol].strokeColor = UIColor.black.cgColor
-                lineList[cnol].lineWidth = 3.0 / wbSV.zoomScale
+                lineList[cnol].lineWidth = wbSize / wbSV.zoomScale
                 lineList[cnol].path = currLinePath.cgPath
                 lineList[cnol].fillColor = UIColor.clear.cgColor
                 lineList[cnol].lineCap = .round
@@ -2162,14 +2642,16 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 modifiedPos.y -= wbHeiToImage
                 if(modifiedPos.isInRect(rect: CGRect(x: 0, y: 0, width: wbImageWid, height: wbImageHei)))
                 {
-                    modifiedPos.x *= 1000.0 / wbImageWid
-                    modifiedPos.y *= 1000.0 / wbImageHei
-                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 1000.0
-                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 1000.0
+                    modifiedPos.x *= 10000.0 / wbImageWid
+                    modifiedPos.y *= 10000.0 / wbImageHei
+                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 10000.0
+                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 10000.0
                     currLinePath.move(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
-                    currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                    currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage - 1.0))
                     lineList[cnol].path = currLinePath.cgPath
                     wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y)")
+                    wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y - 0.0001)")
+                    drawingLine = true
                 }
                 
             }
@@ -2188,10 +2670,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 modifiedPos.y -= wbHeiToImage
                 if(modifiedPos.isInRect(rect: CGRect(x: 0, y: 0, width: wbImageWid, height: wbImageHei)))
                 {
-                    modifiedPos.x *= 1000.0 / wbImageWid
-                    modifiedPos.y *= 1000.0 / wbImageHei
-                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 1000.0
-                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 1000.0
+                    modifiedPos.x *= 10000.0 / wbImageWid
+                    modifiedPos.y *= 10000.0 / wbImageHei
+                    modifiedPos.x = CGFloat(round(modifiedPos.x)) / 10000.0
+                    modifiedPos.y = CGFloat(round(modifiedPos.y)) / 10000.0
                     if(wbMyPositions.count == 0)
                     {
                         currLinePath = UIBezierPath()
@@ -2199,16 +2681,18 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                         cnol = lineList.count
                         lineList.append(CAShapeLayer())
                         lineList[cnol].strokeColor = UIColor.black.cgColor
-                        lineList[cnol].lineWidth = 3.0 / wbSV.zoomScale
+                        lineList[cnol].lineWidth = wbSize / wbSV.zoomScale
                         lineList[cnol].path = currLinePath.cgPath
                         lineList[cnol].fillColor = UIColor.clear.cgColor
                         lineList[cnol].lineCap = .round
                         lineList[cnol].lineJoin = .round
                         wbImageView.layer.addSublayer(lineList[cnol])
                         currLinePath.move(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
-                        currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
+                        currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage - 1.0))
                         lineList[cnol].path = currLinePath.cgPath
                         wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y)")
+                        wbMyPositions.append("\(modifiedPos.x)|\(modifiedPos.y - 0.0001)")
+                        drawingLine = true
                     } else if(wbMyPositions[wbMyPositions.count - 1] != "\(modifiedPos.x)|\(modifiedPos.y)")
                     {
                         currLinePath.addLine(to: CGPoint(x: modifiedPos.x * wbImageWid + wbWidToImage, y: modifiedPos.y * wbImageHei + wbHeiToImage))
@@ -2220,12 +2704,47 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     let posList = wbMyPositions
                     let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
                     lineIDList.append(base.key!)
-                    base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(3.0 / wbSV.zoomScale)", "points":posList!])
-                    
-                    drawLine(points: posList!, lineWidth: 3.0 / wbSV.zoomScale, lineColor: UIColor.black.cgColor)
+                    lineList[cnol].setValue(base.key!, forKey: "KEY")
+                    base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
+                    drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
                     wbMyPositions = []
+                    drawingLine = false
                 }
                 
+            }
+        } else if(wbMode == "erase" && wbUP && wbImageLoaded)
+        {
+            if let touch = touches.first
+            {
+                var position = touch.location(in: wbImageView)
+                position.x *= 10000.0
+                position.y *= 10000.0
+                position.x = CGFloat(round(Double(position.x))) / 10000.0
+                position.y = CGFloat(round(Double(position.y))) / 10000.0
+                guard let sublayers = wbImageView.layer.sublayers as? [CAShapeLayer] else { return }
+
+                print(lineList.count)
+                for layer in sublayers
+                {
+                    let newPath = layer.path?.copy(strokingWithWidth: layer.lineWidth + 3.0, lineCap: .round, lineJoin: .round, miterLimit: 0.0)
+                    if let path = newPath
+                    {
+                        if(path.contains(position))
+                        {
+                            let tempKEY = layer.value(forKey: "KEY") as? String
+                            db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)").observeSingleEvent(of: .value) { thedata in
+                                if(thedata.hasChild("lines/\(tempKEY!)"))
+                                {
+                                    self.db.child("connections/\(self.idInfo!)/message_list/\(self.imageDrawingOn)/lines/\(tempKEY!)").removeValue()
+                                }
+                            }
+                            let tempINT = lineList.firstIndex(of: layer)!
+                            lineList[tempINT].removeFromSuperlayer()
+                            lineList[tempINT].isHidden = true
+                            lineList[tempINT] = CAShapeLayer()
+                        }
+                    }
+                }
             }
         }
     }
@@ -2238,17 +2757,20 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             let posList = wbMyPositions
             let base = db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").childByAutoId()
             lineIDList.append(base.key!)
-            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(3.0 / wbSV.zoomScale)", "points":posList!])
+            lineList[cnol].setValue(base.key!, forKey: "KEY")
+            base.updateChildValues(["user":"\(userEmail!)", "color":"\(0.5)", "thickness":"\(wbSize / wbSV.zoomScale)", "points":posList!])
             
-            drawLine(points: posList!, lineWidth: 3.0 / wbSV.zoomScale, lineColor: UIColor.black.cgColor)
+            drawLine(points: posList!, lineWidth: wbSize / wbSV.zoomScale, lineColor: UIColor.black.cgColor, addKey: base.key!)
             wbMyPositions = []
+            drawingLine = false
         }
     }
     
-    func drawLine(points: [String]!, lineWidth: CGFloat, lineColor: CGColor)
+    func drawLine(points: [String]!, lineWidth: CGFloat, lineColor: CGColor, addKey: String)
     {
         let q = lineList.count
         lineList.append(CAShapeLayer())
+        lineList[q].setValue(addKey, forKey: "KEY")
         lineList[q].strokeColor = lineColor
         lineList[q].lineWidth = lineWidth
         let linePath: UIBezierPath = UIBezierPath()
@@ -2269,6 +2791,12 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     func loadLines()
     {
+        db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)").observeSingleEvent(of: .value) { (thedata) in
+            if(!thedata.hasChild("lines"))
+            {
+                self.wbCoverView.alpha = 0.0
+            }
+        }
         db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").observe(.childAdded) { datasnap in
             if let value = datasnap.value
             {
@@ -2288,8 +2816,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     {
                         dataPoints[Int("\(cHILD.key)")!] = (cHILD.value as? String)!
                     }
-                    self.drawLine(points: dataPoints, lineWidth: lineWid, lineColor: color)
+                    self.drawLine(points: dataPoints, lineWidth: lineWid, lineColor: color, addKey: datasnap.key)
                     self.lineIDList.append(datasnap.key)
+                    self.wbCoverView.alpha = 0.0
+
                 }
             }
         }
@@ -2299,7 +2829,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     {
         self.view.layoutIfNeeded()
 
-        self.loadCircle.isHidden = true
+        loadCircle.isHidden = true
         
         UIView.animate(withDuration: 0.2, animations: {
             
