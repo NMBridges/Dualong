@@ -54,6 +54,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var prqCV: [NSLayoutConstraint]! = []
     var noRotationReq: UIButton = UIButton()
     
+    var noPeople: UILabel! = UILabel()
+    
     var cachedEmails: [String]! = []
     var cachedUsernames: [String]! = []
     var cachedNames: [String]! = []
@@ -71,6 +73,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var puusVR: [NSLayoutConstraint]! = []
     var puName: UILabel! = UILabel()
     var makeConn: UIButton! = UIButton()
+    var puPastSess: UILabel! = UILabel()
     
     var delView = UIView()
     var dcvr: [NSLayoutConstraint]! = []
@@ -153,6 +156,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         let newName = UILabel()
         let newRole = UILabel()
         
+        stackView.insertArrangedSubview(newView, at: cc)
+        
         if(tUsername != "")
         {
             db.child("usernames/\(tUsername)").observeSingleEvent(of: .value)
@@ -212,8 +217,6 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     newView.addSubview(newRole)
                                     newView.addSubview(newImage)
                                     
-                                    self.stackView.insertArrangedSubview(newView, at: cc)
-                                    
                                     self.st.child("profilepics/\(tUsername).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
                                         if error != nil
                                         {
@@ -262,6 +265,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         var newImage: UIImageView! = UIImageView()
         let newName = UILabel()
         let newReq = UILabel()
+
+        stackView.insertArrangedSubview(newView, at: cc)
         
         if(tUsername != "")
         {
@@ -333,10 +338,6 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 newImage.layer.cornerRadius = newImage.frame.height / 2.0
                                 newImage.clipsToBounds = true
                                 newView.addSubview(newImage)
-                                self.stackView.insertArrangedSubview(newView, at: cc)
-                            } else
-                            {
-                                self.stackView.insertArrangedSubview(newView, at: cc)
                             }
                             
                             
@@ -360,8 +361,11 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             {
                                 self.cachedProfPics[cc] = UIImage()
                             }
-
-                            self.loadCircle.isHidden = true
+                            
+                            if(role != "Learner, Student, or Parent")
+                            {
+                                self.loadCircle.isHidden = true
+                            }
                             
                         } else
                         {
@@ -718,6 +722,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     {
 
         self.loadCircle.isHidden = false
+        self.noPeople.isHidden = true
+        
         stackView.subviews.forEach({vieww in
             stackView.removeArrangedSubview(vieww)
             vieww.removeFromSuperview()
@@ -747,8 +753,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 self.createRequestStackViewMember(passedUsername: username, req: beep, cc: cc)
                 cc += 1
             }
-            
-            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Tutor or Teacher").observe(.value, with: { (snap) in
+            let baseCC: Int = cc
+            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Tutor or Teacher").observeSingleEvent(of: .value, with: { (snap) in
                  
                 for child in snap.children
                 {
@@ -783,13 +789,43 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         }
                     }
                 }
+                if(cc - baseCC == 0)
+                {
+                    self.noPeople.removeFromSuperview()
+                    self.noPeople = UILabel()
+                    self.noPeople.isHidden = false
+                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                    self.noPeople.removeConstraints(self.noPeople.constraints)
+                    self.view.addSubview(self.noPeople)
+                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
+                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
+                    var textTE: String = ""
+                    if(role == "Tutor or Teacher")
+                    {
+                        textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
+                    } else if(role == "Learner, Student, or Parent")
+                    {
+                        textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
+                    }
+                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
+                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
+                    self.noPeople.text = textTE
+                    self.noPeople.textAlignment = .center
+                    self.noPeople.lineBreakMode = .byWordWrapping
+                    self.noPeople.numberOfLines = 0
+                    self.view.bringSubviewToFront(self.noPeople)
+                    self.loadCircle.isHidden = true
+                }
                 
             })
         } else if(role == "Tutor or Teacher")
         {
             var pp: Int = 0
             requestButRef.isHidden = true
-            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observe(.value, with: { (snap) in
+            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observeSingleEvent(of: .value, with: { (snap) in
                 
                 for child in snap.children
                 {
@@ -832,6 +868,35 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             }
                         }
                     }
+                }
+                if(pp == 0)
+                {
+                    self.noPeople.removeFromSuperview()
+                    self.noPeople = UILabel()
+                    self.noPeople.isHidden = false
+                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                    self.noPeople.removeConstraints(self.noPeople.constraints)
+                    self.view.addSubview(self.noPeople)
+                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 20.0).isActive = true
+                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
+                    var textTE: String = ""
+                    if(role == "Tutor or Teacher")
+                    {
+                        textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
+                    } else if(role == "Learner, Student, or Parent")
+                    {
+                        textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
+                    }
+                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 20.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
+                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
+                    self.noPeople.textAlignment = .center
+                    self.noPeople.lineBreakMode = .byWordWrapping
+                    self.noPeople.numberOfLines = 0
+                    
+                    self.loadCircle.isHidden = true
                 }
                 
             })
@@ -1070,6 +1135,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             let imageSize = UIScreen.main.bounds.width * 0.5
             
+            // ADD PAST CONNECTIONS SCRIPT
+            
             if(!popupBOOL)
             {
                 pupp = UIImageView()
@@ -1079,7 +1146,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 puppVR.removeAll()
                 puppVR = []
                 pupp.centerXAnchor.constraint(equalTo: popupView.centerXAnchor).isActive = true
-                pupp.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 0.5 + 5.0).isActive = true
+                pupp.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 0.5 - 45.0).isActive = true
                 puppVR.append(pupp.widthAnchor.constraint(equalToConstant: 5.0))
                 puppVR[0].isActive = true
                 puppVR.append(pupp.heightAnchor.constraint(equalToConstant: 5.0))
@@ -1106,7 +1173,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 puusVR.removeAll()
                 puusVR = []
                 puUsername.centerXAnchor.constraint(equalTo: popupView.centerXAnchor).isActive = true
-                puUsername.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + 15.0).isActive = true
+                puUsername.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 - 35.0).isActive = true
                 puUsername.widthAnchor.constraint(equalTo: popupView.widthAnchor).isActive = true
                 puUsername.heightAnchor.constraint(equalToConstant: sqrt(UIScreen.main.bounds.width) * 19 * 0.08).isActive = true
             }
@@ -1125,7 +1192,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 puusVR.removeAll()
                 puusVR = []
                 puName.centerXAnchor.constraint(equalTo: popupView.centerXAnchor).isActive = true
-                puName.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.10 + 10).isActive = true
+                puName.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.10 - 40.0).isActive = true
                 puName.widthAnchor.constraint(equalTo: popupView.widthAnchor).isActive = true
                 puName.heightAnchor.constraint(equalToConstant: sqrt(UIScreen.main.bounds.width) * 19 * 0.08).isActive = true
             }
@@ -1137,6 +1204,105 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             
             if(!popupBOOL)
             {
+                puPastSess = UILabel()
+                popupView.addSubview(puPastSess)
+                puPastSess.translatesAutoresizingMaskIntoConstraints = false
+                puPastSess.removeConstraints(puName.constraints)
+                puPastSess.centerXAnchor.constraint(equalTo: popupView.centerXAnchor).isActive = true
+                puPastSess.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.18 - 40.0).isActive = true
+                puPastSess.widthAnchor.constraint(equalTo: popupView.widthAnchor, constant: -20.0).isActive = true
+                puPastSess.heightAnchor.constraint(equalToConstant: sqrt(UIScreen.main.bounds.width) * 19 * 0.08).isActive = true
+            }
+            puPastSess.text = "loading..."
+            db.child("users/\(emailP)/sessions").observeSingleEvent(of: .value) { (datasnap) in
+                if let children = datasnap.children.allObjects as? [DataSnapshot]
+                {
+                    if(children.count > 0)
+                    {
+                        var couOffset: Int = 0
+                        for child in children
+                        {
+                            let DaTa = child.value as? String
+                            
+                            let dataSubTwo: String = "\(DaTa!.dropFirst(2))"
+                            let dataParts: [Substring] = dataSubTwo.split(separator: "|")
+                            let oNE = "\(dataParts[0])"
+                            let tWO = "\(dataParts[1])"
+                            let tempDATE = oNE.split(separator: "-")
+                            let tempTIME = tWO.split(separator: ":")
+                            
+                            let date = Date()
+                            var calendar = Calendar.current
+                            calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                            let year = calendar.component(.year, from: date)
+                            let month = calendar.component(.month, from: date)
+                            let day = calendar.component(.day, from: date)
+                            let hour = calendar.component(.hour, from: date)
+                            let minutes = calendar.component(.minute, from: date)
+                            let seconds = calendar.component(.second, from: date)
+                            
+                            if(Int(year) > Int(tempDATE[0])!)
+                            {
+                                couOffset += 1
+                            } else if(Int(year) == Int(tempDATE[0])!)
+                            {
+                                if(Int(month) > Int(tempDATE[1])!)
+                                {
+                                    couOffset += 1
+                                } else if(Int(month) == Int(tempDATE[1])!)
+                                {
+                                    if(Int(day) > Int(tempDATE[2])!)
+                                    {
+                                        couOffset += 1
+                                    } else if(Int(day) == Int(tempDATE[2])!)
+                                    {
+                                        if(Int(hour) > Int(tempTIME[0])!)
+                                        {
+                                            couOffset += 1
+                                        } else if(Int(hour) == Int(tempTIME[0])!)
+                                        {
+                                            if(Int(minutes) > Int(tempTIME[1])!)
+                                            {
+                                                couOffset += 1
+                                            } else if(Int(minutes) == Int(tempTIME[1])!)
+                                            {
+                                                if(Int(seconds) >= Int(tempTIME[2])!)
+                                                {
+                                                    couOffset += 1
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        print(couOffset)
+                        if(role == "Tutor or Teacher")
+                        {
+                            self.puPastSess.text = " has been tutored \(couOffset) time(s)"
+                        } else if(role == "Learner, Student, or Parent")
+                        {
+                            self.puPastSess.text = "\(couOffset) session(s) tutored"
+                        }
+                    } else
+                    {
+                        if(role == "Tutor or Teacher")
+                        {
+                            self.puPastSess.text = ""
+                        } else if(role == "Student, Learner, or Parent")
+                        {
+                            self.puPastSess.text = ""
+                        }
+                    }
+                }
+            }
+            puPastSess.textColor = UIColor.white
+            puPastSess.font = UIFont(name: "HelveticaNeue", size: 2.0)
+            puPastSess.textAlignment = .center
+            puPastSess.alpha = 0.0
+            
+            if(!popupBOOL)
+            {
                 makeConn = UIButton()
                 popupView.addSubview(makeConn)
                 makeConn.translatesAutoresizingMaskIntoConstraints = false
@@ -1144,8 +1310,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 makeConn.removeConstraints(closePUBut.constraints)
                 makeConn.trailingAnchor.constraint(equalTo: popupView.trailingAnchor, constant: -UIScreen.main.bounds.width * 0.2).isActive = true
                 makeConn.leadingAnchor.constraint(equalTo: popupView.leadingAnchor, constant: UIScreen.main.bounds.width * 0.2).isActive = true
-                makeConn.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.20 + 10).isActive = true
-                makeConn.bottomAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.30 + 20).isActive = true
+                makeConn.topAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.20).isActive = true
+                makeConn.bottomAnchor.constraint(equalTo: popupView.topAnchor, constant: imageSize * 1.5 + sqrt(UIScreen.main.bounds.width) * 19 * 0.30 + 10).isActive = true
             }
             makeConn.alpha = 0.0
             makeConn.isHidden = false
@@ -1200,6 +1366,9 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
 
                 self.puName.font = UIFont(name: "HelveticaNeue", size: sqrt(UIScreen.main.bounds.width) * 19 * 0.0667)
                 self.puName.alpha = 0.5
+                
+                self.puPastSess.font = UIFont(name: "HelveticaNeue", size: sqrt(UIScreen.main.bounds.width) * 19 * 0.05)
+                self.puPastSess.alpha = 0.35
                 
                 self.popupView.backgroundColor = self.addRVTC
                 self.popupView.layer.borderColor = UIColor.white.cgColor
@@ -1275,6 +1444,9 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 
                 self.puName.font = UIFont(name: "HelveticaNeue", size: 2.0)
                 self.puName.alpha = 0.0
+                
+                self.puPastSess.font = UIFont(name: "HelveticaNeue", size: 2.0)
+                self.puPastSess.alpha = 0.0
                 
                 self.popupView.backgroundColor = UIColor.clear
                 self.popupView.layer.borderColor = UIColor.white.cgColor

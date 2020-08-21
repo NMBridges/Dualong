@@ -104,15 +104,17 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
             
             ChangeInterestsRef.translatesAutoresizingMaskIntoConstraints = false
             ChangeInterestsRef.removeConstraints(ChangeInterestsRef.constraints)
-            ChangeInterestsRef.leadingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: -UIScreen.main.bounds.width * 0.25).isActive = true
-            ChangeInterestsRef.trailingAnchor.constraint(equalTo: self.view.centerXAnchor, constant: UIScreen.main.bounds.width * 0.25).isActive = true
-            ChangeInterestsRef.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.12).isActive = true
-            ChangeInterestsRef.centerYAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.06 - 20).isActive = true
-            ChangeInterestsRef.titleLabel!.font = UIFont(name: "HelveticaNeue-Bold", size: UIScreen.main.bounds.width * 0.05)
+            ChangeInterestsRef.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            ChangeInterestsRef.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 40.0).isActive = true
+            ChangeInterestsRef.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
+            ChangeInterestsRef.topAnchor.constraint(equalTo: ppImageRef.bottomAnchor, constant: 30.0).isActive = true
+            ChangeInterestsRef.titleLabel!.font = UIFont(name: "HelveticaNeue", size: 20.0)
             ChangeInterestsRef.contentVerticalAlignment = .center
             ChangeInterestsRef.contentHorizontalAlignment = .center
+            ChangeInterestsRef.layer.cornerRadius = 5.0
+            ChangeInterestsRef.layer.borderColor = UIColor.white.withAlphaComponent(0.2).cgColor
+            ChangeInterestsRef.layer.borderWidth = 1.0
             
-            //instantiateInterestsView()
             
             NotificationCenter.default.addObserver(self, selector: #selector(updatePreset(notification:)), name: Notification.Name("editProf"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)

@@ -35,12 +35,14 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var timeList: [String]! = []
     var itemOrder: [Int]! = []
     var imgviewList: [UIImageView]! = []
+    var phoneList: [String]! = []
     
     var nameInfo: String! = ""
     var usernameInfo: String! = ""
     var emailInfo: String! = ""
     var profpicInfo: UIImage! = UIImage()
     var idInfo: String! = ""
+    var phoneInfo: String! = ""
     
     var loadCircle = UIView()
     var lcLC: [NSLayoutConstraint]! = []
@@ -75,6 +77,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var mPropDate: UIDatePicker! = UIDatePicker()
     var mPropToggle: Bool = false
     var mPropButton: UIButton! = UIButton()
+    var mCallButton: UIButton! = UIButton()
     
     var passedAutoID: String = ""
     
@@ -116,6 +119,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var wbcsLC: [NSLayoutConstraint] = []
     var wbColor: CGFloat = 0.0
     var wbSize: CGFloat = 3.0
+    
+    var noPeople: UILabel! = UILabel()
     
     var wbMyPositions: [String]! = []  // keeps an array of the last line drawn -- need to copy to small scale variable before uploading so it doesn't get overridden
     var lineList: [CAShapeLayer] = []
@@ -175,6 +180,15 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             emailInfo = emailList[num]
             profpicInfo = profpicList[num]
             idInfo = idList[num]
+            phoneInfo = phoneList[num]
+            
+            if(phoneInfo! != "nil" && phoneInfo! != "" && phoneInfo!.count > 6)
+            {
+                mCallButton.isHidden = false
+            } else
+            {
+                mCallButton.isHidden = true
+            }
             
             loadCircle.isHidden = false
             lcLC[0].isActive = false
@@ -565,6 +579,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     {
         
         loadCircle.isHidden = false
+        noPeople.isHidden = true
         
         lcLC[1].isActive = false
         lcLC[0].isActive = true
@@ -593,6 +608,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         dateList = []
         timeList = []
         imgviewList = []
+        phoneList = []
         
         
         db.child("users/\(userEmail!)/connections").observeSingleEvent(of: .value) { (SNAP) in
@@ -616,6 +632,38 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     self.dateList.append("")
                     self.timeList.append("")
                     self.imgviewList.append(UIImageView())
+                    self.phoneList.append("")
+                }
+                
+                if(connections.count == 0)
+                {
+                    self.noPeople.removeFromSuperview()
+                    self.noPeople = UILabel()
+                    self.noPeople.isHidden = false
+                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                    self.noPeople.removeConstraints(self.noPeople.constraints)
+                    self.view.addSubview(self.noPeople)
+                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
+                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
+                    var textTE: String = ""
+                    if(role == "Tutor or Teacher")
+                    {
+                        textTE = "You have no connections. Go to the explore tab to find some learners who are looking for tutors. They are filtered by your subject interests."
+                    } else if(role == "Learner, Student, or Parent")
+                    {
+                        textTE = "You have no connections. Go to the explore tab to find a tutor. They are filtered by your subject interests."
+                    }
+                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
+                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
+                    self.noPeople.text = textTE
+                    self.noPeople.textAlignment = .center
+                    self.noPeople.lineBreakMode = .byWordWrapping
+                    self.noPeople.numberOfLines = 0
+                    self.view.bringSubviewToFront(self.noPeople)
+                    self.loadCircle.isHidden = true
                 }
                 
                 var PP: Int = 0
@@ -626,87 +674,54 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     let _ = value
                     let c = PP
                     self.emailList[c] = key
-                    let tEmail = key
-                    self.db.child("users/\(key)/username").observeSingleEvent(of: .value) { snap in
-                        if let tUsername = snap.value as? String
+                    self.db.child("users/\(key)").observeSingleEvent(of: .value) { snap in
+                        if let dict = snap.value as? [String: Any]
                         {
+                            self.usernameList[c] = (dict["username"] as? String)!
+                            self.nameList[c] = (dict["name"] as? String)!
+                            self.roleList[c] = (dict["account_type"] as? String)!
+                            self.phoneList[c] = (dict["phone_number"] as? String)!
                             
-                            // INDEX OUT OF RANGE ERROR AT self.emailList[c] = tEmail
-                            
-                            
-                            self.usernameList[c] = tEmail
-                            self.db.child("users/\(tEmail)/name").observeSingleEvent(of: .value) { snap2 in
-                                if let tName = snap2.value as? String
-                                {
-                                    self.nameList[c] = tName
-                                    self.db.child("users/\(tEmail)/account_type").observeSingleEvent(of: .value) { snap3 in
-                                        if let tRole = snap3.value as? String
-                                        {
-                                            self.roleList[c] = tRole
-                                            self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
-                                                if let randID = snap4.value as? String
-                                                {
-                                                    self.idList[c] = randID
-                                                    self.db.child("connections/\(randID)/\(userEmail!)/status").observeSingleEvent(of: .value) { snap5 in
-                                                        if let tStatus = snap5.value as? String
-                                                        {
-                                                            self.connStatus[c] = tStatus
-                                                            self.db.child("connections/\(randID)/last_message_time/date").observeSingleEvent(of: .value) { snap6 in
-                                                                if let tDate = snap6.value as? String
-                                                                {
-                                                                    self.dateList[c] = tDate
-                                                                    self.db.child("connections/\(randID)/last_message_time/time").observeSingleEvent(of: .value) { snap7 in
-                                                                        if let tTime = snap7.value as? String
-                                                                        {
-                                                                            self.timeList[c] = tTime
-                                                                            if(c >= optLeng - 1)
-                                                                            {
-                                                                                self.sortStackViews()
-                                                                            }
-                                                                            self.st.child("profilepics/\(tUsername).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
-                                                                                if error != nil
-                                                                                {
-                                                                                    print("error loading image \(error!)")
-                                                                                    //self.errorList[c] = "FAIL"
-                                                                                }
-                                                                                if let data = data
-                                                                                {
-                                                                                    let tImage = UIImage(data: data)!
-                                                                                    self.profpicList[c] = tImage
-                                                                                    self.imgviewList[c].image = self.profpicList[c]
-                                                                                }
-                                                                            })
-                                                                        } else
-                                                                        {
-                                                                            self.errorList[c] = "FAIL"
-                                                                        }
-                                                                    }
-                                                                } else
-                                                                {
-                                                                    self.errorList[c] = "FAIL"
-                                                                }
-                                                            }
-                                                        } else
-                                                        {
-                                                            self.errorList[c] = "FAIL"
-                                                        }
-                                                    }
+                            self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
+                                    if let randID = snap4.value as? String
+                                    {
+                                        self.idList[c] = randID
+                                        self.db.child("connections/\(randID)").observeSingleEvent(of: .value) { snap5 in
+                                            if let diction = snap5.value as? [String: Any]
+                                            {
+                                                let conn = (diction["\(userEmail!)"] as? [String: Any])!
+                                                self.connStatus[c] = (conn["status"] as? String)!
+                                                let timme = (diction["last_message_time"] as? [String: Any])!
+                                                self.dateList[c] = (timme["date"] as? String)!
+                                                self.timeList[c] = (timme["time"] as? String)!
                                                     
-                                                } else
+                                                if(c >= optLeng - 1)
                                                 {
-                                                    self.errorList[c] = "FAIL"
+                                                    self.sortStackViews()
                                                 }
+                                                self.st.child("profilepics/\(self.usernameList[c]).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
+                                                    if error != nil
+                                                    {
+                                                        print("error loading image \(error!)")
+                                                        //self.errorList[c] = "FAIL"
+                                                    }
+                                                    if let data = data
+                                                    {
+                                                        let tImage = UIImage(data: data)!
+                                                        self.profpicList[c] = tImage
+                                                        self.imgviewList[c].image = self.profpicList[c]
+                                                    }
+                                                })
+                                            } else
+                                            {
+                                                self.errorList[c] = "FAIL"
                                             }
-                                        } else
-                                        {
-                                            self.errorList[c] = "FAIL"
                                         }
+                                    } else
+                                    {
+                                        self.errorList[c] = "FAIL"
                                     }
-                                } else
-                                {
-                                    self.errorList[c] = "FAIL"
                                 }
-                            }
                         } else
                         {
                             self.errorList[c] = "FAIL"
@@ -714,7 +729,6 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     }
                     PP += 1
                 }
-                
             }
         }
         
@@ -842,6 +856,21 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mNameBackground.bottomAnchor.constraint(equalTo: mView.topAnchor, constant: 80.0).isActive = true
         mNameBackground.backgroundColor = UIColor(displayP3Red: 70.0 / 255.0, green: 70.0 / 255.0, blue: 120.0 / 255.0, alpha: 1.0)
         mNameBackground.alpha = 1.0
+        
+        // call button here
+        
+        mCallButton = UIButton()
+        mCallButton.translatesAutoresizingMaskIntoConstraints = false
+        mCallButton.removeConstraints(mCallButton.constraints)
+        mView.addSubview(mCallButton)
+        mCallButton.leadingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -60).isActive = true
+        mCallButton.trailingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -30).isActive = true
+        mCallButton.topAnchor.constraint(equalTo: mView.topAnchor, constant: 35 + self.view.safeAreaInsets.top).isActive = true
+        mCallButton.bottomAnchor.constraint(equalTo: mView.topAnchor, constant: 65 + self.view.safeAreaInsets.top).isActive = true
+        mCallButton.setBackgroundImage(UIImage(systemName: "phone"), for: .normal)
+        mCallButton.addTarget(self, action: #selector(startCall(_:)), for: .touchUpInside)
+        mCallButton.tintColor = UIColor.white
+        mCallButton.isHidden = true
         
         mBackButton = UIButton()
         mBackButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1097,6 +1126,21 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 
             }
         }
+    }
+    
+    @objc func startCall(_ sender: UIButton!)
+    {
+        if(phoneInfo! != "nil" && phoneInfo! != "" && phoneInfo!.count > 6)
+        {
+            let url: URL = URL(string: "tel://\(phoneInfo!)")!
+            UIApplication.shared.openURL(url)
+        } else
+        {
+            let alert = UIAlertController(title: "Error", message: "This person doesn't have a phone number added to their account", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "dismiss", style: UIAlertAction.Style.default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+        
     }
     
     @objc func closeMenu()
@@ -1563,7 +1607,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     {
         if(isMe)
         {
-            let observeR = db.child("connections/\(idInfo!)/message_list").observe(.childAdded, with: { snapshotT in
+            _ = db.child("connections/\(idInfo!)/message_list").observe(.childAdded, with: { snapshotT in
                 
                 if let value = snapshotT.value
                 {
@@ -2744,7 +2788,6 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 position.y = CGFloat(round(Double(position.y))) / 10000.0
                 guard let sublayers = wbImageView.layer.sublayers as? [CAShapeLayer] else { return }
 
-                print(sublayers.count)
                 for layer in sublayers
                 {
                     let newPath = layer.path?.copy(strokingWithWidth: layer.lineWidth + 3.0, lineCap: .round, lineJoin: .round, miterLimit: 0.0)
@@ -2759,7 +2802,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                     self.db.child("connections/\(self.idInfo!)/message_list/\(self.imageDrawingOn)/lines/\(tempKEY!)").removeValue()
                                 }
                             }
-                            let tempINT = lineList.firstIndex(of: layer)!
+                            guard let tempINT = lineList.firstIndex(of: layer) else { return }
+                            guard let tempINT2 = lineIDList.firstIndex(of: tempKEY!) else { return }
+                            lineIDList[tempINT2] = ""
                             lineList[tempINT].removeFromSuperlayer()
                             lineList[tempINT].isHidden = true
                             lineList[tempINT] = CAShapeLayer()
@@ -2844,6 +2889,28 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 }
             }
         }
+        db.child("connections/\(idInfo!)/message_list/\(imageDrawingOn)/lines").observe(.childRemoved) { datasnap in
+            if let _ = datasnap.value
+            {
+                if(self.lineIDList.contains(datasnap.key))
+                {
+                    guard let sublayers = self.wbImageView.layer.sublayers as? [CAShapeLayer] else { return }
+
+                    for layer in sublayers
+                    {
+                        if((layer.value(forKey: "KEY") as? String)! == datasnap.key)
+                        {
+                            let itemof1: Int = self.lineIDList.firstIndex(of: datasnap.key)!
+                            let itemof2: Int = self.lineList.firstIndex(of: layer)!
+                            self.lineIDList[itemof1] = ""
+                            self.lineList[itemof2].isHidden = true
+                            self.lineList[itemof2] = CAShapeLayer()
+                            self.lineList[itemof2].removeFromSuperlayer()
+                        }
+                    }
+                }
+            }
+        }
     }
     
     @objc func closeImagePopup(_ sender: UIButton!)
@@ -2895,8 +2962,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     let newData: String = "\(sepParts[0])|\(sepParts[1])|\(sepParts[2])|\(sepParts[3])|accepted|\(sepParts[5])|\(sepParts[6])"
                     self.db.child("connections/\(self.idInfo!)/message_list/\(givenID)/message").setValue(newData)
                     
-                    self.db.child("users/\(userEmail!)/sessions/\(self.idInfo!)").setValue(newData)
-                    self.db.child("users/\(sepParts[5])/sessions/\(self.idInfo!)").setValue(newData)
+                    self.db.child("users/\(userEmail!)/sessions/\(sepParts[3])").setValue(newData)
+                    self.db.child("users/\(sepParts[5])/sessions/\(sepParts[3])").setValue(newData)
                     
                     self.loadMessages(id: self.idInfo!)
                 }

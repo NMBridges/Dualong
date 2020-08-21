@@ -67,41 +67,116 @@ class HomeViewController: UIViewController
             sStackView.removeArrangedSubview(vieww)
         }
         
+        self.addStatView()
         
         db.child("users/\(userEmail!)/sessions").observeSingleEvent(of: .value) { (datasnap) in
             if let children = datasnap.children.allObjects as? [DataSnapshot]
             {
-                self.addStatView()
                 if(children.count > 0)
                 {
                     var cou: Int = 0
+                    var couOffset: Int = 0
                     for child in children
                     {
-                        let actCOU = cou
+                        let actCOU = Int(cou)
                         let DaTa = child.value as? String
-                        self.createNewSessionStack(cc: actCOU, data: DaTa!)
+                        
+                        let dataSubTwo: String = "\(DaTa!.dropFirst(2))"
+                        let dataParts: [Substring] = dataSubTwo.split(separator: "|")
+                        let oNE = "\(dataParts[0])"
+                        let tWO = "\(dataParts[1])"
+                        let tempDATE = oNE.split(separator: "-")
+                        let tempTIME = tWO.split(separator: ":")
+                        
+                        let date = Date()
+                        var calendar = Calendar.current
+                        calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                        let year = calendar.component(.year, from: date)
+                        let month = calendar.component(.month, from: date)
+                        let day = calendar.component(.day, from: date)
+                        let hour = calendar.component(.hour, from: date)
+                        let minutes = calendar.component(.minute, from: date)
+                        let seconds = calendar.component(.second, from: date)
+                        
+                        if(Int(year) > Int(tempDATE[0])!)
+                        {
+                            couOffset += 1
+                        } else if(Int(year) == Int(tempDATE[0])!)
+                        {
+                            if(Int(month) > Int(tempDATE[1])!)
+                            {
+                                couOffset += 1
+                            } else if(Int(month) == Int(tempDATE[1])!)
+                            {
+                                if(Int(day) > Int(tempDATE[2])!)
+                                {
+                                    couOffset += 1
+                                } else if(Int(day) == Int(tempDATE[2])!)
+                                {
+                                    if(Int(hour) > Int(tempTIME[0])!)
+                                    {
+                                        couOffset += 1
+                                    } else if(Int(hour) == Int(tempTIME[0])!)
+                                    {
+                                        if(Int(minutes) > Int(tempTIME[1])!)
+                                        {
+                                            couOffset += 1
+                                        } else if(Int(minutes) == Int(tempTIME[1])!)
+                                        {
+                                            if(Int(seconds) >= Int(tempTIME[2])!)
+                                            {
+                                                couOffset += 1
+                                            } else
+                                            {
+                                                self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                                            }
+                                        } else
+                                        {
+                                            self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                                        }
+                                    } else
+                                    {
+                                        self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                                    }
+                                } else
+                                {
+                                    self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                                }
+                            } else
+                            {
+                                self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                            }
+                        } else
+                        {
+                            self.createNewSessionStack(cc: actCOU, data: DaTa!, offset: couOffset)
+                        }
                         cou += 1
+                    }
+                    if(cou == couOffset)
+                    {
+                        self.addNoTutoringSessionPopup()
                     }
                 } else
                 {
                     self.addNoTutoringSessionPopup()
                 }
+
+                self.loadCircle.isHidden = true
             } else
             {
-                self.addStatView()
+                self.loadCircle.isHidden = true
             }
         }
         
         self.view.layoutIfNeeded()
         
-        loadCircle.isHidden = true
         sStackView.isHidden = false
         
         self.view.layoutIfNeeded()
         
     }
     
-    func createNewSessionStack(cc: Int, data: String)
+    func createNewSessionStack(cc: Int, data: String, offset: Int)
     {
         let dataSubTwo: String = "\(data.dropFirst(2))"
         let dataParts: [Substring] = dataSubTwo.split(separator: "|")
@@ -219,7 +294,9 @@ class HomeViewController: UIViewController
         veryBotLabel.numberOfLines = 0
         veryBotLabel.textAlignment = .left
         
-        sStackView.insertArrangedSubview(sessionView, at: cc + 2)
+        sStackView.insertArrangedSubview(sessionView, at: cc + 2 - offset)
+        
+        self.view.layoutIfNeeded()
     }
     
     @objc func toHomeNotiFunc(notification: NSNotification)
@@ -279,7 +356,7 @@ class HomeViewController: UIViewController
         statsView.translatesAutoresizingMaskIntoConstraints = false
         statsView.removeConstraints(statsView.constraints)
         statsView.heightAnchor.constraint(equalToConstant: 225.0).isActive = true
-        sStackView.addArrangedSubview(statsView)
+        sStackView.insertArrangedSubview(statsView, at: 0)
         statsView.backgroundColor = UIColor(displayP3Red: 116.0 / 255.0, green: 114.0 / 255.0, blue: 233.0 / 255.0, alpha: 1)
         statsView.layer.cornerRadius = 20.0
         
@@ -296,68 +373,146 @@ class HomeViewController: UIViewController
         statsLabel.textColor = UIColor.white
         statsLabel.textAlignment = .left
         
-        let sessNum: UILabel = UILabel()
-        sessNum.translatesAutoresizingMaskIntoConstraints = false
-        sessNum.removeConstraints(sessNum.constraints)
-        statsView.addSubview(sessNum)
-        sessNum.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
-        sessNum.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
-        sessNum.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 50.0).isActive = true
-        sessNum.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 100.0).isActive = true
-        sessNum.text = "2"
-        sessNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
-        sessNum.textColor = UIColor.white
-        sessNum.textAlignment = .center
-        sessNum.layer.borderColor = UIColor.white.cgColor
-        sessNum.layer.borderWidth = 0.0
+        let connectionsNum: UILabel = UILabel()
+        connectionsNum.translatesAutoresizingMaskIntoConstraints = false
+        connectionsNum.removeConstraints(connectionsNum.constraints)
+        statsView.addSubview(connectionsNum)
+        connectionsNum.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
+        connectionsNum.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
+        connectionsNum.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 50.0).isActive = true
+        connectionsNum.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 100.0).isActive = true
+        connectionsNum.text = "loading..."
+        db.child("users/\(userEmail!)/connections").observeSingleEvent(of: .value) { (SNAP) in
+            if let childrenq = SNAP.children.allObjects as? [DataSnapshot]
+            {
+                for childq in childrenq
+                {
+                    connections["\(childq.key)"] = (childq.value as? String)!
+                }
+                connectionsNum.text = "\(connections.count)"
+                connectionsNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
+            }
+        }
+        connectionsNum.font = UIFont(name: "HelveticaNeue", size: 30.0)
+        connectionsNum.textColor = UIColor.white
+        connectionsNum.textAlignment = .center
+        connectionsNum.layer.borderColor = UIColor.white.cgColor
+        connectionsNum.layer.borderWidth = 0.0
         
-        let sessLabel: UILabel = UILabel()
-        sessLabel.translatesAutoresizingMaskIntoConstraints = false
-        sessLabel.removeConstraints(sessLabel.constraints)
-        statsView.addSubview(sessLabel)
-        sessLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
-        sessLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
-        sessLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 100.0).isActive = true
-        sessLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 120.0).isActive = true
-        sessLabel.text = "sessions tutored"
-        sessLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
-        sessLabel.textColor = UIColor.white
-        sessLabel.textAlignment = .center
-        sessLabel.layer.borderColor = UIColor.white.cgColor
-        sessLabel.layer.borderWidth = 0.0
+        let connectionsLabel: UILabel = UILabel()
+        connectionsLabel.translatesAutoresizingMaskIntoConstraints = false
+        connectionsLabel.removeConstraints(connectionsLabel.constraints)
+        statsView.addSubview(connectionsLabel)
+        connectionsLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
+        connectionsLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
+        connectionsLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 100.0).isActive = true
+        connectionsLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 120.0).isActive = true
+        connectionsLabel.text = "connections"
+        connectionsLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        connectionsLabel.textColor = UIColor.white
+        connectionsLabel.textAlignment = .center
+        connectionsLabel.layer.borderColor = UIColor.white.cgColor
+        connectionsLabel.layer.borderWidth = 0.0
         
-        let minNum: UILabel = UILabel()
-        minNum.translatesAutoresizingMaskIntoConstraints = false
-        minNum.removeConstraints(minNum.constraints)
-        statsView.addSubview(minNum)
-        minNum.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
-        minNum.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
-        minNum.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 135.0).isActive = true
-        minNum.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 185.0).isActive = true
-        minNum.text = "69"
-        minNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
-        minNum.textColor = UIColor.white
-        minNum.textAlignment = .center
-        minNum.layer.borderColor = UIColor.white.cgColor
-        minNum.layer.borderWidth = 0.0
+        let pastSessNum: UILabel = UILabel()
+        pastSessNum.translatesAutoresizingMaskIntoConstraints = false
+        pastSessNum.removeConstraints(pastSessNum.constraints)
+        statsView.addSubview(pastSessNum)
+        pastSessNum.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
+        pastSessNum.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
+        pastSessNum.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 135.0).isActive = true
+        pastSessNum.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 185.0).isActive = true
+        pastSessNum.text = "loading..."
+        db.child("users/\(userEmail!)/sessions").observeSingleEvent(of: .value) { (datasnap) in
+            if let children = datasnap.children.allObjects as? [DataSnapshot]
+            {
+                if(children.count > 0)
+                {
+                    var couOffset: Int = 0
+                    for child in children
+                    {
+                        let DaTa = child.value as? String
+                        
+                        let dataSubTwo: String = "\(DaTa!.dropFirst(2))"
+                        let dataParts: [Substring] = dataSubTwo.split(separator: "|")
+                        let oNE = "\(dataParts[0])"
+                        let tWO = "\(dataParts[1])"
+                        let tempDATE = oNE.split(separator: "-")
+                        let tempTIME = tWO.split(separator: ":")
+                        
+                        let date = Date()
+                        var calendar = Calendar.current
+                        calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                        let year = calendar.component(.year, from: date)
+                        let month = calendar.component(.month, from: date)
+                        let day = calendar.component(.day, from: date)
+                        let hour = calendar.component(.hour, from: date)
+                        let minutes = calendar.component(.minute, from: date)
+                        let seconds = calendar.component(.second, from: date)
+                        
+                        if(Int(year) > Int(tempDATE[0])!)
+                        {
+                            couOffset += 1
+                        } else if(Int(year) == Int(tempDATE[0])!)
+                        {
+                            if(Int(month) > Int(tempDATE[1])!)
+                            {
+                                couOffset += 1
+                            } else if(Int(month) == Int(tempDATE[1])!)
+                            {
+                                if(Int(day) > Int(tempDATE[2])!)
+                                {
+                                    couOffset += 1
+                                } else if(Int(day) == Int(tempDATE[2])!)
+                                {
+                                    if(Int(hour) > Int(tempTIME[0])!)
+                                    {
+                                        couOffset += 1
+                                    } else if(Int(hour) == Int(tempTIME[0])!)
+                                    {
+                                        if(Int(minutes) > Int(tempTIME[1])!)
+                                        {
+                                            couOffset += 1
+                                        } else if(Int(minutes) == Int(tempTIME[1])!)
+                                        {
+                                            if(Int(seconds) >= Int(tempTIME[2])!)
+                                            {
+                                                couOffset += 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    pastSessNum.text = "\(couOffset)"
+                    pastSessNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
+                }
+            }
+        }
+        pastSessNum.font = UIFont(name: "HelveticaNeue", size: 30.0)
+        pastSessNum.textColor = UIColor.white
+        pastSessNum.textAlignment = .center
+        pastSessNum.layer.borderColor = UIColor.white.cgColor
+        pastSessNum.layer.borderWidth = 0.0
         
-        let minLabel: UILabel = UILabel()
-        minLabel.translatesAutoresizingMaskIntoConstraints = false
-        minLabel.removeConstraints(minLabel.constraints)
-        statsView.addSubview(minLabel)
-        minLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
-        minLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
-        minLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 185.0).isActive = true
-        minLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 205.0).isActive = true
-        minLabel.text = "minutes tutored"
-        minLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
-        minLabel.textColor = UIColor.white
-        minLabel.textAlignment = .center
+        let pastSessLabel: UILabel = UILabel()
+        pastSessLabel.translatesAutoresizingMaskIntoConstraints = false
+        pastSessLabel.removeConstraints(pastSessLabel.constraints)
+        statsView.addSubview(pastSessLabel)
+        pastSessLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
+        pastSessLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
+        pastSessLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 185.0).isActive = true
+        pastSessLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 205.0).isActive = true
+        pastSessLabel.text = "past tutoring sessions"
+        pastSessLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        pastSessLabel.textColor = UIColor.white
+        pastSessLabel.textAlignment = .center
         
         let upcomingView: UIView = UIView()
         upcomingView.translatesAutoresizingMaskIntoConstraints = false
         upcomingView.removeConstraints(upcomingView.constraints)
-        sStackView.addArrangedSubview(upcomingView)
+        sStackView.insertArrangedSubview(upcomingView, at: 1)
         let upcomingViewText: String = "Upcoming tutoring sessions"
         let upcomingViewHeight = upcomingViewText.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue-Bold", size: 30.0)!) + 10.0
         upcomingView.heightAnchor.constraint(equalToConstant: upcomingViewHeight).isActive = true
@@ -411,6 +566,8 @@ class HomeViewController: UIViewController
         upcomingLabel.textColor = UIColor.white
         upcomingLabel.alpha = 0.6
         upcomingLabel.textAlignment = .center
+        
+        self.view.layoutIfNeeded()
     }
     
     func instantiateDashboard()
@@ -419,8 +576,8 @@ class HomeViewController: UIViewController
         SV.translatesAutoresizingMaskIntoConstraints = false
         SV.removeConstraints(SV.constraints)
         self.view.addSubview(SV)
-        SV.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 5.0).isActive = true
-        SV.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -5.0).isActive = true
+        SV.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5.0).isActive = true
+        SV.trailingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: UIScreen.main.bounds.width - 5.0).isActive = true
         SV.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 105.0).isActive = true
         SV.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -5.0).isActive = true
         
@@ -444,6 +601,8 @@ class HomeViewController: UIViewController
         sStackView.isHidden = true
         
         loadDashboard()
+        
+        self.view.layoutIfNeeded()
     }
     
     @objc func closeMenu()

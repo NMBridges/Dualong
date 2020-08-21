@@ -27,6 +27,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var usernameKB: UITextField!
     
+    @IBOutlet weak var phoneKB: UITextField!
+    
     @IBOutlet var keyboards: [UITextField]!
     
     @IBOutlet weak var roleButton: UIButton!
@@ -348,7 +350,14 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
         
-        db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy"])
+        if(phoneKB.text! != "")
+        {
+            db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy", "phone_number":"\(phoneKB.text!)"])
+        } else
+        {
+            db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy", "phone_number":"nil"])
+        }
+        
         
         let date = Date()
         var calendar = Calendar.current
@@ -361,7 +370,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         let stringDate = "\(date)"
         if(username != "nimbleinteractive")
         {
-            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"\(userEmail!)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","contact,nimbleinteractive@gmail,com/status":"healthy"])
+            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"contact,nimbleinteractive@gmail,com", "message_list/\(randomID2.key!)/message":"Hi! This is NiMBLe Interactive support. Please feel free to send any support requests through this channel. For finding tutors or learners' tutoring requests, go to the explore tab (search icon). Thanks!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","contact,nimbleinteractive@gmail,com/status":"healthy"])
             connections["nimbleinteractive"] = "\(randomID.key!)"
             db.child("users/\(userEmail!)/connections/contact,nimbleinteractive@gmail,com").setValue("\(randomID.key!)")
             db.child("users/contact,nimbleinteractive@gmail,com/connections/\(userEmail!)").setValue("\(randomID.key!)")
