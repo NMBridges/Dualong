@@ -212,7 +212,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
         interestScrollView.translatesAutoresizingMaskIntoConstraints = false
         interestScrollView.removeConstraints(interestScrollView.constraints)
         interestScrollView.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 200.0).isActive = true
-        interestScrollView.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.2 - 20).isActive = true
+        interestScrollView.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -100).isActive = true
         interestScrollView.leadingAnchor.constraint(equalTo: interestView.leadingAnchor, constant: 25).isActive = true
         interestScrollView.trailingAnchor.constraint(equalTo: interestView.trailingAnchor, constant: -25).isActive = true
         interestScrollView.contentSize = interestScrollView.frame.size
@@ -271,15 +271,18 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
             interestView.addSubview(saveAccButton)
         }
         saveAccButton.setTitle("Save Interests", for: .normal)
-        saveAccButton.setTitleColor(UIColor(displayP3Red: 55.0 / 255.0, green: 55.0 / 255.0, blue: 110.0 / 255.0, alpha: 1.0), for: .normal)
-        saveAccButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Bold", size: UIScreen.main.bounds.width * 0.05)
-        saveAccButton.backgroundColor = UIColor.white
+        saveAccButton.setTitleColor(UIColor.white, for: .normal)
+        saveAccButton.titleLabel!.font = UIFont(name: "HelveticaNeue", size: 20.0)
+        saveAccButton.backgroundColor = UIColor(displayP3Red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 120.0 / 255.0, alpha: 1.0)
         saveAccButton.translatesAutoresizingMaskIntoConstraints = false
         saveAccButton.removeConstraints(saveAccButton.constraints)
         saveAccButton.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
-        saveAccButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.5).isActive = true
-        saveAccButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.12).isActive = true
-        saveAccButton.centerYAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.1 - 20).isActive = true
+        saveAccButton.widthAnchor.constraint(equalToConstant: 200.0).isActive = true
+        saveAccButton.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
+        saveAccButton.centerYAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -60).isActive = true
+        saveAccButton.layer.cornerRadius = 5.0
+        saveAccButton.layer.borderColor = UIColor.white.withAlphaComponent(0.2).cgColor
+        saveAccButton.layer.borderWidth = 1.0
         if(instantInt)
         {
             saveAccButton.addTarget(self, action: #selector(saveAccountNow(_:)), for: UIControl.Event.touchUpInside)

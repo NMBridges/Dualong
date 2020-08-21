@@ -672,7 +672,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 for (key, value) in connections
                 {
                     let _ = value
-                    let c = PP
+                    let c = Int(PP)
                     self.emailList[c] = key
                     self.db.child("users/\(key)").observeSingleEvent(of: .value) { snap in
                         if let dict = snap.value as? [String: Any]
