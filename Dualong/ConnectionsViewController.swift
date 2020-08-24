@@ -119,6 +119,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var wbcsLC: [NSLayoutConstraint] = []
     var wbColor: CGFloat = 0.0
     var wbSize: CGFloat = 3.0
+    var isLoadingConn: Bool = false
     
     var noPeople: UILabel! = UILabel()
     
@@ -128,6 +129,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var currLinePath: UIBezierPath = UIBezierPath()
     var cnol: Int = 0
     var drawingLine: Bool = false
+    
+    var listenerIDDone: [String]! = []
 
     override func viewDidLoad()
     {
@@ -143,6 +146,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             instantiateScrollView()
             instantiateMessageView()
             
+            let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
+            edgePan.edges = .left
+            self.view.addGestureRecognizer(edgePan)
             
             self.connTitleRef.alpha = 1.0
             
@@ -181,6 +187,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             profpicInfo = profpicList[num]
             idInfo = idList[num]
             phoneInfo = phoneList[num]
+            
+            listenerIDDone = []
             
             if(phoneInfo! != "nil" && phoneInfo! != "" && phoneInfo!.count > 6)
             {
@@ -429,6 +437,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 }
             }
         }
+        self.view.layoutIfNeeded()
+        mScrollView.setContentOffset(CGPoint(x: 0, y: max(mScrollView.contentSize.height - mScrollView.bounds.size.height, 0)), animated: true)
+        self.view.layoutIfNeeded()
         loadCircle.isHidden = true
     }
     
@@ -577,157 +588,167 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     func loadConnections()
     {
-        
-        loadCircle.isHidden = false
-        noPeople.isHidden = true
-        
-        lcLC[1].isActive = false
-        lcLC[0].isActive = true
-        
-        stackView.subviews.forEach { subview in
-            stackView.removeArrangedSubview(subview)
-            subview.removeFromSuperview()
-            subview.isHidden = true
-        }
-        
-        svLC[2].isActive = false
-        svLC[3].isActive = false
-        
-        svLC[0].isActive = true
-        svLC[1].isActive = true
-        
-        buttList = []
-        nameList = []
-        usernameList = []
-        emailList = []
-        profpicList = []
-        roleList = []
-        connStatus = []
-        errorList = []
-        idList = []
-        dateList = []
-        timeList = []
-        imgviewList = []
-        phoneList = []
-        
-        
-        db.child("users/\(userEmail!)/connections").observeSingleEvent(of: .value) { (SNAP) in
-            if let childrenq = SNAP.children.allObjects as? [DataSnapshot]
-            {
-                for childq in childrenq
+        if(!isLoadingConn)
+        {
+            isLoadingConn = true
+            loadCircle.isHidden = false
+            noPeople.isHidden = true
+            
+            lcLC[1].isActive = false
+            lcLC[0].isActive = true
+            
+            stackView.subviews.forEach { subview in
+                stackView.removeArrangedSubview(subview)
+                subview.removeFromSuperview()
+                subview.isHidden = true
+            }
+            
+            svLC[2].isActive = false
+            svLC[3].isActive = false
+            
+            svLC[0].isActive = true
+            svLC[1].isActive = true
+            
+            buttList = []
+            nameList = []
+            usernameList = []
+            emailList = []
+            profpicList = []
+            roleList = []
+            connStatus = []
+            errorList = []
+            idList = []
+            dateList = []
+            timeList = []
+            imgviewList = []
+            phoneList = []
+            
+            
+            db.child("users/\(userEmail!)/connections").observeSingleEvent(of: .value) { (SNAP) in
+                if let childrenq = SNAP.children.allObjects as? [DataSnapshot]
                 {
-                    connections["\(childq.key)"] = (childq.value as? String)!
-                }
-                
-                connections.forEach { (key: String, value: String) in
-                    self.buttList.append(UIButton())
-                    self.nameList.append("")
-                    self.usernameList.append("")
-                    self.emailList.append("")
-                    self.profpicList.append(UIImage(named: "defaultProfileImageSolid")!)
-                    self.roleList.append("")
-                    self.connStatus.append("")
-                    self.errorList.append("")
-                    self.idList.append("")
-                    self.dateList.append("")
-                    self.timeList.append("")
-                    self.imgviewList.append(UIImageView())
-                    self.phoneList.append("")
-                }
-                
-                if(connections.count == 0)
-                {
-                    self.noPeople.removeFromSuperview()
-                    self.noPeople = UILabel()
-                    self.noPeople.isHidden = false
-                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
-                    self.noPeople.removeConstraints(self.noPeople.constraints)
-                    self.view.addSubview(self.noPeople)
-                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
-                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
-                    var textTE: String = ""
-                    if(role == "Tutor or Teacher")
+                    for childq in childrenq
                     {
-                        textTE = "You have no connections. Go to the explore tab to find some learners who are looking for tutors. They are filtered by your subject interests."
-                    } else if(role == "Learner, Student, or Parent")
-                    {
-                        textTE = "You have no connections. Go to the explore tab to find a tutor. They are filtered by your subject interests."
+                        connections["\(childq.key)"] = (childq.value as? String)!
                     }
-                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
-                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
-                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
-                    self.noPeople.text = textTE
-                    self.noPeople.textAlignment = .center
-                    self.noPeople.lineBreakMode = .byWordWrapping
-                    self.noPeople.numberOfLines = 0
-                    self.view.bringSubviewToFront(self.noPeople)
-                    self.loadCircle.isHidden = true
-                }
-                
-                var PP: Int = 0
-                let optLeng = connections.count
-                
-                for (key, value) in connections
-                {
-                    let _ = value
-                    let c = Int(PP)
-                    self.emailList[c] = key
-                    self.db.child("users/\(key)").observeSingleEvent(of: .value) { snap in
-                        if let dict = snap.value as? [String: Any]
+                    
+                    connections.forEach { (key: String, value: String) in
+                        self.buttList.append(UIButton())
+                        self.nameList.append("")
+                        self.usernameList.append("")
+                        self.emailList.append("")
+                        self.profpicList.append(UIImage(named: "defaultProfileImageSolid")!)
+                        self.roleList.append("")
+                        self.connStatus.append("")
+                        self.errorList.append("")
+                        self.idList.append("")
+                        self.dateList.append("")
+                        self.timeList.append("")
+                        self.imgviewList.append(UIImageView())
+                        self.phoneList.append("")
+                    }
+                    
+                    if(connections.count == 0)
+                    {
+                        self.noPeople.removeFromSuperview()
+                        self.noPeople = UILabel()
+                        self.noPeople.isHidden = false
+                        self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                        self.noPeople.removeConstraints(self.noPeople.constraints)
+                        self.view.addSubview(self.noPeople)
+                        self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                        self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                        self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
+                        self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
+                        var textTE: String = ""
+                        if(role == "Tutor or Teacher")
                         {
-                            self.usernameList[c] = (dict["username"] as? String)!
-                            self.nameList[c] = (dict["name"] as? String)!
-                            self.roleList[c] = (dict["account_type"] as? String)!
-                            self.phoneList[c] = (dict["phone_number"] as? String)!
-                            
-                            self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
-                                    if let randID = snap4.value as? String
-                                    {
-                                        self.idList[c] = randID
-                                        self.db.child("connections/\(randID)").observeSingleEvent(of: .value) { snap5 in
-                                            if let diction = snap5.value as? [String: Any]
-                                            {
-                                                let conn = (diction["\(userEmail!)"] as? [String: Any])!
-                                                self.connStatus[c] = (conn["status"] as? String)!
-                                                let timme = (diction["last_message_time"] as? [String: Any])!
-                                                self.dateList[c] = (timme["date"] as? String)!
-                                                self.timeList[c] = (timme["time"] as? String)!
-                                                    
-                                                if(c >= optLeng - 1)
-                                                {
-                                                    self.sortStackViews()
-                                                }
-                                                self.st.child("profilepics/\(self.usernameList[c]).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
-                                                    if error != nil
-                                                    {
-                                                        print("error loading image \(error!)")
-                                                        //self.errorList[c] = "FAIL"
-                                                    }
-                                                    if let data = data
-                                                    {
-                                                        let tImage = UIImage(data: data)!
-                                                        self.profpicList[c] = tImage
-                                                        self.imgviewList[c].image = self.profpicList[c]
-                                                    }
-                                                })
-                                            } else
-                                            {
-                                                self.errorList[c] = "FAIL"
-                                            }
-                                        }
-                                    } else
-                                    {
-                                        self.errorList[c] = "FAIL"
-                                    }
-                                }
-                        } else
+                            textTE = "You have no connections. Go to the explore tab to find some learners who are looking for tutors. They are filtered by your subject interests."
+                        } else if(role == "Learner, Student, or Parent")
                         {
-                            self.errorList[c] = "FAIL"
+                            textTE = "You have no connections. Go to the explore tab to find a tutor. They are filtered by your subject interests."
                         }
+                        let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
+                        self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                        self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
+                        self.noPeople.text = textTE
+                        self.noPeople.textAlignment = .center
+                        self.noPeople.lineBreakMode = .byWordWrapping
+                        self.noPeople.numberOfLines = 0
+                        self.view.bringSubviewToFront(self.noPeople)
+                        self.loadCircle.isHidden = true
                     }
-                    PP += 1
+                    
+                    var PP: Int = 0
+                    let optLeng = connections.count
+                    
+                    for (key, value) in connections
+                    {
+                        let _ = value
+                        let c = Int(PP) * 1 + 0
+                        
+                        self.emailList[c] = key
+                        self.db.child("users/\(key)").observeSingleEvent(of: .value) { snap in
+                            if let dict = snap.value as? [String: Any]
+                            {
+
+                                
+                                self.usernameList[c] = (dict["username"] as? String)!
+                                self.nameList[c] = (dict["name"] as? String)!
+                                self.roleList[c] = (dict["account_type"] as? String)!
+                                self.phoneList[c] = (dict["phone_number"] as? String)!
+                                
+                                self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
+                                        if let randID = snap4.value as? String
+                                        {
+
+                                            
+                                            self.idList[c] = randID
+                                            self.db.child("connections/\(randID)").observeSingleEvent(of: .value) { snap5 in
+                                                if let diction = snap5.value as? [String: Any]
+                                                {
+                                                    
+                                                    let conn = (diction["\(userEmail!)"] as? [String: Any])!
+                                                    self.connStatus[c] = (conn["status"] as? String)!
+                                                    let timme = (diction["last_message_time"] as? [String: Any])!
+                                                    self.dateList[c] = (timme["date"] as? String)!
+                                                    self.timeList[c] = (timme["time"] as? String)!
+                                                        
+                                                    if(c >= optLeng - 1)
+                                                    {
+                                                        self.sortStackViews()
+                                                    }
+                                                    self.st.child("profilepics/\(self.usernameList[c]).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
+                                                        if error != nil
+                                                        {
+                                                            print("error loading image \(error!)")
+                                                            //self.errorList[c] = "FAIL"
+                                                        }
+                                                        if let data = data
+                                                        {
+                                                            let tImage = UIImage(data: data)!
+                                                            
+                                                            self.profpicList[c] = tImage
+                                                            self.imgviewList[c].image = self.profpicList[c]
+                                                        }
+                                                    })
+                                                } else
+                                                {
+                                                    self.errorList[c] = "FAIL"
+                                                }
+                                            }
+                                        } else
+                                        {
+                                            self.errorList[c] = "FAIL"
+                                        }
+                                    }
+                            } else
+                            {
+                                self.errorList[c] = "FAIL"
+                            }
+                        }
+                        PP += 1
+                    }
                 }
             }
         }
@@ -1053,13 +1074,13 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mPropView.addSubview(mPropTextField)
         mPropTextField.text = "subject"
         mPropTextField.font = UIFont(name: "HelveticaNeue", size: 20.0)
-        mPropTextField.textColor = UIColor(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5)
+        mPropTextField.textColor = UIColor(displayP3Red: 0.0, green: 0.0, blue: 0.0, alpha: 0.4)
         mPropTextField.delegate = self
         mPropTextField.leadingAnchor.constraint(equalTo: mPropView.leadingAnchor, constant: 30.0).isActive = true
         mPropTextField.trailingAnchor.constraint(equalTo: mPropView.trailingAnchor, constant: -30.0).isActive = true
         mPropTextField.topAnchor.constraint(equalTo: mPropView.topAnchor, constant: 300.0).isActive = true
         mPropTextField.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
-        mPropTextField.backgroundColor = UIColor(displayP3Red: 0.3, green: 0.3, blue: 0.55, alpha: 1.0)
+        mPropTextField.backgroundColor = UIColor.white
         mPropTextField.setLeftPaddingPoints(10.0)
         mPropTextField.setRightPaddingPoints(10.0)
         
@@ -1067,14 +1088,14 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mPropButton.translatesAutoresizingMaskIntoConstraints = false
         mPropButton.removeConstraints(mPropButton.constraints)
         mPropView.addSubview(mPropButton)
-        mPropButton.trailingAnchor.constraint(equalTo: mPropView.trailingAnchor, constant: -widd / 4.0).isActive = true
-        mPropButton.leadingAnchor.constraint(equalTo: mPropView.leadingAnchor, constant: widd / 4.0).isActive = true
+        mPropButton.centerXAnchor.constraint(equalTo: mPropView.centerXAnchor).isActive = true
+        mPropButton.widthAnchor.constraint(equalToConstant: 175.0).isActive = true
         mPropButton.topAnchor.constraint(equalTo: mPropView.topAnchor, constant: 370.0).isActive = true
-        mPropButton.heightAnchor.constraint(equalToConstant: widd * 0.15).isActive = true
+        mPropButton.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
         mPropButton.setTitle("Send Proposal", for: .normal)
         mPropButton.backgroundColor = UIColor.white
         mPropButton.setTitleColor(UIColor.systemIndigo, for: .normal)
-        mPropButton.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: widd * 0.05)
+        mPropButton.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 20.0)
         mPropButton.tintColor = UIColor.white
         mPropButton.layer.cornerRadius = widd * 0.02
         mPropButton.addTarget(self, action: #selector(sendProposal(_:)), for: .touchUpInside)
@@ -1087,6 +1108,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         if(isMe)
         {
             NotificationCenter.default.post(name: Notification.Name("toggleMenuOpacity"), object: nil)
+            
+            self.view.endEditing(true)
             
             connTitleRef.alpha = 0.0
             
@@ -1133,7 +1156,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         if(phoneInfo! != "nil" && phoneInfo! != "" && phoneInfo!.count > 6)
         {
             let url: URL = URL(string: "tel://\(phoneInfo!)")!
-            UIApplication.shared.openURL(url)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
         } else
         {
             let alert = UIAlertController(title: "Error", message: "This person doesn't have a phone number added to their account", preferredStyle: UIAlertController.Style.alert)
@@ -1203,7 +1226,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func sendProposal(_ sender: UIButton!)
     {
-        if(isMe)
+        if(isMe && mPropTextField.text! != "subject" && mPropTextField.text! != "" && !mPropTextField.text!.trimmingCharacters(in: .whitespaces).isEmpty)
         {
             let proposalSubject: String! = mPropTextField.text!
             
@@ -1238,6 +1261,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             createTextView(text: "\(proposalDateTimeSubject)", atindex: -1, userself: true, isImage: false, imagee: UIImage(), isProposal: true)
             
             self.view.endEditing(true)
+            
+            self.view.layoutIfNeeded()
+            mScrollView.setContentOffset(CGPoint(x: 0, y: max(mScrollView.contentSize.height - mScrollView.bounds.size.height, 0)), animated: true)
+            self.view.layoutIfNeeded()
             closePropSession()
             toggleOptionsPopup()
         }
@@ -1253,7 +1280,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             if(textField.text == "subject")
             {
                 textField.text = ""
-                textField.textColor = UIColor(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+                textField.textColor = UIColor(displayP3Red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
                 self.view.layoutIfNeeded()
             }
         }
@@ -1267,7 +1294,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             if(textField.text == "")
             {
                 textField.text = "subject"
-                textField.textColor = UIColor(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5)
+                textField.textColor = UIColor(displayP3Red: 0.0, green: 0.0, blue: 0.0, alpha: 0.4)
                 self.view.layoutIfNeeded()
             }
         }
@@ -1446,6 +1473,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     self.mTextView.resignFirstResponder()
                     
                     self.createTextView(text: "\(self.passedAutoID)", atindex: -1, userself: true, isImage: true, imagee: newImage, isProposal: false)
+                    self.view.layoutIfNeeded()
+                    self.mScrollView.setContentOffset(CGPoint(x: 0, y: max(self.mScrollView.contentSize.height - self.mScrollView.bounds.size.height, 0)), animated: true)
+                    self.view.layoutIfNeeded()
                     
                     let date = Date()
                     var calendar = Calendar.current
@@ -1595,7 +1625,11 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             MSVIDList.append(messRef.key!)
             messRef.updateChildValues(["user":"\(userEmail!)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
             
+            
             self.view.layoutIfNeeded()
+            mScrollView.setContentOffset(CGPoint(x: 0, y: max(mScrollView.contentSize.height - mScrollView.bounds.size.height, 0)), animated: true)
+            self.view.layoutIfNeeded()
+            
             
             clearText()
             return false
@@ -1633,6 +1667,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                             self.createTextView(text: MESS, atindex: -1, userself: (userVAR! == userEmail!), isImage: false, imagee: UIImage(named: "loadImage"), isProposal: true)
                        
                         }
+                        self.view.layoutIfNeeded()
+                        self.mScrollView.setContentOffset(CGPoint(x: 0, y: max(self.mScrollView.contentSize.height - self.mScrollView.bounds.size.height, 0)), animated: true)
+                        self.view.layoutIfNeeded()
                         
                         // add option for time proposals
                     }
@@ -1814,7 +1851,17 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 postBottomLabel.numberOfLines = 0
                 postBottomLabel.textAlignment = .left
                 
-                if(tempSENDER == userEmail! || tempGOING == "accepted" || tempGOING == "denied")
+                if(tempGOING != "accepted" && tempGOING != "declined" && tempSENDER == userEmail!)
+                {
+                    db.child("connections/\(idInfo!)/message_list/\(tempID)").observe(.childChanged) { changesnap in
+                        if(self.isMe && !self.listenerIDDone.contains(tempID))
+                        {
+                            self.loadMessages(id: self.idInfo!)
+                            self.listenerIDDone.append(tempID)
+                        }
+                    }
+                }
+                if(tempSENDER == userEmail! || tempGOING == "accepted" || tempGOING == "declined")
                 {
                     
                     neutralButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1834,15 +1881,20 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     {
                         neutralButton.backgroundColor = UIColor(displayP3Red: 0.6, green: 0.75, blue: 0.6, alpha: 1.0)
                         neutralButton.setTitle("accepted", for: .normal)
-                    } else if(tempGOING == "denied")
+                    } else if(tempGOING == "declined")
                     {
                         neutralButton.backgroundColor = UIColor(displayP3Red: 0.75, green: 0.6, blue: 0.6, alpha: 1.0)
-                        neutralButton.setTitle("denied", for: .normal)
+                        neutralButton.setTitle("declined", for: .normal)
                     } else
                     {
                         neutralButton.backgroundColor = UIColor(displayP3Red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0)
                         neutralButton.setTitle("pending", for: .normal)
                     }
+
+                    self.view.layoutIfNeeded()
+                    self.mScrollView.setContentOffset(CGPoint(x: 0, y: max(self.mScrollView.contentSize.height - self.mScrollView.bounds.size.height, 0)), animated: true)
+                    self.view.layoutIfNeeded()
+                    
                 } else
                 {
                     yesButton.translatesAutoresizingMaskIntoConstraints = false
@@ -1895,6 +1947,11 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     noImage.image = UIImage(systemName: "multiply")!
                     noImage.tintColor = UIColor.white
                     postView.bringSubviewToFront(noImage)
+
+                    self.view.layoutIfNeeded()
+                    self.mScrollView.setContentOffset(CGPoint(x: 0, y: max(self.mScrollView.contentSize.height - self.mScrollView.bounds.size.height, 0)), animated: true)
+                    self.view.layoutIfNeeded()
+                    
                 }
             }
         } else
@@ -1910,6 +1967,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             postImage.setTitle("\(text)", for: .normal)
             postImage.setTitleColor(UIColor.clear, for: .normal)
             postImage.addTarget(self, action: #selector(imagePressed(_:)), for: .touchUpInside)
+            postImage.layer.masksToBounds = false
+            postImage.layer.cornerRadius = 10.0
+            postImage.clipsToBounds = true
             st.child("messages/\(idInfo!)/\(text).jpg").getData(maxSize: 25 * 1024 * 1024, completion: { (data, error) in
                 if error != nil
                 {
@@ -1923,6 +1983,11 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     viewHeight = viewWidth * heioverwidratio
                     originalHeightAnchor.isActive = false
                     postOverallView.heightAnchor.constraint(equalToConstant: viewHeight + 40.0).isActive = true
+                    
+                    self.view.layoutIfNeeded()
+                    self.mScrollView.setContentOffset(CGPoint(x: 0, y: max(self.mScrollView.contentSize.height - self.mScrollView.bounds.size.height, 0)), animated: true)
+                    self.view.layoutIfNeeded()
+                    
                 }
             })
         }
@@ -1935,6 +2000,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     
     @objc func imagePressed(_ sender: UIButton!)
     {
+        
+        self.view.endEditing(true)
         
         wbView.removeFromSuperview()
         wbView = UIView()
@@ -3067,8 +3134,23 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         }
     }
     
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView?
+    {
         return self.wbBackgroundView
+    }
+    
+    @objc func screenEdgeSwiped(_ recognizer: UIScreenEdgePanGestureRecognizer)
+    {
+        if(recognizer.state == .recognized && isMe && currScene == "Connections" &&
+        !mvLC[3].isActive && !menuToggle)
+        {
+            NotificationCenter.default.post(name: Notification.Name("openMenuTab"), object: nil)
+        }
+        if(recognizer.state == .recognized && isMe && currScene == "Connections" &&
+        mvLC[3].isActive)
+        {
+            closeMessageView(UIButton())
+        }
     }
     
 

@@ -51,6 +51,10 @@ class ProfileViewController: UIViewController
             imageRef.layer.cornerRadius = imageRef.frame.height / 2.0
             imageRef.clipsToBounds = true
             
+            let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
+            edgePan.edges = .left
+            self.view.addGestureRecognizer(edgePan)
+            
             NotificationCenter.default.addObserver(self, selector: #selector(updateProfInfo(notification:)), name: Notification.Name("updateProf"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(closeProfEdit(notification:)), name: Notification.Name("toHomeNoti"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(closeProfEdit(notification:)), name: Notification.Name("toConnectionsNoti"), object: nil)
@@ -121,6 +125,7 @@ class ProfileViewController: UIViewController
                 self.epVC.view.frame = CGRect(x: self.viewWid, y: 0, width: self.viewWid, height: self.viewHei)
             }) { _ in
                 NotificationCenter.default.post(name: Notification.Name("closeProfEdit"), object: nil)
+                self.epVC.view.isHidden = true
             }
         }
     }
@@ -150,6 +155,14 @@ class ProfileViewController: UIViewController
         } else
         {
             epVC.view.removeFromSuperview()
+        }
+    }
+    
+    @objc func screenEdgeSwiped(_ recognizer: UIScreenEdgePanGestureRecognizer)
+    {
+        if(recognizer.state == .recognized && isMe && currScene == "Profile" && !menuToggle && epVC.view.isHidden)
+        {
+            NotificationCenter.default.post(name: Notification.Name("openMenuTab"), object: nil)
         }
     }
 

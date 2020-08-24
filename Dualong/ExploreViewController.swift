@@ -74,6 +74,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var puName: UILabel! = UILabel()
     var makeConn: UIButton! = UIButton()
     var puPastSess: UILabel! = UILabel()
+    var isLoadingStack: Bool = false
     
     var delView = UIView()
     var dcvr: [NSLayoutConstraint]! = []
@@ -124,12 +125,9 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             dimView.backgroundColor = UIColor.black
             dimView.alpha = 0.0
             
-            // MAKE SCROLL VIEW START SLIGHTLY LOWER, ALSO ADJUST WHEN SCROLL UP/DOWN
-            
-            
-            
-            
-            
+            let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
+            edgePan.edges = .left
+            self.view.addGestureRecognizer(edgePan)
             
             NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -720,122 +718,51 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     
     func loadStackView()
     {
-
-        self.loadCircle.isHidden = false
-        self.noPeople.isHidden = true
-        
-        stackView.subviews.forEach({vieww in
-            stackView.removeArrangedSubview(vieww)
-            vieww.removeFromSuperview()
-        })
-        buttList.removeAll()
-        buttList = []
-        cachedEmails = []
-        cachedNames = []
-        cachedUsernames = []
-        cachedProfPics = []
-        cachedRequests = []
-        
-        if(role == "Learner, Student, or Parent")
+        if(!isLoadingStack)
         {
-            requestButRef.isHidden = false
+            isLoadingStack = true
+            self.loadCircle.isHidden = false
+            self.noPeople.isHidden = true
             
-            var cc: Int = 0
-            requests.forEach { _ in
-                cachedEmails.append("")
-                cachedNames.append("")
-                cachedUsernames.append("")
-                cachedRequests.append("")
-                cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
-                buttList.append(UIButton())
-            }
-            requests.forEach { beep in
-                self.createRequestStackViewMember(passedUsername: username, req: beep, cc: cc)
-                cc += 1
-            }
-            let baseCC: Int = cc
-            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Tutor or Teacher").observeSingleEvent(of: .value, with: { (snap) in
-                 
-                for child in snap.children
-                {
-                    let snap = child as! DataSnapshot
-                    let dict = snap.value as! [String : Any]
-                    let NAMe = dict["name"] as! String
-                    let USERNAMe = dict["username"] as! String
-                    if (dict["account_type"] as! String == "Tutor or Teacher")
-                    {
-                        if let intChildren = snap.childSnapshot(forPath: "interests").children.allObjects as? [DataSnapshot]
-                        {
-                            var intListT: [String]! = []
-                            for child2 in intChildren
-                            {
-                                intListT.append((child2.value as? String)!)
-                            }
-                            let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
-                            if(contains)
-                            {
-                                if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
-                                {
-                                    self.cachedEmails.append("")
-                                    self.cachedNames.append("")
-                                    self.cachedUsernames.append("")
-                                    self.cachedRequests.append("")
-                                    self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
-                                    self.buttList.append(UIButton())
-                                    self.createStackViewMember(passedUsername: USERNAMe, cc: cc)
-                                    cc += 1
-                                }
-                            }
-                        }
-                    }
-                }
-                if(cc - baseCC == 0)
-                {
-                    self.noPeople.removeFromSuperview()
-                    self.noPeople = UILabel()
-                    self.noPeople.isHidden = false
-                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
-                    self.noPeople.removeConstraints(self.noPeople.constraints)
-                    self.view.addSubview(self.noPeople)
-                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
-                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
-                    var textTE: String = ""
-                    if(role == "Tutor or Teacher")
-                    {
-                        textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
-                    } else if(role == "Learner, Student, or Parent")
-                    {
-                        textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
-                    }
-                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
-                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
-                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
-                    self.noPeople.text = textTE
-                    self.noPeople.textAlignment = .center
-                    self.noPeople.lineBreakMode = .byWordWrapping
-                    self.noPeople.numberOfLines = 0
-                    self.view.bringSubviewToFront(self.noPeople)
-                    self.loadCircle.isHidden = true
-                }
-                
+            stackView.subviews.forEach({vieww in
+                stackView.removeArrangedSubview(vieww)
+                vieww.removeFromSuperview()
             })
-        } else if(role == "Tutor or Teacher")
-        {
-            var pp: Int = 0
-            requestButRef.isHidden = true
-            let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observeSingleEvent(of: .value, with: { (snap) in
+            buttList.removeAll()
+            buttList = []
+            cachedEmails = []
+            cachedNames = []
+            cachedUsernames = []
+            cachedProfPics = []
+            cachedRequests = []
+            
+            if(role == "Learner, Student, or Parent")
+            {
+                requestButRef.isHidden = false
                 
-                for child in snap.children
-                {
-                    let snap = child as! DataSnapshot
-                    let dict = snap.value as! [String : Any]
-                    let NAMe = dict["name"] as! String
-                    let USERNAMe = dict["username"] as! String
-                    if let REQUESTs = dict["requests"] as! [String]?
+                var cc: Int = 0
+                requests.forEach { _ in
+                    cachedEmails.append("")
+                    cachedNames.append("")
+                    cachedUsernames.append("")
+                    cachedRequests.append("")
+                    cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                    buttList.append(UIButton())
+                }
+                requests.forEach { beep in
+                    self.createRequestStackViewMember(passedUsername: username, req: beep, cc: cc)
+                    cc += 1
+                }
+                let baseCC: Int = cc
+                let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Tutor or Teacher").observeSingleEvent(of: .value, with: { (snap) in
+                     
+                    for child in snap.children
                     {
-                        if (dict["account_type"] as! String == "Learner, Student, or Parent" && REQUESTs.count != 0)
+                        let snap = child as! DataSnapshot
+                        let dict = snap.value as! [String : Any]
+                        let NAMe = dict["name"] as! String
+                        let USERNAMe = dict["username"] as! String
+                        if (dict["account_type"] as! String == "Tutor or Teacher")
                         {
                             if let intChildren = snap.childSnapshot(forPath: "interests").children.allObjects as? [DataSnapshot]
                             {
@@ -847,59 +774,133 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
                                 if(contains)
                                 {
-                                    if(self.searchBarRef.text! == "" || USERNAMe.lowercased().contains(self.searchBarRef.text!.lowercased()) || NAMe.lowercased().contains(self.searchBarRef.text!.lowercased()))
+                                    if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
                                     {
-                                        
-                                        REQUESTs.forEach { _ in
-                                            self.cachedEmails.append("")
-                                            self.cachedNames.append("")
-                                            self.cachedUsernames.append("")
-                                            self.cachedRequests.append("")
-                                            self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
-                                            self.buttList.append(UIButton())
-                                        }
-                                        REQUESTs.forEach { request in
-                                            self.createRequestStackViewMember(passedUsername: USERNAMe, req: request, cc: pp)
-                                            pp += 1
-                                        }
-                                        
+                                        self.cachedEmails.append("")
+                                        self.cachedNames.append("")
+                                        self.cachedUsernames.append("")
+                                        self.cachedRequests.append("")
+                                        self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                                        self.buttList.append(UIButton())
+                                        self.createStackViewMember(passedUsername: USERNAMe, cc: cc)
+                                        cc += 1
                                     }
                                 }
                             }
                         }
                     }
-                }
-                if(pp == 0)
-                {
-                    self.noPeople.removeFromSuperview()
-                    self.noPeople = UILabel()
-                    self.noPeople.isHidden = false
-                    self.noPeople.translatesAutoresizingMaskIntoConstraints = false
-                    self.noPeople.removeConstraints(self.noPeople.constraints)
-                    self.view.addSubview(self.noPeople)
-                    self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-                    self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-                    self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 20.0).isActive = true
-                    self.noPeople.font = UIFont(name: "HelveticaNeue", size: 25.0)
-                    var textTE: String = ""
-                    if(role == "Tutor or Teacher")
+                    if(cc - baseCC == 0)
                     {
-                        textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
-                    } else if(role == "Learner, Student, or Parent")
-                    {
-                        textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
+                        self.noPeople.removeFromSuperview()
+                        self.noPeople = UILabel()
+                        self.noPeople.isHidden = false
+                        self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                        self.noPeople.removeConstraints(self.noPeople.constraints)
+                        self.view.addSubview(self.noPeople)
+                        self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                        self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                        self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 50.0).isActive = true
+                        self.noPeople.font = UIFont(name: "HelveticaNeue", size: 22.0)
+                        var textTE: String = ""
+                        if(role == "Tutor or Teacher")
+                        {
+                            textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
+                        } else if(role == "Learner, Student, or Parent")
+                        {
+                            textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
+                        }
+                        let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 22.0)!)
+                        self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                        self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
+                        self.noPeople.text = textTE
+                        self.noPeople.textAlignment = .center
+                        self.noPeople.lineBreakMode = .byWordWrapping
+                        self.noPeople.numberOfLines = 0
+                        self.view.bringSubviewToFront(self.noPeople)
+                        self.loadCircle.isHidden = true
                     }
-                    let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 20.0, font: UIFont(name: "HelveticaNeue", size: 25.0)!)
-                    self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
-                    self.noPeople.textColor = UIColor.white.withAlphaComponent(0.5)
-                    self.noPeople.textAlignment = .center
-                    self.noPeople.lineBreakMode = .byWordWrapping
-                    self.noPeople.numberOfLines = 0
                     
-                    self.loadCircle.isHidden = true
-                }
-                
-            })
+                })
+            } else if(role == "Tutor or Teacher")
+            {
+                var pp: Int = 0
+                requestButRef.isHidden = true
+                let _ = db.child("users").queryOrdered(byChild: "account_type").queryEqual(toValue: "Learner, Student, or Parent").observeSingleEvent(of: .value, with: { (snap) in
+                    
+                    for child in snap.children
+                    {
+                        let snap = child as! DataSnapshot
+                        let dict = snap.value as! [String : Any]
+                        let NAMe = dict["name"] as! String
+                        let USERNAMe = dict["username"] as! String
+                        if let REQUESTs = dict["requests"] as! [String]?
+                        {
+                            if (dict["account_type"] as! String == "Learner, Student, or Parent" && REQUESTs.count != 0)
+                            {
+                                if let intChildren = snap.childSnapshot(forPath: "interests").children.allObjects as? [DataSnapshot]
+                                {
+                                    var intListT: [String]! = []
+                                    for child2 in intChildren
+                                    {
+                                        intListT.append((child2.value as? String)!)
+                                    }
+                                    let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
+                                    if(contains)
+                                    {
+                                        if(self.searchBarRef.text! == "" || USERNAMe.lowercased().contains(self.searchBarRef.text!.lowercased()) || NAMe.lowercased().contains(self.searchBarRef.text!.lowercased()))
+                                        {
+                                            
+                                            REQUESTs.forEach { _ in
+                                                self.cachedEmails.append("")
+                                                self.cachedNames.append("")
+                                                self.cachedUsernames.append("")
+                                                self.cachedRequests.append("")
+                                                self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
+                                                self.buttList.append(UIButton())
+                                            }
+                                            REQUESTs.forEach { request in
+                                                self.createRequestStackViewMember(passedUsername: USERNAMe, req: request, cc: pp)
+                                                pp += 1
+                                            }
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(pp == 0)
+                    {
+                        self.noPeople.removeFromSuperview()
+                        self.noPeople = UILabel()
+                        self.noPeople.isHidden = false
+                        self.noPeople.translatesAutoresizingMaskIntoConstraints = false
+                        self.noPeople.removeConstraints(self.noPeople.constraints)
+                        self.view.addSubview(self.noPeople)
+                        self.noPeople.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+                        self.noPeople.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+                        self.noPeople.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 20.0).isActive = true
+                        self.noPeople.font = UIFont(name: "HelveticaNeue", size: 22.0)
+                        var textTE: String = ""
+                        if(role == "Tutor or Teacher")
+                        {
+                            textTE = "It appears that there are no learners who have put out tutoring requests with a similar subject interest as you. Perhaps modify your interests in your profile settings, or wait until a learner puts out a request in one of your subjects."
+                        } else if(role == "Learner, Student, or Parent")
+                        {
+                            textTE = "It appears that there are no available tutors in the subjects that you are interested in. Perhaps wait until a tutor with one of your interests joins, or contact NiMBLe Interactive in your connections tab to help connect you with a tutor."
+                        }
+                        let heighttA = textTE.heightWithConstrainedWidth(width: UIScreen.main.bounds.width - 50.0, font: UIFont(name: "HelveticaNeue", size: 22.0)!)
+                        self.noPeople.heightAnchor.constraint(equalToConstant: heighttA).isActive = true
+                        self.noPeople.textColor = UIColor.white
+                        self.noPeople.alpha = 0.5
+                        self.noPeople.textAlignment = .center
+                        self.noPeople.lineBreakMode = .byWordWrapping
+                        self.noPeople.numberOfLines = 0
+                        self.noPeople.text = textTE
+                        self.loadCircle.isHidden = true
+                    }
+                })
+            }
         }
         
     }
@@ -1641,6 +1642,14 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         if(isMe)
         {
             isMe = false
+        }
+    }
+    
+    @objc func screenEdgeSwiped(_ recognizer: UIScreenEdgePanGestureRecognizer)
+    {
+        if(recognizer.state == .recognized && isMe && currScene == "Explore" && !menuToggle && dimView.alpha == 0.0)
+        {
+            NotificationCenter.default.post(name: Notification.Name("openMenuTab"), object: nil)
         }
     }
     

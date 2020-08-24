@@ -115,6 +115,9 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
             ChangeInterestsRef.layer.borderColor = UIColor.white.withAlphaComponent(0.2).cgColor
             ChangeInterestsRef.layer.borderWidth = 1.0
             
+            let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
+            edgePan.edges = .left
+            self.view.addGestureRecognizer(edgePan)
             
             NotificationCenter.default.addObserver(self, selector: #selector(updatePreset(notification:)), name: Notification.Name("editProf"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -718,6 +721,14 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
         if(isMe && currScene == "EditProfile")
         {
             dismiss(animated: true, completion: nil)
+        }
+    }
+    
+    @objc func screenEdgeSwiped(_ recognizer: UIScreenEdgePanGestureRecognizer)
+    {
+        if(recognizer.state == .recognized && isMe && currScene == "EditProfile" && !menuToggle)
+        {
+            NotificationCenter.default.post(name: Notification.Name("openMenuTab"), object: nil)
         }
     }
     

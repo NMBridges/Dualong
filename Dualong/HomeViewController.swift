@@ -48,6 +48,10 @@ class HomeViewController: UIViewController
             
             instantiateDashboard()
             
+            let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
+            edgePan.edges = .left
+            self.view.addGestureRecognizer(edgePan)
+            
             NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(toHomeNotiFunc(notification:)), name: Notification.Name("toHomeNoti"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(awayFromDash(notification:)), name: Notification.Name("toConnectionsNoti"), object: nil)
@@ -406,7 +410,7 @@ class HomeViewController: UIViewController
         connectionsLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
         connectionsLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
         connectionsLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 100.0).isActive = true
-        connectionsLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 120.0).isActive = true
+        connectionsLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 125.0).isActive = true
         connectionsLabel.text = "connections"
         connectionsLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         connectionsLabel.textColor = UIColor.white
@@ -487,6 +491,10 @@ class HomeViewController: UIViewController
                     }
                     pastSessNum.text = "\(couOffset)"
                     pastSessNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
+                } else
+                {
+                    pastSessNum.text = "0"
+                    pastSessNum.font = UIFont(name: "HelveticaNeue", size: 50.0)
                 }
             }
         }
@@ -503,7 +511,7 @@ class HomeViewController: UIViewController
         pastSessLabel.leadingAnchor.constraint(equalTo: statsView.leadingAnchor, constant: 20.0).isActive = true
         pastSessLabel.trailingAnchor.constraint(equalTo: statsView.trailingAnchor, constant: -20.0).isActive = true
         pastSessLabel.topAnchor.constraint(equalTo: statsView.topAnchor, constant: 185.0).isActive = true
-        pastSessLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 205.0).isActive = true
+        pastSessLabel.bottomAnchor.constraint(equalTo: statsView.topAnchor, constant: 210.0).isActive = true
         pastSessLabel.text = "past tutoring sessions"
         pastSessLabel.font = UIFont(name: "HelveticaNeue", size: 20.0)
         pastSessLabel.textColor = UIColor.white
@@ -626,4 +634,13 @@ class HomeViewController: UIViewController
             isMe = false
         }
     }
+    
+    @objc func screenEdgeSwiped(_ recognizer: UIScreenEdgePanGestureRecognizer)
+    {
+        if(recognizer.state == .recognized && isMe && currScene == "Home" && !menuToggle)
+        {
+            NotificationCenter.default.post(name: Notification.Name("openMenuTab"), object: nil)
+        }
+    }
+    
 }

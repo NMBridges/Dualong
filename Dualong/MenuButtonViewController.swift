@@ -106,6 +106,7 @@ class MenuButtonViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(uploadBarComplete(notification:)), name: Notification.Name("uploadBarComplete"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(uploadBarStart(notification:)), name: Notification.Name("uploadBarStart"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(closeMenuTab(notification:)), name: Notification.Name("closeMenuTab"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(openMenuTab(notification:)), name: Notification.Name("openMenuTab"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(logOut(notification:)), name: Notification.Name("logOut"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(menuTabClosed(notification:)), name: Notification.Name("menuTabClosed"), object: nil)
@@ -133,6 +134,14 @@ class MenuButtonViewController: UIViewController
         
         toggleMenuFunc()
         
+    }
+    
+    @objc func openMenuTab(notification: NSNotification)
+    {
+        if(!menuToggle)
+        {
+            toggleMenuFunc()
+        }
     }
     
     func toggleMenuFunc()
@@ -260,11 +269,13 @@ class MenuButtonViewController: UIViewController
         
         lobuCVR.append(logOutButtonRef.centerXAnchor.constraint(equalTo: self.view.leadingAnchor, constant: -viewWid * CGFloat(menuPOS) / 2.0))
         lobuCVR[0].isActive = true
-        lobuCVR.append(logOutButtonRef.centerXAnchor.constraint(equalTo: self.view.leadingAnchor, constant: viewWid * CGFloat(menuPOS) / 2.0))
+        lobuCVR.append(logOutButtonRef.centerXAnchor.constraint(equalTo: self.view.leadingAnchor, constant: viewWid * CGFloat(menuPOS) / 2.0 - 5.0))
         lobuCVR[1].isActive = false
         logOutButtonRef.centerYAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -55.0).isActive = true
-        logOutButtonRef.widthAnchor.constraint(equalToConstant: 35.0).isActive = true
-        logOutButtonRef.heightAnchor.constraint(equalToConstant: 35.0).isActive = true
+        logOutButtonRef.widthAnchor.constraint(equalToConstant: 45.0).isActive = true
+        logOutButtonRef.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
+        logOutButtonRef.tintColor = UIColor.white
+        logOutButtonRef.alpha = 0.35
         
         homeCVR.append(homeContainerView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor))
         homeCVR[0].isActive = true
@@ -419,6 +430,7 @@ extension Notification.Name
     static let toExploreNoti = Notification.Name("toExploreNoti")
     static let toProfileNoti = Notification.Name("toProfileNoti")
     static let closeMenuTab = Notification.Name("closeMenuTab")
+    static let openMenuTab = Notification.Name("openMenuTab")
     static let menuTabClosed = Notification.Name("menuTabClosed")
     static let reloadStackView = Notification.Name("reloadStackView")
     static let expTurnOffLoading = Notification.Name("expTurnOffLoading")

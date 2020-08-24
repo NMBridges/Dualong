@@ -18,8 +18,8 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DualongBackgroundExtraLowQuality-1" translatesAutoresizingMaskIntoConstraints="NO" id="a8L-Uv-HtW">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Dualong" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9gp-ME-vnI">
-                                <rect key="frame" x="117.66666666666669" y="150" width="179" height="70"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TutorPlug" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9gp-ME-vnI">
+                                <rect key="frame" x="105" y="150" width="204" height="70"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="70" id="CFn-qt-XLm"/>
                                 </constraints>
@@ -386,13 +386,13 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Te2-OZ-oX0" userLabel="logOutButton">
-                                <rect key="frame" x="0.0" y="649" width="35" height="29.333333333333371"/>
+                                <rect key="frame" x="0.0" y="649" width="45" height="40"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="35" id="Wax-Z2-qYn"/>
-                                    <constraint firstAttribute="height" constant="35" id="v31-LK-hLc"/>
+                                    <constraint firstAttribute="width" constant="45" id="Wax-Z2-qYn"/>
+                                    <constraint firstAttribute="height" constant="40" id="v31-LK-hLc"/>
                                 </constraints>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" backgroundImage="arrow.left" catalog="system"/>
+                                <state key="normal" backgroundImage="LogoutButton"/>
                                 <connections>
                                     <action selector="logOutButton:" destination="SP4-8J-2D3" eventType="touchUpInside" id="Hq5-F5-o1H"/>
                                     <segue destination="D82-vd-PAz" kind="unwind" unwindAction="unwindToLogin:" id="ZSg-pk-J9y"/>
@@ -1126,7 +1126,7 @@
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DualongBackgroundExtraLowQuality-1" width="2048" height="2732"/>
-        <image name="arrow.left" catalog="system" width="128" height="98"/>
+        <image name="LogoutButton" width="600" height="600"/>
         <image name="connectionsIconWhite" width="192" height="192"/>
         <image name="defaultProfileImageSolid" width="300" height="300"/>
         <image name="editIcon" width="1024" height="1024"/>
