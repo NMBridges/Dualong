@@ -691,7 +691,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                         self.db.child("users/\(key)").observeSingleEvent(of: .value) { snap in
                             if let dict = snap.value as? [String: Any]
                             {
-
+                                if(optLeng != self.usernameList.count)
+                                {
+                                    return
+                                }
                                 
                                 self.usernameList[c] = (dict["username"] as? String)!
                                 self.nameList[c] = (dict["name"] as? String)!
@@ -701,12 +704,20 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                 self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
                                         if let randID = snap4.value as? String
                                         {
-
+                                            if(optLeng != self.usernameList.count)
+                                            {
+                                                return
+                                            }
                                             
                                             self.idList[c] = randID
                                             self.db.child("connections/\(randID)").observeSingleEvent(of: .value) { snap5 in
                                                 if let diction = snap5.value as? [String: Any]
                                                 {
+                                                    
+                                                    if(optLeng != self.usernameList.count)
+                                                    {
+                                                        return
+                                                    }
                                                     
                                                     let conn = (diction["\(userEmail!)"] as? [String: Any])!
                                                     self.connStatus[c] = (conn["status"] as? String)!
@@ -726,6 +737,12 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                                         }
                                                         if let data = data
                                                         {
+                                                            
+                                                            if(optLeng != self.usernameList.count)
+                                                            {
+                                                                return
+                                                            }
+                                                            
                                                             let tImage = UIImage(data: data)!
                                                             
                                                             self.profpicList[c] = tImage
@@ -748,6 +765,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                             }
                         }
                         PP += 1
+                        if(PP == optLeng)
+                        {
+                            self.isLoadingConn = false
+                        }
                     }
                 }
             }
@@ -830,8 +851,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mView.addSubview(mScrollView)
         mScrollView.leadingAnchor.constraint(equalTo: mView.leadingAnchor).isActive = true
         mScrollView.trailingAnchor.constraint(equalTo: mView.trailingAnchor).isActive = true
-        mScrollView.topAnchor.constraint(equalTo: mView.topAnchor, constant: 85.0).isActive = true
-        mScrollView.bottomAnchor.constraint(equalTo: mView.bottomAnchor, constant: -50.0).isActive = true
+        mScrollView.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.topAnchor, constant: 70.0).isActive = true
+        mScrollView.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -50.0).isActive = true
         
         mStackView = UIStackView()
         mStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -854,8 +875,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mTextView.delegate = self
         mTextView.leadingAnchor.constraint(equalTo: mView.leadingAnchor, constant: 5.0).isActive = true
         mTextView.trailingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -50.0).isActive = true
-        mTextView.topAnchor.constraint(equalTo: mView.bottomAnchor, constant: -45.0).isActive = true
-        mTextView.bottomAnchor.constraint(equalTo: mView.bottomAnchor, constant: -5.0).isActive = true
+        mTextView.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -45.0).isActive = true
+        mTextView.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -5.0).isActive = true
         mTextView.backgroundColor = UIColor(displayP3Red: 0.3, green: 0.3, blue: 0.5, alpha: 1.0)
         mTextView.textColor = UIColor(displayP3Red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5)
         mTextView.text = "message..."
@@ -874,7 +895,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mNameBackground.leadingAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.leadingAnchor).isActive = true
         mNameBackground.trailingAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.trailingAnchor).isActive = true
         mNameBackground.topAnchor.constraint(equalTo: mView.topAnchor).isActive = true
-        mNameBackground.bottomAnchor.constraint(equalTo: mView.topAnchor, constant: 80.0).isActive = true
+        mNameBackground.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.topAnchor, constant: 65.0).isActive = true
         mNameBackground.backgroundColor = UIColor(displayP3Red: 70.0 / 255.0, green: 70.0 / 255.0, blue: 120.0 / 255.0, alpha: 1.0)
         mNameBackground.alpha = 1.0
         
@@ -886,8 +907,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mView.addSubview(mCallButton)
         mCallButton.leadingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -60).isActive = true
         mCallButton.trailingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -30).isActive = true
-        mCallButton.topAnchor.constraint(equalTo: mView.topAnchor, constant: 35 + self.view.safeAreaInsets.top).isActive = true
-        mCallButton.bottomAnchor.constraint(equalTo: mView.topAnchor, constant: 65 + self.view.safeAreaInsets.top).isActive = true
+        mCallButton.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.topAnchor, constant: 15.0).isActive = true
+        mCallButton.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.topAnchor, constant: 45.0).isActive = true
         mCallButton.setBackgroundImage(UIImage(systemName: "phone"), for: .normal)
         mCallButton.addTarget(self, action: #selector(startCall(_:)), for: .touchUpInside)
         mCallButton.tintColor = UIColor.white
@@ -935,8 +956,8 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         mView.addSubview(mPlusButton)
         mPlusButton.trailingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -7.0).isActive = true
         mPlusButton.leadingAnchor.constraint(equalTo: mView.trailingAnchor, constant: -43.0).isActive = true
-        mPlusButton.topAnchor.constraint(equalTo: mView.bottomAnchor, constant: -43.0).isActive = true
-        mPlusButton.bottomAnchor.constraint(equalTo: mView.bottomAnchor, constant: -7.0).isActive = true
+        mPlusButton.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -43.0).isActive = true
+        mPlusButton.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -7.0).isActive = true
         mPlusButton.layer.cornerRadius = 20.0
         mPlusButton.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1.0)
         mPlusButton.setImage(UIImage(systemName: "plus"), for: .normal)
@@ -961,9 +982,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         movLC[4].isActive = false
         movLC.append(mOptionsView.leadingAnchor.constraint(equalTo: mView.leadingAnchor, constant: 5.0))
         movLC[5].isActive = false
-        movLC.append(mOptionsView.topAnchor.constraint(equalTo: mView.bottomAnchor, constant: -150.0))
+        movLC.append(mOptionsView.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -150.0))
         movLC[6].isActive = false
-        movLC.append(mOptionsView.bottomAnchor.constraint(equalTo: mView.bottomAnchor, constant: -50.0))
+        movLC.append(mOptionsView.bottomAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.bottomAnchor, constant: -50.0))
         movLC[7].isActive = false
         mOptionsView.layer.cornerRadius = 20.0
         mOptionsView.backgroundColor = UIColor(displayP3Red: 86.0 / 255.0, green: 84.0 / 255.0, blue: 213.0 / 255.0, alpha: 1.0)
@@ -1497,7 +1518,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                 mView.addSubview(progressBar)
                 progressBar.leadingAnchor.constraint(equalTo: mView.leadingAnchor).isActive = true
                 progressBar.trailingAnchor.constraint(equalTo: mView.trailingAnchor).isActive = true
-                progressBar.topAnchor.constraint(equalTo: mView.topAnchor, constant: 80.0).isActive = true
+                progressBar.topAnchor.constraint(equalTo: mView.safeAreaLayoutGuide.topAnchor, constant: 65.0).isActive = true
                 progressBar.alpha = 1.0
                 uploadRef.observe(.progress) { snapshot in
                     progressBar.progress = Float(snapshot.progress!.fractionCompleted)

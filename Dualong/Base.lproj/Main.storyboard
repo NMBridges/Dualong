@@ -10,7 +10,7 @@
         <!--Login-->
         <scene sceneID="chE-Fk-OpO">
             <objects>
-                <viewController modalPresentationStyle="overFullScreen" id="zPa-iw-Nf7" userLabel="Login" customClass="MainViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="overFullScreen" id="zPa-iw-Nf7" userLabel="Login" customClass="MainViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ArN-Zi-AAL">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -18,29 +18,18 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DualongBackgroundExtraLowQuality-1" translatesAutoresizingMaskIntoConstraints="NO" id="a8L-Uv-HtW">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TutorPlug" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9gp-ME-vnI">
-                                <rect key="frame" x="105" y="150" width="204" height="70"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="TutorPlugTitleLogo-1" translatesAutoresizingMaskIntoConstraints="NO" id="6q0-ya-hCe">
+                                <rect key="frame" x="75" y="175" width="264" height="236"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="70" id="CFn-qt-XLm"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="120" id="rXJ-ja-U1D"/>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="275" id="tSS-44-XNV"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="50"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="please choose a login/signup method" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hKA-xK-QU0">
-                                <rect key="frame" x="94" y="228" width="226" height="25"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="25" id="mFN-42-cw9"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="14"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </label>
+                            </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TEC-n0-ofS" userLabel="googlesignin" customClass="GIDSignInButton">
-                                <rect key="frame" x="87" y="283" width="240" height="64"/>
+                                <rect key="frame" x="87" y="426" width="240" height="64"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="240" id="8Vw-JK-ts8"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="450" id="IpG-ho-QWa"/>
                                     <constraint firstAttribute="height" constant="64" id="jMa-DG-07R"/>
                                 </constraints>
                             </view>
@@ -63,17 +52,19 @@
                         <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="a8L-Uv-HtW" firstAttribute="top" secondItem="ArN-Zi-AAL" secondAttribute="top" id="1gS-n0-dYW"/>
-                            <constraint firstItem="hKA-xK-QU0" firstAttribute="centerX" secondItem="ArN-Zi-AAL" secondAttribute="centerX" id="C1e-eN-sID"/>
+                            <constraint firstAttribute="trailing" secondItem="6q0-ya-hCe" secondAttribute="trailing" constant="75" id="8Gt-tL-KC2"/>
                             <constraint firstItem="Vod-wg-tiH" firstAttribute="leading" secondItem="7cp-2e-z5X" secondAttribute="leading" id="H94-wh-8Wn"/>
                             <constraint firstAttribute="bottom" secondItem="a8L-Uv-HtW" secondAttribute="bottom" id="K5Z-10-QqE"/>
+                            <constraint firstItem="6q0-ya-hCe" firstAttribute="centerY" secondItem="ArN-Zi-AAL" secondAttribute="centerY" constant="-75" id="OAf-BN-HT8"/>
                             <constraint firstAttribute="trailing" secondItem="a8L-Uv-HtW" secondAttribute="trailing" id="Q4u-gy-NBe"/>
-                            <constraint firstItem="TEC-n0-ofS" firstAttribute="top" secondItem="hKA-xK-QU0" secondAttribute="bottom" constant="30" id="V53-Qv-UJA"/>
+                            <constraint firstItem="7cp-2e-z5X" firstAttribute="trailing" secondItem="TEC-n0-ofS" secondAttribute="trailing" priority="750" constant="87" id="VU8-ei-4Kf"/>
                             <constraint firstItem="7cp-2e-z5X" firstAttribute="bottom" secondItem="Vod-wg-tiH" secondAttribute="bottom" id="YSg-aj-oZw"/>
-                            <constraint firstItem="9gp-ME-vnI" firstAttribute="centerX" secondItem="ArN-Zi-AAL" secondAttribute="centerX" id="ZXD-dq-uT5"/>
+                            <constraint firstItem="TEC-n0-ofS" firstAttribute="top" secondItem="6q0-ya-hCe" secondAttribute="bottom" constant="15" id="c8k-ou-BBa"/>
                             <constraint firstItem="a8L-Uv-HtW" firstAttribute="leading" secondItem="ArN-Zi-AAL" secondAttribute="leading" id="cxX-mx-m3Z"/>
                             <constraint firstItem="7cp-2e-z5X" firstAttribute="trailing" secondItem="Vod-wg-tiH" secondAttribute="trailing" id="ex1-GE-Lxv"/>
-                            <constraint firstItem="9gp-ME-vnI" firstAttribute="top" secondItem="7cp-2e-z5X" secondAttribute="top" constant="150" id="p09-sZ-tWi"/>
-                            <constraint firstItem="hKA-xK-QU0" firstAttribute="top" secondItem="9gp-ME-vnI" secondAttribute="bottom" constant="8" id="pQm-YP-OcV"/>
+                            <constraint firstItem="TEC-n0-ofS" firstAttribute="leading" secondItem="7cp-2e-z5X" secondAttribute="leading" priority="750" constant="87" id="fJc-xX-GWc"/>
+                            <constraint firstItem="6q0-ya-hCe" firstAttribute="leading" secondItem="ArN-Zi-AAL" secondAttribute="leading" constant="75" id="hYU-iy-XNb"/>
+                            <constraint firstItem="6q0-ya-hCe" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ArN-Zi-AAL" secondAttribute="top" constant="175" id="rbQ-Wj-0kW"/>
                             <constraint firstItem="TEC-n0-ofS" firstAttribute="centerX" secondItem="ArN-Zi-AAL" secondAttribute="centerX" id="ts4-jR-0E4"/>
                             <constraint firstItem="Vod-wg-tiH" firstAttribute="top" secondItem="7cp-2e-z5X" secondAttribute="top" id="wZs-br-ujZ"/>
                         </constraints>
@@ -89,12 +80,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XKe-Nh-r9N" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-483" y="390"/>
+            <point key="canvasLocation" x="-484.05797101449281" y="389.67391304347831"/>
         </scene>
         <!--Account Setup-->
         <scene sceneID="m7g-pH-jnc">
             <objects>
-                <viewController modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="P3b-QX-Kki" userLabel="Account Setup" customClass="SetupViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="P3b-QX-Kki" userLabel="Account Setup" customClass="SetupViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="iiP-K1-xqI">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -323,7 +314,7 @@
         <!--Main-->
         <scene sceneID="Wgd-7u-VVD">
             <objects>
-                <viewController title="HomeViewController" modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="SP4-8J-2D3" userLabel="Main" customClass="MenuButtonViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="HomeViewController" modalTransitionStyle="flipHorizontal" modalPresentationStyle="overFullScreen" id="SP4-8J-2D3" userLabel="Main" customClass="MenuButtonViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3b8-4y-fJV">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <subviews>
@@ -431,7 +422,7 @@
         <!--Menu-->
         <scene sceneID="axw-ec-NAy">
             <objects>
-                <viewController storyboardIdentifier="MenuScene" modalPresentationStyle="fullScreen" id="3VA-MV-gol" userLabel="Menu" customClass="MenuViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MenuScene" modalPresentationStyle="fullScreen" id="3VA-MV-gol" userLabel="Menu" customClass="MenuViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5Fq-tm-cKG">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -590,7 +581,7 @@
         <!--Home-->
         <scene sceneID="Cin-6o-kds">
             <objects>
-                <viewController id="fQf-sn-fnk" userLabel="Home" customClass="HomeViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="fQf-sn-fnk" userLabel="Home" customClass="HomeViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="M59-lb-rla">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -628,7 +619,7 @@
         <!--Connections-->
         <scene sceneID="Cfk-VR-51f">
             <objects>
-                <viewController id="w9S-4T-rZ6" userLabel="Connections" customClass="ConnectionsViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="w9S-4T-rZ6" userLabel="Connections" customClass="ConnectionsViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cr9-qJ-wVs">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -669,7 +660,7 @@
         <!--Explore-->
         <scene sceneID="eQR-cu-e5v">
             <objects>
-                <viewController id="YtD-r5-dEj" userLabel="Explore" customClass="ExploreViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="YtD-r5-dEj" userLabel="Explore" customClass="ExploreViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UXN-0C-0XD">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <subviews>
@@ -760,7 +751,7 @@
         <!--Profile-->
         <scene sceneID="HfN-RP-JdS">
             <objects>
-                <viewController id="cNQ-KL-MFp" userLabel="Profile" customClass="ProfileViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="cNQ-KL-MFp" userLabel="Profile" customClass="ProfileViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cQT-a4-3eN">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -863,7 +854,7 @@
         <!--Edit Profile-->
         <scene sceneID="glA-xa-iUA">
             <objects>
-                <viewController storyboardIdentifier="ProfileEdit" id="iBj-ha-9e7" userLabel="Edit Profile" customClass="ProfileEditViewController" customModule="Dualong" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ProfileEdit" id="iBj-ha-9e7" userLabel="Edit Profile" customClass="ProfileEditViewController" customModule="TutorPlug" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="N4Q-QZ-Fiy">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1127,6 +1118,7 @@
     <resources>
         <image name="DualongBackgroundExtraLowQuality-1" width="2048" height="2732"/>
         <image name="LogoutButton" width="600" height="600"/>
+        <image name="TutorPlugTitleLogo-1" width="1200" height="800"/>
         <image name="connectionsIconWhite" width="192" height="192"/>
         <image name="defaultProfileImageSolid" width="300" height="300"/>
         <image name="editIcon" width="1024" height="1024"/>

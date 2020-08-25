@@ -83,6 +83,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var noRotationDel: UIButton! = UIButton()
     var delReqBU: UIButton! = UIButton()
     
+    var lastONE: Int = 0
+    
     var popUP: Bool = false
     var delUP: Bool = false
     
@@ -222,13 +224,20 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                         }
                                         if let data = data
                                         {
-                                            tImage = UIImage(data: data)!
-                                            newImage.image = tImage
-                                            self.cachedProfPics[cc] = tImage
+                                            if(cc < self.cachedProfPics.count)
+                                            {
+                                                tImage = UIImage(data: data)!
+                                                newImage.image = tImage
+                                                self.cachedProfPics[cc] = tImage
+                                            }
                                         }
                                     })
                                     
-                                    self.loadCircle.isHidden = true
+                                    if(self.lastONE == cc + 1)
+                                    {
+                                        self.loadCircle.isHidden = true
+                                        self.isLoadingStack = false
+                                    }
                                     
                                 } else
                                 {
@@ -350,9 +359,12 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                     }
                                     if let data = data
                                     {
-                                        tImage = UIImage(data: data)!
-                                        newImage.image = tImage
-                                        self.cachedProfPics[cc] = tImage
+                                        if(cc < self.cachedProfPics.count)
+                                        {
+                                            tImage = UIImage(data: data)!
+                                            newImage.image = tImage
+                                            self.cachedProfPics[cc] = tImage
+                                        }
                                     }
                                 })
                             } else
@@ -360,9 +372,10 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 self.cachedProfPics[cc] = UIImage()
                             }
                             
-                            if(role != "Learner, Student, or Parent")
+                            if(role != "Learner, Student, or Parent" && cc == self.lastONE - 1)
                             {
                                 self.loadCircle.isHidden = true
+                                self.isLoadingStack = false
                             }
                             
                         } else
@@ -789,6 +802,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             }
                         }
                     }
+                    self.lastONE = cc
                     if(cc - baseCC == 0)
                     {
                         self.noPeople.removeFromSuperview()
@@ -818,6 +832,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         self.noPeople.numberOfLines = 0
                         self.view.bringSubviewToFront(self.noPeople)
                         self.loadCircle.isHidden = true
+                        self.isLoadingStack = false
                     }
                     
                 })
@@ -869,6 +884,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                             }
                         }
                     }
+                    self.lastONE = pp
                     if(pp == 0)
                     {
                         self.noPeople.removeFromSuperview()
@@ -898,6 +914,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         self.noPeople.numberOfLines = 0
                         self.noPeople.text = textTE
                         self.loadCircle.isHidden = true
+                        self.isLoadingStack = false
                     }
                 })
             }

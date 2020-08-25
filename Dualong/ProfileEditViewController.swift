@@ -242,7 +242,7 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
             interestView.addSubview(interestTitle)
         }
         interestTitle.translatesAutoresizingMaskIntoConstraints = false
-        interestTitle.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 60).isActive = true
+        interestTitle.topAnchor.constraint(equalTo: interestView.safeAreaLayoutGuide.topAnchor, constant: 60).isActive = true
         interestTitle.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
         interestTitle.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
         interestTitle.heightAnchor.constraint(equalToConstant: 120).isActive = true
