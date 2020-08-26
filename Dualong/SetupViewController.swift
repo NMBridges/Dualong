@@ -35,6 +35,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet var roleButtons: [UIButton]!
     
+    @IBOutlet weak var nextBUTREF: UIButton!
+    
     let st = Storage.storage().reference()
     
     var interestView: UIView! = UIView()
@@ -74,6 +76,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         instantiateInterestsView()
         
+        nextBUTREF.layer.cornerRadius = 10.0
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
@@ -108,7 +112,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         interestScrollView.translatesAutoresizingMaskIntoConstraints = false
         interestScrollView.removeConstraints(interestScrollView.constraints)
         interestScrollView.topAnchor.constraint(equalTo: interestView.topAnchor, constant: 200.0).isActive = true
-        interestScrollView.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.2 - 20).isActive = true
+        interestScrollView.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -145.0).isActive = true
         interestScrollView.leadingAnchor.constraint(equalTo: interestView.leadingAnchor, constant: 25).isActive = true
         interestScrollView.trailingAnchor.constraint(equalTo: interestView.trailingAnchor, constant: -25).isActive = true
         interestScrollView.contentSize = interestScrollView.frame.size
@@ -156,15 +160,31 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         interestView.addSubview(createAccButton)
         createAccButton.setTitle("Create Account", for: .normal)
         createAccButton.setTitleColor(UIColor.systemBlue, for: .normal)
-        createAccButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Bold", size: UIScreen.main.bounds.width * 0.05)
+        createAccButton.titleLabel!.font = UIFont(name: "HelveticaNeue-Bold", size: 25.0)
         createAccButton.backgroundColor = UIColor.white
         createAccButton.translatesAutoresizingMaskIntoConstraints = false
         createAccButton.removeConstraints(createAccButton.constraints)
         createAccButton.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
-        createAccButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.5).isActive = true
-        createAccButton.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.12).isActive = true
-        createAccButton.centerYAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -UIScreen.main.bounds.width * 0.1 - 10).isActive = true
+        createAccButton.widthAnchor.constraint(equalToConstant: 225.0).isActive = true
+        createAccButton.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
+        createAccButton.bottomAnchor.constraint(equalTo: interestView.bottomAnchor, constant: -25.0).isActive = true
+        createAccButton.layer.cornerRadius = 15.0
         createAccButton.addTarget(self, action: #selector(createAccountNow(_:)), for: UIControl.Event.touchUpInside)
+        
+        let privpol = UILabel()
+        privpol.translatesAutoresizingMaskIntoConstraints = false
+        privpol.removeConstraints(privpol.constraints)
+        interestView.addSubview(privpol)
+        privpol.bottomAnchor.constraint(equalTo: createAccButton.topAnchor, constant: -15.0).isActive = true
+        privpol.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
+        privpol.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8).isActive = true
+        privpol.centerXAnchor.constraint(equalTo: interestView.centerXAnchor).isActive = true
+        privpol.text = "By pressing 'Create Account' you are accepting the privacy policy available on our app store page"
+        privpol.font = UIFont(name: "HelveticaNeue", size: 13.0)
+        privpol.textColor = UIColor.white
+        privpol.lineBreakMode = .byWordWrapping
+        privpol.numberOfLines = 0
+        privpol.textAlignment = .center
         
         
         let buttonHeight: CGFloat = 60.0
@@ -250,7 +270,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     {
         var AccCounter: Int = 0
         connections = [:]
-        connections["contact,nimbleinteractive@gmail,com"] = "healthy"
+        connections["contact,nimbleinteractive@gmail,com"] = "temp"
         name = nameKB.text!
         username = usernameKB.text!.lowercased()
         
@@ -370,8 +390,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         let stringDate = "\(date)"
         if(username != "nimbleinteractive")
         {
-            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"contact,nimbleinteractive@gmail,com", "message_list/\(randomID2.key!)/message":"Hi! This is NiMBLe Interactive support. Please feel free to send any support requests through this channel. For finding tutors or learners' tutoring requests, go to the explore tab (search icon). Thanks!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","contact,nimbleinteractive@gmail,com/status":"healthy"])
-            connections["nimbleinteractive"] = "\(randomID.key!)"
+            connections["contact,nimbleinteractive@gmail,com"] = "\(randomID.key!)"
+            randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"contact,nimbleinteractive@gmail,com", "message_list/\(randomID2.key!)/message":"/mHi! This is NiMBLe Interactive support. Please feel free to send any support requests through this channel. For finding tutors or learners' tutoring requests, go to the explore tab (search icon). Thanks!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","contact,nimbleinteractive@gmail,com/status":"healthy"])
             db.child("users/\(userEmail!)/connections/contact,nimbleinteractive@gmail,com").setValue("\(randomID.key!)")
             db.child("users/contact,nimbleinteractive@gmail,com/connections/\(userEmail!)").setValue("\(randomID.key!)")
         }

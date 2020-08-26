@@ -12,6 +12,7 @@ import FirebaseStorage
 
 class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate
 {
+    
     let st = Storage.storage().reference()
     let db = Database.database().reference()
     var isMe: Bool = true
@@ -1172,12 +1173,15 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         }
     }
     
+    
+    
     @objc func startCall(_ sender: UIButton!)
     {
         if(phoneInfo! != "nil" && phoneInfo! != "" && phoneInfo!.count > 6)
         {
             let url: URL = URL(string: "tel://\(phoneInfo!)")!
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            
         } else
         {
             let alert = UIAlertController(title: "Error", message: "This person doesn't have a phone number added to their account", preferredStyle: UIAlertController.Style.alert)

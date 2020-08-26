@@ -1304,14 +1304,11 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                         }
                     } else
                     {
-                        if(role == "Tutor or Teacher")
-                        {
-                            self.puPastSess.text = ""
-                        } else if(role == "Student, Learner, or Parent")
-                        {
-                            self.puPastSess.text = ""
-                        }
+                        self.puPastSess.text = ""
                     }
+                } else
+                {
+                    self.puPastSess.text = ""
                 }
             }
             puPastSess.textColor = UIColor.white

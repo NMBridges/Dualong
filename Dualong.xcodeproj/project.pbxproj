@@ -25,6 +25,29 @@
 		C4FD41A760215307124A54DE /* Pods_Dualong.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6033EAC815C0B23D79C5DB9 /* Pods_Dualong.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		303EF02A24F61A7600DF9CBE /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		303EF04F24F61D3300DF9CBE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3028A75224CF9DC700D49CC5 /* ExploreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewController.swift; sourceTree = "<group>"; };
 		3028A75424CF9DE500D49CC5 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -36,6 +59,7 @@
 		3035176124CA4D5900D8AB4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3035176324CA4D5900D8AB4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3035176924CA694C00D8AB4A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		303EF01A24F5B92600DF9CBE /* TutorPlug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TutorPlug.entitlements; sourceTree = "<group>"; };
 		30403C6424CBF78900E089E9 /* SetupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupViewController.swift; sourceTree = "<group>"; };
 		305B9E1224CD694A00036E09 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		30A420B324CD605A00C80A7D /* ConnectionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionsViewController.swift; sourceTree = "<group>"; };
@@ -98,6 +122,7 @@
 		3035175424CA4D5800D8AB4A /* Dualong */ = {
 			isa = PBXGroup;
 			children = (
+				303EF01A24F5B92600DF9CBE /* TutorPlug.entitlements */,
 				3014FCA524CB86C100174F73 /* SupportFiles */,
 				3035175524CA4D5800D8AB4A /* AppDelegate.swift */,
 				3035175724CA4D5800D8AB4A /* SceneDelegate.swift */,
@@ -139,6 +164,8 @@
 				3035175024CA4D5800D8AB4A /* Resources */,
 				3D49ACE743B8D17455E445B6 /* [CP] Embed Pods Frameworks */,
 				FC2BED1FE3D47F1A15BCA303 /* [CP] Copy Pods Resources */,
+				303EF02A24F61A7600DF9CBE /* Embed App Extensions */,
+				303EF04F24F61D3300DF9CBE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -417,7 +444,9 @@
 			baseConfigurationReference = 6641D83174FFF087EBD8BE03 /* Pods-Dualong.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Dualong/TutorPlug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8P3886N27L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -464,6 +493,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.NiMBLeInteractive.Dualong;
 				PRODUCT_NAME = TutorPlug;
 				SWIFT_VERSION = 5.0;
@@ -476,7 +506,9 @@
 			baseConfigurationReference = F8DD49A5C5CC17786DD990BB /* Pods-Dualong.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Dualong/TutorPlug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8P3886N27L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -523,6 +555,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.NiMBLeInteractive.Dualong;
 				PRODUCT_NAME = TutorPlug;
 				SWIFT_VERSION = 5.0;
