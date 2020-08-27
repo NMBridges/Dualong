@@ -11,6 +11,7 @@ import GoogleSignIn
 import FirebaseStorage
 import FirebaseDatabase
 import FirebaseAuth
+import AuthenticationServices
 
 var userEmail: String! = ""
 var rawEmail: String! = ""
@@ -43,6 +44,9 @@ class MainViewController: UIViewController
     var time = CACurrentMediaTime()
     var ogtime = CACurrentMediaTime()
     
+    let appleProvider = AppleSignInClient()
+    
+    @IBOutlet weak var googleButRef: GIDSignInButton!
     override func viewDidLoad()
     {
         super.viewDidLoad()
@@ -50,6 +54,17 @@ class MainViewController: UIViewController
         self.view.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
 
         AppUtility.lockOrientation(.portrait)
+        
+        let appleSignInBut = ASAuthorizationAppleIDButton()
+        self.view.addSubview(appleSignInBut)
+        self.view.bringSubviewToFront(cover)
+        appleSignInBut.translatesAutoresizingMaskIntoConstraints = false
+        appleSignInBut.widthAnchor.constraint(equalToConstant: 194.0).isActive = true
+        appleSignInBut.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        appleSignInBut.topAnchor.constraint(equalTo: googleButRef.bottomAnchor, constant: 10.0).isActive = true
+        appleSignInBut.heightAnchor.constraint(equalToConstant: 43).isActive = true
+        appleSignInBut.layer.cornerRadius = 2.0
+        appleSignInBut.addTarget(self, action: #selector(signInWithApple(_:)), for: .touchUpInside)
         
         setupLoadCircle()
         displayLink = CADisplayLink(target: self, selector: #selector(loadAnimations))
@@ -77,14 +92,81 @@ class MainViewController: UIViewController
         NotificationCenter.default.addObserver(self, selector: #selector(SHOWLOADCIRCLE(notification:)), name: Notification.Name("LOGGGGIN"), object: nil)
     }
     
-    
+    @objc func signInWithApple(_ sender: ASAuthorizationAppleIDButton)
+    {
+        appleProvider.handleAppleIdRequest(block: { fullname, email, token in
+            
+            self.db.child("tokens").observeSingleEvent(of: .value) { over in
+                if let hoo = over.children.allObjects as? [DataSnapshot]
+                {
+                    var tof: Bool = true
+                    for child in hoo
+                    {
+                        if(child.value as? String == token!)
+                        {
+                            let val = child.key
+                            userEmail = val
+                            rawEmail = val
+                            NotificationCenter.default.post(name: .signedin, object: nil)
+                            tof = false
+                        }
+                    }
+                    if(tof)
+                    {
+                        if let breaker = email
+                        {
+                            self.db.child("tokens/\(email!.lowercased())").setValue(token!)
+                            userEmail = email!.lowercased()
+                            rawEmail = email!.lowercased()
+                            NotificationCenter.default.post(name: .signedin, object: nil)
+                        } else
+                        {
+                            let keyr = self.db.child("users").childByAutoId()
+                            let keystring: String = keyr.key!
+                            self.db.child("tokens/\(keystring)").setValue(token!)
+                            userEmail = keystring
+                            rawEmail = keystring
+                            
+                            userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
+                            interests.removeAll()
+                            role = ""
+                            name = ""
+                            username = ""
+                            ownProfPic = UIImage(named: "defaultProfileImageSolid")!
+                            stars = 0.0
+                            interests = []
+                            requests = []
+                            connections = [:]
+                            
+                            NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
+
+                            self.loadCircle.isHidden = true
+                            self.performSegue(withIdentifier: "LoginToSetup", sender: self)
+                            currScene = "Setup"
+                        }
+                    }
+                }
+            }
+        })
+    }
     
     @objc func setEmail(notification: NSNotification)
     {
-        userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
-        rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+        if(GIDSignIn.sharedInstance()?.currentUser != nil)
+        {
+            userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+            rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+        }
         userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         interests.removeAll()
+        role = ""
+        name = ""
+        username = ""
+        ownProfPic = UIImage()
+        stars = 0.0
+        interests = []
+        requests = []
+        connections = [:]
         
         db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists()
@@ -105,7 +187,7 @@ class MainViewController: UIViewController
                     if let value = SNAP.value as? String
                     {
                         username = value
-                        self.st.child("profilepics/\(username).jpg").getData(maxSize: 4 * 1024 * 1024, completion: { (data, error) in
+                        self.st.child("profilepics/\(username).jpg").getData(maxSize: 8 * 1024 * 1024, completion: { (data, error) in
                             if error != nil
                             {
                                 print("error loading image \(error!)")

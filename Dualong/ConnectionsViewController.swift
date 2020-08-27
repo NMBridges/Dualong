@@ -512,9 +512,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         var combinedTimeDate: [Int:Int] = [:]
         
         var b: Int = 0
-        dateList.forEach { date in
+        dateList.forEach { date5 in
             
-            let helper = date.split(separator: "-")
+            let helper = date5.split(separator: "-")
             
             let year = "\(helper[0])"
             
@@ -536,9 +536,9 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
         }
         
         b = 0
-        timeList.forEach { time in
+        timeList.forEach { time5 in
             
-            let helper = time.split(separator: ":")
+            let helper = time5.split(separator: ":")
             
             var hour = "0\(helper[0])"
             if("\(helper[0])".count == 2)

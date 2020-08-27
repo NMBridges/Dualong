@@ -26,17 +26,17 @@
                                 </constraints>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TEC-n0-ofS" userLabel="googlesignin" customClass="GIDSignInButton">
-                                <rect key="frame" x="87" y="426" width="240" height="64"/>
+                                <rect key="frame" x="107" y="426" width="200" height="64"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="450" id="IpG-ho-QWa"/>
+                                    <constraint firstAttribute="width" constant="200" id="IpG-ho-QWa"/>
                                     <constraint firstAttribute="height" constant="64" id="jMa-DG-07R"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="if you are under 13, have your parent create an account for you" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oz6-Aq-oYJ">
-                                <rect key="frame" x="0.0" y="505" width="414" height="30"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="If you are under 13, please have your parent create an account for you." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oz6-Aq-oYJ">
+                                <rect key="frame" x="0.0" y="550" width="414" height="40"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="Ldg-g2-8Nd"/>
+                                    <constraint firstAttribute="height" constant="40" id="Ldg-g2-8Nd"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="11"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -66,15 +66,13 @@
                             <constraint firstAttribute="bottom" secondItem="a8L-Uv-HtW" secondAttribute="bottom" id="K5Z-10-QqE"/>
                             <constraint firstItem="6q0-ya-hCe" firstAttribute="centerY" secondItem="ArN-Zi-AAL" secondAttribute="centerY" constant="-75" id="OAf-BN-HT8"/>
                             <constraint firstAttribute="trailing" secondItem="a8L-Uv-HtW" secondAttribute="trailing" id="Q4u-gy-NBe"/>
-                            <constraint firstItem="oz6-Aq-oYJ" firstAttribute="top" secondItem="TEC-n0-ofS" secondAttribute="bottom" constant="15" id="RlQ-GZ-Pj2"/>
-                            <constraint firstItem="7cp-2e-z5X" firstAttribute="trailing" secondItem="TEC-n0-ofS" secondAttribute="trailing" priority="750" constant="87" id="VU8-ei-4Kf"/>
+                            <constraint firstItem="oz6-Aq-oYJ" firstAttribute="top" secondItem="TEC-n0-ofS" secondAttribute="bottom" constant="60" id="RlQ-GZ-Pj2"/>
                             <constraint firstItem="7cp-2e-z5X" firstAttribute="bottom" secondItem="Vod-wg-tiH" secondAttribute="bottom" id="YSg-aj-oZw"/>
                             <constraint firstItem="oz6-Aq-oYJ" firstAttribute="leading" secondItem="ArN-Zi-AAL" secondAttribute="leading" id="aBL-pH-ZOF"/>
                             <constraint firstItem="TEC-n0-ofS" firstAttribute="top" secondItem="6q0-ya-hCe" secondAttribute="bottom" constant="15" id="c8k-ou-BBa"/>
                             <constraint firstAttribute="trailing" secondItem="oz6-Aq-oYJ" secondAttribute="trailing" id="cf6-QS-5w9"/>
                             <constraint firstItem="a8L-Uv-HtW" firstAttribute="leading" secondItem="ArN-Zi-AAL" secondAttribute="leading" id="cxX-mx-m3Z"/>
                             <constraint firstItem="7cp-2e-z5X" firstAttribute="trailing" secondItem="Vod-wg-tiH" secondAttribute="trailing" id="ex1-GE-Lxv"/>
-                            <constraint firstItem="TEC-n0-ofS" firstAttribute="leading" secondItem="7cp-2e-z5X" secondAttribute="leading" priority="750" constant="87" id="fJc-xX-GWc"/>
                             <constraint firstItem="6q0-ya-hCe" firstAttribute="leading" secondItem="ArN-Zi-AAL" secondAttribute="leading" constant="75" id="hYU-iy-XNb"/>
                             <constraint firstItem="6q0-ya-hCe" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ArN-Zi-AAL" secondAttribute="top" constant="175" id="rbQ-Wj-0kW"/>
                             <constraint firstItem="TEC-n0-ofS" firstAttribute="centerX" secondItem="ArN-Zi-AAL" secondAttribute="centerX" id="ts4-jR-0E4"/>
@@ -85,6 +83,7 @@
                     <navigationItem key="navigationItem" id="kpn-uZ-MjY"/>
                     <connections>
                         <outlet property="cover" destination="Vod-wg-tiH" id="8NE-EU-9yT"/>
+                        <outlet property="googleButRef" destination="TEC-n0-ofS" id="Vrs-ze-qPq"/>
                         <outlet property="signInButton" destination="TEC-n0-ofS" id="tcu-LJ-7z8"/>
                         <segue destination="P3b-QX-Kki" kind="show" identifier="LoginToSetup" id="Tzl-hm-J66"/>
                         <segue destination="SP4-8J-2D3" kind="presentation" identifier="loginToHome" modalPresentationStyle="fullScreen" id="UIT-X0-DRj"/>
@@ -1128,7 +1127,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Dqw-jH-tv7"/>
+        <segue reference="UIT-X0-DRj"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DualongBackgroundExtraLowQuality-1" width="2048" height="2732"/>

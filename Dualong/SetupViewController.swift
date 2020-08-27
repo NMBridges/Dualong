@@ -239,8 +239,12 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     
     @objc func setEmail(notification: NSNotification)
     {
-        let gEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
-        forEmail.text = "for email: \(gEmail!)"
+        var gEmail: String = ""
+        if(GIDSignIn.sharedInstance()?.currentUser != nil)
+        {
+            gEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased() as! String
+        }
+        forEmail.text = "for email: \(gEmail)"
     }
     
     @IBAction func roleTapped(_ sender: UIButton)
@@ -370,7 +374,9 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
         
-        if(phoneKB.text! != "")
+        let charset = CharacterSet(charactersIn: "911")
+        
+        if(phoneKB.text! != "" && phoneKB.text!.onlyNumbers && phoneKB.text!.count > 6 && phoneKB.text!.rangeOfCharacter(from: charset) == nil)
         {
             db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy", "phone_number":"\(phoneKB.text!)"])
         } else
@@ -449,5 +455,9 @@ extension String
     var onlyLetters: Bool
     {
         return !isEmpty && range(of: "[^a-zA-Z- ]", options: .regularExpression) == nil
+    }
+    var onlyNumbers: Bool
+    {
+        return !isEmpty && range(of: "[^0-9-]", options: .regularExpression) == nil
     }
 }

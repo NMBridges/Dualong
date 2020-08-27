@@ -21,6 +21,7 @@
 		30DACDD224CD0C9600C5110A /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DACDD124CD0C9600C5110A /* HomeViewController.swift */; };
 		30DACDD624CD20D200C5110A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30DACDD524CD20D200C5110A /* Assets.xcassets */; };
 		30DACE4024CFB1530026CC59 /* ProfileEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DACE3F24CFB1530026CC59 /* ProfileEditViewController.swift */; };
+		30DB99A624F76EE3004CA418 /* AppleSignInClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DB99A524F76EE3004CA418 /* AppleSignInClient.swift */; };
 		30E3A3C124CE8C5000E7D70F /* MenuButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E3A3C024CE8C5000E7D70F /* MenuButtonViewController.swift */; };
 		C4FD41A760215307124A54DE /* Pods_Dualong.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6033EAC815C0B23D79C5DB9 /* Pods_Dualong.framework */; };
 /* End PBXBuildFile section */
@@ -66,6 +67,7 @@
 		30DACDD124CD0C9600C5110A /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		30DACDD524CD20D200C5110A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30DACE3F24CFB1530026CC59 /* ProfileEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditViewController.swift; sourceTree = "<group>"; };
+		30DB99A524F76EE3004CA418 /* AppleSignInClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInClient.swift; sourceTree = "<group>"; };
 		30E3A3C024CE8C5000E7D70F /* MenuButtonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuButtonViewController.swift; sourceTree = "<group>"; };
 		6641D83174FFF087EBD8BE03 /* Pods-Dualong.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dualong.debug.xcconfig"; path = "Target Support Files/Pods-Dualong/Pods-Dualong.debug.xcconfig"; sourceTree = "<group>"; };
 		A6033EAC815C0B23D79C5DB9 /* Pods_Dualong.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dualong.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +132,7 @@
 				30DACDD524CD20D200C5110A /* Assets.xcassets */,
 				3035176024CA4D5900D8AB4A /* LaunchScreen.storyboard */,
 				3035175924CA4D5800D8AB4A /* MainViewController.swift */,
+				30DB99A524F76EE3004CA418 /* AppleSignInClient.swift */,
 				30403C6424CBF78900E089E9 /* SetupViewController.swift */,
 				30DACDD124CD0C9600C5110A /* HomeViewController.swift */,
 				305B9E1224CD694A00036E09 /* MenuViewController.swift */,
@@ -293,6 +296,7 @@
 				30403C6524CBF78900E089E9 /* SetupViewController.swift in Sources */,
 				30A420B424CD605A00C80A7D /* ConnectionsViewController.swift in Sources */,
 				305B9E1324CD694A00036E09 /* MenuViewController.swift in Sources */,
+				30DB99A624F76EE3004CA418 /* AppleSignInClient.swift in Sources */,
 				3028A75324CF9DC700D49CC5 /* ExploreViewController.swift in Sources */,
 				3035175A24CA4D5800D8AB4A /* MainViewController.swift in Sources */,
 				3035175624CA4D5800D8AB4A /* AppDelegate.swift in Sources */,
@@ -446,7 +450,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Dualong/TutorPlug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 8P3886N27L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -493,7 +497,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.NiMBLeInteractive.Dualong;
 				PRODUCT_NAME = TutorPlug;
 				SWIFT_VERSION = 5.0;
@@ -508,7 +512,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Dualong/TutorPlug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 8P3886N27L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -555,7 +559,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.NiMBLeInteractive.Dualong;
 				PRODUCT_NAME = TutorPlug;
 				SWIFT_VERSION = 5.0;
