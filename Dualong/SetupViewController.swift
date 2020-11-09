@@ -188,8 +188,8 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         
         let buttonHeight: CGFloat = 60.0
-        let buttonList: [String]! = ["Math","Biology","Chemistry","Physics","English (for non-native speakers)","Spanish (for non-native speakers)","Fitness","AP Review"]
-        let buttonTextSize: [CGFloat]! = [23.0, 23.0, 23.0, 23.0, 18.0, 18.0, 23.0, 23.0]
+        let buttonList: [String]! = ["Math","Biology","Chemistry","Physics","English (for non-native speakers)","Spanish (for non-native speakers)","Other"]
+        let buttonTextSize: [CGFloat]! = [23.0, 23.0, 23.0, 23.0, 18.0, 18.0, 23.0]
         var listC = 0
         buttonList.forEach( { button in
             let tempButton = UIButton()
@@ -242,7 +242,10 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         var gEmail: String = ""
         if(GIDSignIn.sharedInstance()?.currentUser != nil)
         {
-            gEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased() as! String
+            gEmail = (GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased())!
+        } else
+        {
+            gEmail = userEmail!
         }
         forEmail.text = "for email: \(gEmail)"
     }
@@ -372,7 +375,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         }
         
         
-        db.child("usernames/\(username)").setValue(("\(userEmail!.lowercased())"))
+        db.child("usernames/\(username)").setValue(("\(userEmail!)"))
         
         let charset = CharacterSet(charactersIn: "911")
         

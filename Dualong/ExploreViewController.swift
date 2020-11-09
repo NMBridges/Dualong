@@ -61,6 +61,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
     var cachedNames: [String]! = []
     var cachedProfPics: [UIImage]! = []
     var cachedRequests: [String]! = []
+    var cachedCommon: [[String]]! = []
     
     var popupView = UIView()
     var ppcvr: [NSLayoutConstraint]! = []
@@ -142,7 +143,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
         }
     }
     
-    func createStackViewMember(passedUsername: String, cc: Int)
+    func createStackViewMember(passedUsername: String, cc: Int, common: [String]!)
     {
         let tUsername: String = passedUsername
         var tEmail: String = ""
@@ -748,6 +749,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             cachedUsernames = []
             cachedProfPics = []
             cachedRequests = []
+            cachedCommon = [[]]
             
             if(role == "Learner, Student, or Parent")
             {
@@ -761,6 +763,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                     cachedRequests.append("")
                     cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
                     buttList.append(UIButton())
+                    cachedCommon.append([])
                 }
                 requests.forEach { beep in
                     self.createRequestStackViewMember(passedUsername: username, req: beep, cc: cc)
@@ -787,6 +790,8 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                 let contains: Bool = !Set(interests).isDisjoint(with: Set(intListT))
                                 if(contains)
                                 {
+                                    let intSec: [String] = Array(Set(intListT).intersection(interests))
+                                    
                                     if(self.searchBarRef.text! == "" || USERNAMe.contains(self.searchBarRef.text!) || NAMe.contains(self.searchBarRef.text!))
                                     {
                                         self.cachedEmails.append("")
@@ -795,7 +800,9 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                         self.cachedRequests.append("")
                                         self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
                                         self.buttList.append(UIButton())
-                                        self.createStackViewMember(passedUsername: USERNAMe, cc: cc)
+                                        self.cachedCommon.append([])
+                                        self.cachedCommon[cc] = intSec
+                                        self.createStackViewMember(passedUsername: USERNAMe, cc: cc, common: intSec)
                                         cc += 1
                                     }
                                 }
@@ -872,6 +879,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                                 self.cachedRequests.append("")
                                                 self.cachedProfPics.append(UIImage(named: "defaultProfileImageSolid")!)
                                                 self.buttList.append(UIButton())
+                                                self.cachedCommon.append([])
                                             }
                                             REQUESTs.forEach { request in
                                                 self.createRequestStackViewMember(passedUsername: USERNAMe, req: request, cc: pp)
@@ -1074,7 +1082,7 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 {
                     if(!popUP)
                     {
-                        createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
+                        createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender, common: cachedCommon[c])
                         lastPressed = c
                     }
                 } else
@@ -1089,14 +1097,14 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
             {
                 if(!popUP)
                 {
-                    createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender)
+                    createPersonPopup(emailP: cachedEmails[c], usernameP: cachedUsernames[c], nameP: cachedNames[c], profpicP: cachedProfPics[c], sender: sender, common: cachedCommon[c])
                     lastPressed = c
                 }
             }
         }
     }
     
-    func createPersonPopup(emailP: String, usernameP: String, nameP: String, profpicP: UIImage!, sender: UIButton!)
+    func createPersonPopup(emailP: String, usernameP: String, nameP: String, profpicP: UIImage!, sender: UIButton!, common: [String])
     {
         if(isMe)
         {
@@ -1232,84 +1240,103 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 puPastSess.heightAnchor.constraint(equalToConstant: sqrt(UIScreen.main.bounds.width) * 19 * 0.08).isActive = true
             }
             puPastSess.text = "loading..."
-            db.child("users/\(emailP)/sessions").observeSingleEvent(of: .value) { (datasnap) in
-                if let children = datasnap.children.allObjects as? [DataSnapshot]
-                {
-                    if(children.count > 0)
+            if(role == "Tutor or Teacher")
+            {
+                db.child("users/\(emailP)/sessions").observeSingleEvent(of: .value) { (datasnap) in
+                    if let children = datasnap.children.allObjects as? [DataSnapshot]
                     {
-                        var couOffset: Int = 0
-                        for child in children
+                        if(children.count > 0)
                         {
-                            let DaTa = child.value as? String
-                            
-                            let dataSubTwo: String = "\(DaTa!.dropFirst(2))"
-                            let dataParts: [Substring] = dataSubTwo.split(separator: "|")
-                            let oNE = "\(dataParts[0])"
-                            let tWO = "\(dataParts[1])"
-                            let tempDATE = oNE.split(separator: "-")
-                            let tempTIME = tWO.split(separator: ":")
-                            
-                            let date = Date()
-                            var calendar = Calendar.current
-                            calendar.timeZone = TimeZone(abbreviation: "PDT")!
-                            let year = calendar.component(.year, from: date)
-                            let month = calendar.component(.month, from: date)
-                            let day = calendar.component(.day, from: date)
-                            let hour = calendar.component(.hour, from: date)
-                            let minutes = calendar.component(.minute, from: date)
-                            let seconds = calendar.component(.second, from: date)
-                            
-                            if(Int(year) > Int(tempDATE[0])!)
+                            var couOffset: Int = 0
+                            for child in children
                             {
-                                couOffset += 1
-                            } else if(Int(year) == Int(tempDATE[0])!)
-                            {
-                                if(Int(month) > Int(tempDATE[1])!)
+                                let DaTa = child.value as? String
+                                
+                                let dataSubTwo: String = "\(DaTa!.dropFirst(2))"
+                                let dataParts: [Substring] = dataSubTwo.split(separator: "|")
+                                let oNE = "\(dataParts[0])"
+                                let tWO = "\(dataParts[1])"
+                                let tempDATE = oNE.split(separator: "-")
+                                let tempTIME = tWO.split(separator: ":")
+                                
+                                let date = Date()
+                                var calendar = Calendar.current
+                                calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                                let year = calendar.component(.year, from: date)
+                                let month = calendar.component(.month, from: date)
+                                let day = calendar.component(.day, from: date)
+                                let hour = calendar.component(.hour, from: date)
+                                let minutes = calendar.component(.minute, from: date)
+                                let seconds = calendar.component(.second, from: date)
+                                
+                                if(Int(year) > Int(tempDATE[0])!)
                                 {
                                     couOffset += 1
-                                } else if(Int(month) == Int(tempDATE[1])!)
+                                } else if(Int(year) == Int(tempDATE[0])!)
                                 {
-                                    if(Int(day) > Int(tempDATE[2])!)
+                                    if(Int(month) > Int(tempDATE[1])!)
                                     {
                                         couOffset += 1
-                                    } else if(Int(day) == Int(tempDATE[2])!)
+                                    } else if(Int(month) == Int(tempDATE[1])!)
                                     {
-                                        if(Int(hour) > Int(tempTIME[0])!)
+                                        if(Int(day) > Int(tempDATE[2])!)
                                         {
                                             couOffset += 1
-                                        } else if(Int(hour) == Int(tempTIME[0])!)
+                                        } else if(Int(day) == Int(tempDATE[2])!)
                                         {
-                                            if(Int(minutes) > Int(tempTIME[1])!)
+                                            if(Int(hour) > Int(tempTIME[0])!)
                                             {
                                                 couOffset += 1
-                                            } else if(Int(minutes) == Int(tempTIME[1])!)
+                                            } else if(Int(hour) == Int(tempTIME[0])!)
                                             {
-                                                if(Int(seconds) >= Int(tempTIME[2])!)
+                                                if(Int(minutes) > Int(tempTIME[1])!)
                                                 {
                                                     couOffset += 1
+                                                } else if(Int(minutes) == Int(tempTIME[1])!)
+                                                {
+                                                    if(Int(seconds) >= Int(tempTIME[2])!)
+                                                    {
+                                                        couOffset += 1
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                        print(couOffset)
-                        if(role == "Tutor or Teacher")
-                        {
+                            print(couOffset)
                             self.puPastSess.text = " has been tutored \(couOffset) time(s)"
-                        } else if(role == "Learner, Student, or Parent")
+                        } else
                         {
-                            self.puPastSess.text = "\(couOffset) session(s) tutored"
+                            self.puPastSess.text = ""
                         }
                     } else
                     {
                         self.puPastSess.text = ""
                     }
-                } else
-                {
-                    self.puPastSess.text = ""
                 }
+            } else if(role == "Learner, Student, or Parent")
+            {
+                print(common)
+                var stringc = "\(common[0])"
+                for g in 0...(common.count - 1)
+                {
+                    if(g != 0 && g != common.count - 1)
+                    {
+                        stringc = "\(stringc), \(common[g])"
+                    }
+                    if(g == common.count - 1 && g != 0)
+                    {
+                        if(common.count == 2)
+                        {
+                            stringc = "\(stringc) and \(common[g])"
+                        } else
+                        {
+                            stringc = "\(stringc), and \(common[g])"
+                        }
+                    }
+                }
+                self.puPastSess.text = "Shares your interest in \(stringc)"
             }
             puPastSess.textColor = UIColor.white
             puPastSess.font = UIFont(name: "HelveticaNeue", size: 2.0)
@@ -1411,13 +1438,16 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 let date = Date()
                 var calendar = Calendar.current
                 calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                let year = calendar.component(.year, from: date)
+                let month = calendar.component(.month, from: date)
+                let day = calendar.component(.day, from: date)
                 let hour = calendar.component(.hour, from: date)
                 let minutes = calendar.component(.minute, from: date)
                 let seconds = calendar.component(.second, from: date)
                 let randomID = db.child("connections").childByAutoId()
                 let randomID2 = randomID.child("message_list").childByAutoId()
                 let stringDate = "\(date)"
-                randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"\(userEmail!)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(stringDate.prefix(10))", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","\(cachedEmails[lastPressed])/status":"healthy"])
+                randomID.updateChildValues(["last_message_time/date":"\(stringDate.prefix(10))", "last_message_time/time":"\(hour):\(minutes):\(seconds)", "message_list/\(randomID2.key!)/user":"\(userEmail!)", "message_list/\(randomID2.key!)/message":"/m\(name) has made a connection!", "message_list/\(randomID2.key!)/timestamp/date":"\(year)-\(month)-\(day)", "message_list/\(randomID2.key!)/timestamp/time":"\(hour):\(minutes):\(seconds)", "\(userEmail!)/status":"healthy","\(cachedEmails[lastPressed])/status":"healthy"])
                 connections[cachedEmails[lastPressed]] = "\(randomID.key!)"
                 db.child("users/\(userEmail!)/connections/\(cachedEmails[lastPressed])").setValue("\(randomID.key!)")
                 db.child("users/\(cachedEmails[lastPressed])/connections/\(userEmail!)").setValue("\(randomID.key!)")
@@ -1610,9 +1640,12 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                 }
             }
             db.child("users/\(userEmail!)/requests").removeValue()
-            for i in 0...(requests.count - 1)
+            if(requests.count != 0)
             {
-                db.child("users/\(userEmail!)/requests/\(i)").setValue(requests[i])
+                for i in 0...(requests.count - 1)
+                {
+                    db.child("users/\(userEmail!)/requests/\(i)").setValue(requests[i])
+                }
             }
             closeDelScript()
             loadStackView()

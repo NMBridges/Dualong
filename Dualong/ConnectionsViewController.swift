@@ -1274,14 +1274,16 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             let DATE = Date()
             var calendar = Calendar.current
             calendar.timeZone = TimeZone(abbreviation: "PDT")!
+            let year = calendar.component(.year, from: DATE)
+            let month = calendar.component(.month, from: DATE)
+            let day = calendar.component(.day, from: DATE)
             let hour = calendar.component(.hour, from: DATE)
             let minutes = calendar.component(.minute, from: DATE)
             let seconds = calendar.component(.second, from: DATE)
-            let stringDate = "\(DATE)"
             let messRef = self.db.child("connections/\(self.idInfo!)/message_list/").childByAutoId()
             let proposalDateTimeSubject: String = "\(proposalDate)|\(proposalTime)|\(proposalSubject!)|\(messRef.key!)|pending|\(userEmail!)|\(emailInfo!)"
             self.MSVIDList.append(messRef.key!)
-            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/t\(proposalDateTimeSubject)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/t\(proposalDateTimeSubject)", "timestamp/date":"\(year)-\(month)-\(day)", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
             
             createTextView(text: "\(proposalDateTimeSubject)", atindex: -1, userself: true, isImage: false, imagee: UIImage(), isProposal: true)
             
@@ -1505,13 +1507,16 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     let date = Date()
                     var calendar = Calendar.current
                     calendar.timeZone = TimeZone(abbreviation: "PDT")!
+                    let year = calendar.component(.year, from: date)
+                    let month = calendar.component(.month, from: date)
+                    let day = calendar.component(.day, from: date)
                     let hour = calendar.component(.hour, from: date)
                     let minutes = calendar.component(.minute, from: date)
                     let seconds = calendar.component(.second, from: date)
                     let stringDate = "\(date)"
                     let messRef = self.db.child("connections/\(self.idInfo!)/message_list/\(self.passedAutoID)")
                     self.MSVIDList.append(messRef.key!)
-                    messRef.updateChildValues(["user":"\(userEmail!)", "message":"/i\(self.passedAutoID)", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+                    messRef.updateChildValues(["user":"\(userEmail!)", "message":"/i\(self.passedAutoID)", "timestamp/date":"\(year)-\(month)-\(day)", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
                     
                     self.view.layoutIfNeeded()
                     
@@ -1642,13 +1647,16 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             let date = Date()
             var calendar = Calendar.current
             calendar.timeZone = TimeZone(abbreviation: "PDT")!
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            let day = calendar.component(.day, from: date)
             let hour = calendar.component(.hour, from: date)
             let minutes = calendar.component(.minute, from: date)
             let seconds = calendar.component(.second, from: date)
             let stringDate = "\(date)"
             let messRef = db.child("connections/\(idInfo!)/message_list").childByAutoId()
             MSVIDList.append(messRef.key!)
-            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(stringDate.prefix(10))", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
+            messRef.updateChildValues(["user":"\(userEmail!)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(year)-\(month)-\(day)", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
             
             
             self.view.layoutIfNeeded()

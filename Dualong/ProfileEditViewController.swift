@@ -293,8 +293,8 @@ class ProfileEditViewController: UIViewController, UITextFieldDelegate, UIImageP
         
         
         let buttonHeight: CGFloat = 60.0
-        let buttonList: [String]! = ["Math","Biology","Chemistry","Physics","English (for non-native speakers)","Spanish (for non-native speakers)","Fitness","AP Review"]
-        let buttonTextSize: [CGFloat]! = [23.0, 23.0, 23.0, 23.0, 18.0, 18.0, 23.0, 23.0]
+        let buttonList: [String]! = ["Math","Biology","Chemistry","Physics","English (for non-native speakers)","Spanish (for non-native speakers)","Other"]
+        let buttonTextSize: [CGFloat]! = [23.0, 23.0, 23.0, 23.0, 18.0, 18.0, 23.0]
         var listC = 0
         
         if(instantInt)

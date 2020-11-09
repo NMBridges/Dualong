@@ -96,6 +96,7 @@ class MainViewController: UIViewController
     {
         appleProvider.handleAppleIdRequest(block: { fullname, email, token in
             
+            
             self.db.child("tokens").observeSingleEvent(of: .value) { over in
                 if let hoo = over.children.allObjects as? [DataSnapshot]
                 {
@@ -113,12 +114,29 @@ class MainViewController: UIViewController
                     }
                     if(tof)
                     {
-                        if let breaker = email
+                        if let _ = email
                         {
-                            self.db.child("tokens/\(email!.lowercased())").setValue(token!)
-                            userEmail = email!.lowercased()
-                            rawEmail = email!.lowercased()
-                            NotificationCenter.default.post(name: .signedin, object: nil)
+                            let email2 = email!.replacingOccurrences(of: ".", with: ",")
+                            self.db.child("tokens/\(email2.lowercased())").setValue(token!)
+                            userEmail = email2.lowercased()
+                            rawEmail = email2.lowercased()
+                            
+                            userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
+                            interests.removeAll()
+                            role = ""
+                            name = ""
+                            username = ""
+                            ownProfPic = UIImage(named: "defaultProfileImageSolid")!
+                            stars = 0.0
+                            interests = []
+                            requests = []
+                            connections = [:]
+                            
+                            NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
+
+                            self.loadCircle.isHidden = true
+                            self.performSegue(withIdentifier: "LoginToSetup", sender: self)
+                            currScene = "Setup"
                         } else
                         {
                             let keyr = self.db.child("users").childByAutoId()
@@ -156,8 +174,8 @@ class MainViewController: UIViewController
         {
             userEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
             rawEmail = GIDSignIn.sharedInstance()?.currentUser.profile.email.lowercased()
+            userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         }
-        userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
         interests.removeAll()
         role = ""
         name = ""
