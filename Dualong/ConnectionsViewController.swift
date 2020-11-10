@@ -738,16 +738,32 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                                         }
                                                         if let data = data
                                                         {
-                                                            
                                                             if(optLeng != self.usernameList.count)
                                                             {
                                                                 return
                                                             }
                                                             
-                                                            let tImage = UIImage(data: data)!
-                                                            
-                                                            self.profpicList[c] = tImage
-                                                            self.imgviewList[c].image = self.profpicList[c]
+                                                            if(data.count != 0)
+                                                            {
+                                                                let tImage = UIImage(data: data)!
+                                                                self.profpicList[c] = tImage
+                                                                self.imgviewList[c].image = self.profpicList[c]
+                                                            } else
+                                                            {
+                                                                let tImage = UIImage(named: "defaultProfileImageSolid")!
+                                                                self.profpicList[c] = tImage
+                                                                self.imgviewList[c].image = self.profpicList[c]
+                                                                guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
+                                                                let uploadMetadata = StorageMetadata.init()
+                                                                uploadMetadata.contentType = "image/jpeg"
+                                                                self.st.child("profilepics/\(self.usernameList[c]).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
+                                                                    if let _ = error
+                                                                    {
+                                                                        print("failureupload")
+                                                                        return
+                                                                    }
+                                                                }
+                                                            }
                                                         }
                                                     })
                                                 } else

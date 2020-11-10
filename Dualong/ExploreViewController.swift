@@ -227,9 +227,27 @@ class ExploreViewController: UIViewController, UISearchBarDelegate, UITextViewDe
                                         {
                                             if(cc < self.cachedProfPics.count)
                                             {
-                                                tImage = UIImage(data: data)!
-                                                newImage.image = tImage
-                                                self.cachedProfPics[cc] = tImage
+                                                if(data.count != 0)
+                                                {
+                                                    tImage = UIImage(data: data)!
+                                                    newImage.image = tImage
+                                                    self.cachedProfPics[cc] = tImage
+                                                } else
+                                                {
+                                                    tImage = UIImage(named: "defaultProfileImageSolid")!
+                                                    newImage.image = tImage
+                                                    self.cachedProfPics[cc] = tImage
+                                                    guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
+                                                    let uploadMetadata = StorageMetadata.init()
+                                                    uploadMetadata.contentType = "image/jpeg"
+                                                    self.st.child("profilepics/\(tUsername).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
+                                                        if let _ = error
+                                                        {
+                                                            print("failureupload")
+                                                            return
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     })

@@ -180,7 +180,7 @@ class MainViewController: UIViewController
         role = ""
         name = ""
         username = ""
-        ownProfPic = UIImage()
+        ownProfPic = UIImage(named: "defaultProfileImageSolid")!
         stars = 0.0
         interests = []
         requests = []
@@ -212,8 +212,27 @@ class MainViewController: UIViewController
                             }
                             if let data = data
                             {
-                                ownProfPic = UIImage(data: data)
+                                if(data.count != 0)
+                                {
+                                    ownProfPic = UIImage(data: data)
+                                } else
+                                {
+                                    ownProfPic = UIImage(named: "defaultProfileImageSolid")
+                                    guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
+                                    let uploadMetadata = StorageMetadata.init()
+                                    uploadMetadata.contentType = "image/jpeg"
+                                    self.st.child("profilepics/\(username).jpg").putData(imageData, metadata: uploadMetadata) { (downloadMetadata, error) in
+                                        if let _ = error
+                                        {
+                                            print("failureupload")
+                                            return
+                                        }
+                                    }
+                                }
+                                
                                 NotificationCenter.default.post(name: Notification.Name("profImageLoaded"), object: nil)
+                                
+                                
                             }
                         })
                     }
