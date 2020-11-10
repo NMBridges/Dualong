@@ -17,6 +17,9 @@ PODS:
   - Firebase/Database (7.0.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 7.0.0)
+  - Firebase/Messaging (7.0.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 7.0.0)
   - Firebase/Storage (7.0.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 7.0.0)
@@ -51,6 +54,18 @@ PODS:
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/UserDefaults (~> 7.0)
     - PromisesObjC (~> 1.2)
+  - FirebaseInstanceID (7.0.0):
+    - FirebaseCore (~> 7.0)
+    - FirebaseInstallations (~> 7.0)
+    - GoogleUtilities/Environment (~> 7.0)
+    - GoogleUtilities/UserDefaults (~> 7.0)
+  - FirebaseMessaging (7.0.0):
+    - FirebaseCore (~> 7.0)
+    - FirebaseInstanceID (~> 7.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
+    - GoogleUtilities/Environment (~> 7.0)
+    - GoogleUtilities/Reachability (~> 7.0)
+    - GoogleUtilities/UserDefaults (~> 7.0)
   - FirebaseStorage (7.0.0):
     - FirebaseCore (~> 7.0)
     - GTMSessionFetcher/Core (~> 1.4)
@@ -106,6 +121,7 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Database
+  - Firebase/Messaging
   - Firebase/Storage
   - GoogleSignIn
 
@@ -119,6 +135,8 @@ SPEC REPOS:
     - FirebaseCoreDiagnostics
     - FirebaseDatabase
     - FirebaseInstallations
+    - FirebaseInstanceID
+    - FirebaseMessaging
     - FirebaseStorage
     - GoogleAppMeasurement
     - GoogleDataTransport
@@ -139,6 +157,8 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnostics: 5f4aa04fdb04923693cc704c7ef9158bdf41a48b
   FirebaseDatabase: 2481b48ebfd233ef591095d79d76720ea85cde74
   FirebaseInstallations: c28d4bcbb5c6884d1a39afbc0bd7fc590e31e9b7
+  FirebaseInstanceID: c03b49743725092f7eb9d4b96ff40efadd830426
+  FirebaseMessaging: ecf9e04716b7ff1f1d92debab4d6f0e6bdb490aa
   FirebaseStorage: ea52bc7a1cb540406ed1e1acfc2bf3946621ed34
   GoogleAppMeasurement: 7790ef975d1d463c8614cd949a847e612edf087a
   GoogleDataTransport: 6ce8004a961db1b905740d7be106c61ba7e89c21
@@ -150,6 +170,6 @@ SPEC CHECKSUMS:
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
 
-PODFILE CHECKSUM: e6d8a755ccc0581bb0ae7063eeefa02b860dd893
+PODFILE CHECKSUM: 07862ffa73d75a8bb15310e1dc208d4d7f7dfdc3
 
 COCOAPODS: 1.9.3
