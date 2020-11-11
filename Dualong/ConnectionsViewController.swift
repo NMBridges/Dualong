@@ -9,12 +9,17 @@
 import UIKit
 import FirebaseDatabase
 import FirebaseStorage
+import FirebaseMessaging
+
+let serverKey = "AAAAwfnCJ3E:APA91bELG5I5YlVw3W22aPb5S1RwLF3ww5ip7i1IBFuPUZVLgaPoKiDVXUQKJcvDqdfr1WvTlAvPDNttGng1mPCjgkgbBpdEsJHLLYGVz3sO8XpvHPSaLP6LenwWyX7Lm1OPnwJmqlMg"
+let fcmURL = NSURL(string: "https://fcm.googleapis.com/fcm/send")
 
 class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate
 {
     
     let st = Storage.storage().reference()
     let db = Database.database().reference()
+    let ms = Messaging.messaging()
     var isMe: Bool = true
     
     @IBOutlet weak var connTitleRef: UILabel!
@@ -29,6 +34,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var emailList: [String]! = []
     var profpicList: [UIImage]! = []
     var roleList: [String]! = []
+    var messTokenList: [String]! = []
     var connStatus: [String]! = []
     var errorList: [String]! = []
     var idList: [String]! = []
@@ -44,6 +50,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
     var profpicInfo: UIImage! = UIImage()
     var idInfo: String! = ""
     var phoneInfo: String! = ""
+    var messTokenInfo: String! = ""
     
     var loadCircle = UIView()
     var lcLC: [NSLayoutConstraint]! = []
@@ -188,6 +195,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             profpicInfo = profpicList[num]
             idInfo = idList[num]
             phoneInfo = phoneList[num]
+            messTokenInfo = messTokenList[num]
             
             listenerIDDone = []
             
@@ -616,6 +624,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             emailList = []
             profpicList = []
             roleList = []
+            messTokenList = []
             connStatus = []
             errorList = []
             idList = []
@@ -640,6 +649,7 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                         self.emailList.append("")
                         self.profpicList.append(UIImage(named: "defaultProfileImageSolid")!)
                         self.roleList.append("")
+                        self.messTokenList.append("")
                         self.connStatus.append("")
                         self.errorList.append("")
                         self.idList.append("")
@@ -701,7 +711,10 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                                 self.nameList[c] = (dict["name"] as? String)!
                                 self.roleList[c] = (dict["account_type"] as? String)!
                                 self.phoneList[c] = (dict["phone_number"] as? String)!
-                                
+                                if(dict["messageToken"] != nil)
+                                {
+                                    self.messTokenList[c] = (dict["messageToken"] as? String)!
+                                }
                                 self.db.child("users/\(userEmail!)/connections/\(key)").observeSingleEvent(of: .value) { snap4 in
                                         if let randID = snap4.value as? String
                                         {
@@ -1303,6 +1316,43 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             
             createTextView(text: "\(proposalDateTimeSubject)", atindex: -1, userself: true, isImage: false, imagee: UIImage(), isProposal: true)
             
+            if(messTokenInfo! != "")
+            {
+                let postParams = [
+                    "to":"\(messTokenInfo!)",
+                    "notification":[
+                        "body":"Proposed a tutoring session",
+                        "title":"\(name)",
+                        "sounds":true,
+                        "click_action":"ok"
+                ]] as [String : Any]
+                let postRequest = NSMutableURLRequest(url: fcmURL! as URL)
+                postRequest.httpMethod = "POST"
+                postRequest.setValue("key=\(serverKey)", forHTTPHeaderField: "Authorization")
+                postRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+                do
+                {
+                    postRequest.httpBody = try JSONSerialization.data(withJSONObject: postParams, options: JSONSerialization.WritingOptions())
+                    print("My params: \(postParams)")
+                } catch
+                {
+                    print("caught error")
+                }
+                
+                let task = URLSession.shared.dataTask(with: postRequest as URLRequest) { (data, response, error) in
+                    if let realResponse = response as? HTTPURLResponse {
+                        if realResponse.statusCode != 200 {
+                            print("Not a 200 response")
+                        }
+                    }
+
+                    if let postString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) as String? {
+                        print("POST: \(postString)")
+                    }
+                }
+                task.resume()
+            }
+            
             self.view.endEditing(true)
             
             self.view.layoutIfNeeded()
@@ -1534,6 +1584,43 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
                     self.MSVIDList.append(messRef.key!)
                     messRef.updateChildValues(["user":"\(userEmail!)", "message":"/i\(self.passedAutoID)", "timestamp/date":"\(year)-\(month)-\(day)", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
                     
+                    if(self.messTokenInfo! != "")
+                    {
+                        let postParams = [
+                            "to":"\(self.messTokenInfo!)",
+                            "notification":[
+                                "body":"Sent an image",
+                                "title":"\(name)",
+                                "sounds":true,
+                                "click_action":"ok"
+                        ]] as [String : Any]
+                        let postRequest = NSMutableURLRequest(url: fcmURL! as URL)
+                        postRequest.httpMethod = "POST"
+                        postRequest.setValue("key=\(serverKey)", forHTTPHeaderField: "Authorization")
+                        postRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+                        do
+                        {
+                            postRequest.httpBody = try JSONSerialization.data(withJSONObject: postParams, options: JSONSerialization.WritingOptions())
+                            print("My params: \(postParams)")
+                        } catch
+                        {
+                            print("caught error")
+                        }
+                        
+                        let task = URLSession.shared.dataTask(with: postRequest as URLRequest) { (data, response, error) in
+                            if let realResponse = response as? HTTPURLResponse {
+                                if realResponse.statusCode != 200 {
+                                    print("Not a 200 response")
+                                }
+                            }
+
+                            if let postString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) as String? {
+                                print("POST: \(postString)")
+                            }
+                        }
+                        task.resume()
+                    }
+                    
                     self.view.layoutIfNeeded()
                     
                 }
@@ -1673,7 +1760,48 @@ class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollV
             let messRef = db.child("connections/\(idInfo!)/message_list").childByAutoId()
             MSVIDList.append(messRef.key!)
             messRef.updateChildValues(["user":"\(userEmail!)", "message":"/m\(textView.text!.prefix(500))", "timestamp/date":"\(year)-\(month)-\(day)", "timestamp/time":"\(hour):\(minutes):\(seconds)"])
-            
+            var textParam = "\(textView.text!)"
+            if(textParam.count > 80)
+            {
+                textParam = "\(textParam.prefix(80))..."
+            }
+            print(textParam)
+            if(messTokenInfo! != "")
+            {
+                let postParams = [
+                    "to":"\(messTokenInfo!)",
+                    "notification":[
+                        "body": "\(textParam)",
+                        "title": "\(name)",
+                        "sounds": "default",
+                        "click_action": "ok"
+                ]] as [String : Any]
+                let postRequest = NSMutableURLRequest(url: fcmURL! as URL)
+                postRequest.httpMethod = "POST"
+                postRequest.setValue("key=\(serverKey)", forHTTPHeaderField: "Authorization")
+                postRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+                do
+                {
+                    postRequest.httpBody = try JSONSerialization.data(withJSONObject: postParams, options: JSONSerialization.WritingOptions())
+                    print("My params: \(postParams)")
+                } catch
+                {
+                    print("caught error")
+                }
+                
+                let task = URLSession.shared.dataTask(with: postRequest as URLRequest) { (data, response, error) in
+                    if let realResponse = response as? HTTPURLResponse {
+                        if realResponse.statusCode != 200 {
+                            print("Not a 200 response")
+                        }
+                    }
+
+                    if let postString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) as String? {
+                        print("POST: \(postString)")
+                    }
+                }
+                task.resume()
+            }
             
             self.view.layoutIfNeeded()
             mScrollView.setContentOffset(CGPoint(x: 0, y: max(mScrollView.contentSize.height - mScrollView.bounds.size.height, 0)), animated: true)

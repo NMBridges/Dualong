@@ -10,6 +10,7 @@ import UIKit
 import GoogleSignIn
 import FirebaseStorage
 import FirebaseDatabase
+import FirebaseMessaging
 
 class SetupViewController: UIViewController, UITextFieldDelegate {
     
@@ -38,6 +39,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var nextBUTREF: UIButton!
     
     let st = Storage.storage().reference()
+    let db = Database.database().reference()
     
     var interestView: UIView! = UIView()
     var intvVC: [NSLayoutConstraint]! = []
@@ -260,7 +262,6 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
     @objc func closeMenus()
     {
         view.endEditing(true)
-        
     }
     
     func textFieldShouldReturn(_ keyboards: UITextField) -> Bool
@@ -312,57 +313,50 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         
         if(username != "" && username.isAlphanumeric && username.count < 18)
         {
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            // NEED TO ADD UNIQUE USERNAME TO SETUP
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            AccCounter += 1
-            usernameFail.isHidden = true
+            var isOriginal: Bool = true
+            db.child("usernames").observeSingleEvent(of: .value) { (SNAP) in
+                if let children = SNAP.children.allObjects as? [DataSnapshot]
+                {
+                    for child in children
+                    {
+                        if(child.key == username)
+                        {
+                            isOriginal = false
+                        }
+                    }
+                    if(isOriginal)
+                    {
+                        AccCounter += 1
+                        self.usernameFail.isHidden = true
+                    } else
+                    {
+                        self.usernameFail.isHidden = false
+                    }
+                    if(AccCounter == 3)
+                    {
+                        
+                        self.interestView.isHidden = false
+                        
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.intvVC[2].isActive = false
+                            self.intvVC[3].isActive = false
+                            self.intvVC[0].isActive = true
+                            self.intvVC[1].isActive = true
+                            self.view.layoutIfNeeded()
+                        }, completion: nil)
+                        
+                        //uploadAccount()
+                    }
+                }
+            }
         } else
         {
             usernameFail.isHidden = false
-        }
-        
-        if(AccCounter == 3)
-        {
-            
-            interestView.isHidden = false
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                self.intvVC[2].isActive = false
-                self.intvVC[3].isActive = false
-                self.intvVC[0].isActive = true
-                self.intvVC[1].isActive = true
-                self.view.layoutIfNeeded()
-            }, completion: nil)
-            
-            //uploadAccount()
         }
     }
     
     func uploadAccount()
     {
-        let db = Database.database().reference()
-        
         guard let imageData = UIImage(named: "defaultProfileImageSolid")?.jpegData(compressionQuality: 0.75) else { return }
         let uploadMetadata = StorageMetadata.init()
         uploadMetadata.contentType = "image/jpeg"
@@ -374,7 +368,6 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
-        
         db.child("usernames/\(username)").setValue(("\(userEmail!)"))
         
         let charset = CharacterSet(charactersIn: "911")
@@ -385,6 +378,20 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
         } else
         {
             db.child("users/\(userEmail!)").updateChildValues(["username":"\(username)", "name":"\(name)", "account_type":"\(role)", "stars":"\(Double(0))", "connections/contact,nimbleinteractive@gmail,com":"healthy", "phone_number":"nil"])
+        }
+        
+        if(userEmail != "" && messageToken != "")
+        {
+            db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snap) in
+                if(!snap.hasChild("messageToken"))
+                {
+                    Messaging.messaging().subscribe(toTopic: "\(messageToken)")
+                    { error in
+                        print("Subscribed to \(messageToken) topic")
+                        self.db.child("users/\(userEmail!)/messageToken").setValue("\(messageToken)")
+                    }
+                }
+            })
         }
         
         

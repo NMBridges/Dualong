@@ -11,6 +11,7 @@ import GoogleSignIn
 import FirebaseStorage
 import FirebaseDatabase
 import FirebaseAuth
+import FirebaseMessaging
 import AuthenticationServices
 import UserNotifications
 
@@ -35,7 +36,6 @@ class MainViewController: UIViewController
     @IBOutlet var signInButton: GIDSignInButton!
     
     let st = Storage.storage().reference()
-    
     let db = Database.database().reference()
     
     var loadCircle = UIView()
@@ -105,7 +105,6 @@ class MainViewController: UIViewController
     {
         appleProvider.handleAppleIdRequest(block: { fullname, email, token in
             
-            
             self.db.child("tokens").observeSingleEvent(of: .value) { over in
                 if let hoo = over.children.allObjects as? [DataSnapshot]
                 {
@@ -119,6 +118,7 @@ class MainViewController: UIViewController
                             rawEmail = val
                             NotificationCenter.default.post(name: .signedin, object: nil)
                             tof = false
+                            self.updateToken()
                         }
                     }
                     if(tof)
@@ -177,6 +177,34 @@ class MainViewController: UIViewController
         })
     }
     
+    func updateToken()
+    {
+        if(userEmail != "" && messageToken != "")
+        {
+            db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snap) in
+                if(!snap.hasChild("messageToken"))
+                {
+                    Messaging.messaging().subscribe(toTopic: "\(messageToken)")
+                    { error in
+                        print("Subscribed to \(messageToken) topic")
+                        self.db.child("users/\(userEmail!)/messageToken").setValue("\(messageToken)")
+                    }
+                } else
+                {
+                    self.db.child("users/\(userEmail!)/messageToken").observeSingleEvent(of: .value) { (snap) in
+                        if let val = snap.value as? String
+                        {
+                            if(messageToken != val)
+                            {
+                                self.db.child("users/\(userEmail!)/messageToken").setValue(messageToken)
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
     @objc func setEmail(notification: NSNotification)
     {
         if(GIDSignIn.sharedInstance()?.currentUser != nil)
@@ -198,6 +226,7 @@ class MainViewController: UIViewController
         db.child("users/\(userEmail!)").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists()
             {
+                self.updateToken()
                 self.db.child("users/\(userEmail!)/account_type").observeSingleEvent(of: .value) { (SNAP) in
                     if let value = SNAP.value as? String
                     {
@@ -389,4 +418,3 @@ extension Notification.Name
     static let signedin = Notification.Name("signedin")
     static let LOGGGGIN = Notification.Name("LOGGGGIN")
 }
-
