@@ -128,7 +128,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Print message ID.
         if let messageID = userInfo[gcmMessageIDKey]
         {
-        print("Message ID: \(messageID)")
+            print("Message ID: \(messageID)")
         }
 
         // Print full message.
@@ -204,19 +204,16 @@ extension AppDelegate: UNUserNotificationCenterDelegate
 
         // Change this to your preferred presentation option
         
-        if(userInfo.count > 0)
+        if(userInfo.count > 3)
         {
-            if let a1 = userInfo["aps"] as? Dictionary<AnyHashable,Any> ??
+            if let a1 = userInfo["aps"] as? Dictionary<AnyHashable,Any>
             {
                 if let a2 = a1["alert"] as? Dictionary<String,Any>
                 {
                     if let a3 = a2["title"] as? String
                     {
                         print("TITLE: \(a3)")
-                        if(a3 != "Notification Title")
-                        {
-                            completionHandler([[.alert, .sound]])
-                        }
+                        completionHandler([[.alert, .sound]])
                     }
                 }
             }

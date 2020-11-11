@@ -88,14 +88,6 @@ class MainViewController: UIViewController
             onlyOnce = false
         }
         
-        let content = UNMutableNotificationContent()
-        content.title = "Notification Title"
-        content.body = "message"
-        content.sound = UNNotificationSound.default
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 4, repeats: false)
-        let request = UNNotificationRequest(identifier: "testIdentifier", content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(setEmail(notification:)), name: .signedin, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(loggingOut(notification:)), name: Notification.Name("logOut"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(SHOWLOADCIRCLE(notification:)), name: Notification.Name("LOGGGGIN"), object: nil)
