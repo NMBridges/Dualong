@@ -54,15 +54,23 @@ extension AppleSignInClient: ASAuthorizationControllerDelegate
             let fullName = appleIDCredential.fullName
             let email = appleIDCredential.email
             //print("User id is \(userIdentifier) \n Full Name is \(String(describing: fullName)) \n Email id is \(String(describing: email))")
-
+            print(String(data: appleIDCredential.identityToken!, encoding: .utf8)!)
             if let identityTokenData = appleIDCredential.identityToken,
                 let identityTokenString = String(data: identityTokenData, encoding: .utf8)
             {
                 //print("Identity Token \(userIdentifier)")
                 completionHandler(fullName?.givenName, email, userIdentifier)
+                if(fullName != nil)
+                {
+                    name = fullName!.givenName ?? ""
+                }
             } else
             {
                 completionHandler(fullName?.givenName, email, nil)
+                if(fullName != nil)
+                {
+                    name = fullName!.givenName ?? ""
+                }
             }
 
             getCredentialState(userID: userIdentifier)

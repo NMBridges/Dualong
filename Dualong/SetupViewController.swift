@@ -250,6 +250,7 @@ class SetupViewController: UIViewController, UITextFieldDelegate {
             gEmail = userEmail!
         }
         forEmail.text = "for email: \(gEmail)"
+        nameKB.text = name
     }
     
     @IBAction func roleTapped(_ sender: UIButton)

@@ -97,6 +97,8 @@ class MainViewController: UIViewController
     {
         appleProvider.handleAppleIdRequest(block: { fullname, email, token in
             
+            var thisKey : String = ""
+            var hasToken : Bool = false
             self.db.child("tokens").observeSingleEvent(of: .value) { over in
                 if let hoo = over.children.allObjects as? [DataSnapshot]
                 {
@@ -108,9 +110,16 @@ class MainViewController: UIViewController
                             let val = child.key
                             userEmail = val
                             rawEmail = val
-                            NotificationCenter.default.post(name: .signedin, object: nil)
-                            tof = false
-                            self.updateToken()
+                            thisKey = val
+                            hasToken = true
+                            self.db.child("users/\(val)").observeSingleEvent(of: .value) { (thisSNAP) in
+                                if(thisSNAP.hasChild("username"))
+                                {
+                                    NotificationCenter.default.post(name: .signedin, object: nil)
+                                    tof = false
+                                    self.updateToken()
+                                }
+                            }
                         }
                     }
                     if(tof)
@@ -125,7 +134,6 @@ class MainViewController: UIViewController
                             userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
                             interests.removeAll()
                             role = ""
-                            name = ""
                             username = ""
                             ownProfPic = UIImage(named: "defaultProfileImageSolid")!
                             stars = 0.0
@@ -140,16 +148,18 @@ class MainViewController: UIViewController
                             currScene = "Setup"
                         } else
                         {
-                            let keyr = self.db.child("users").childByAutoId()
-                            let keystring: String = keyr.key!
-                            self.db.child("tokens/\(keystring)").setValue(token!)
-                            userEmail = keystring
-                            rawEmail = keystring
+                            if(!hasToken)
+                            {
+                                let keyr = self.db.child("users").childByAutoId()
+                                let keystring: String = keyr.key!
+                                self.db.child("tokens/\(keystring)").setValue(token!)
+                                userEmail = keystring
+                                rawEmail = keystring
+                            }
                             
                             userEmail = userEmail?.replacingOccurrences(of: ".", with: ",")
                             interests.removeAll()
                             role = ""
-                            name = ""
                             username = ""
                             ownProfPic = UIImage(named: "defaultProfileImageSolid")!
                             stars = 0.0
