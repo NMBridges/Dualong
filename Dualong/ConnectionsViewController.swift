@@ -11,7 +11,7 @@ import FirebaseDatabase
 import FirebaseStorage
 import FirebaseMessaging
 
-let serverKey = "AAAAwfnCJ3E:APA91bELG5I5YlVw3W22aPb5S1RwLF3ww5ip7i1IBFuPUZVLgaPoKiDVXUQKJcvDqdfr1WvTlAvPDNttGng1mPCjgkgbBpdEsJHLLYGVz3sO8XpvHPSaLP6LenwWyX7Lm1OPnwJmqlMg"
+let serverKey = "redacted"
 let fcmURL = NSURL(string: "https://fcm.googleapis.com/fcm/send")
 
 class ConnectionsViewController: UIViewController, UITextViewDelegate, UIScrollViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate
